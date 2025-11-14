@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<StringDictionary version="1.2">
+  <Strings>
+    <String key="Buttons:MinimizeToolTip">Minimaliseren</String>
+    <String key="Buttons:CloseToolTip">Sluiten</String>
+
+    <!--First Page-->
+    <String key="WindowName">Installatieprogramma van %BrandName% Capture</String>
+    <String key="ApplicationName">Installatieprogramma van %BrandName% Capture</String>
+    <String key="Welcome">Welkom bij</String>
+    <String key="LWS_UnInstall2">%BrandName%-webcam</String>
+    <String key="LWS_UnInstall3">software gedetecteerd</String>
+    <String key="LWS_UnInstall4">Voordat je de nieuwe %BrandName% Capture installeert, moet je de %BrandName% Webcam-software verwijderen.  Dat komt omdat ze componenten delen die onverwacht gedrag kunnen veroorzaken als beide toepassingen zijn geïnstalleerd.</String>
+    <String key="LWS_UnInstall5">%BRANDNAME% WEBCAM-SOFTWARE VERWIJDEREN</String>
+    <String key="LogitechOptions">%BrandName% Capture</String>
+    <String key="Install">%BRANDNAME% CAPTURE INSTALLEREN</String>
+    <String key="Disclaimer:Intro">Door op 'Installeren' te klikken, gaat u akkoord met de voorwaarden van de</String>
+    <String key="Disclaimer:EULA">Gebruiksrechtovereenkomst</String>
+
+    <!--Analytics-->
+    <String key="Analytics:HelpUsTitle">Help ons onze producten te verbeteren</String>
+    <String key="Analytics:HelpUsDescription">Help %BrandName% onze producten en services te verbeteren door automatisch diagnose- en gebruiksgegevens te verzenden.</String>
+    <String key="Analytics:Allow">JA, DEEL ANALYSEGEGEVENS</String>
+    <String key="Analytics:Disallow">NEE, BEDANKT</String>
+    <String key="Analytics:ChangeInsideApp">Dit kun je wijzigen in %BrandName% Capture.</String>
+    <String key="Analytics:LearnMore">Meer informatie over het privacybeleid van %BrandName%</String>
+    <String key="Analytics:PrivacyPolicy"> privacybeleid</String>
+    <String key="Analytics:WelcomeEULA">Gebruiksrechtovereenkomst</String>
+
+    <!--Installing Page-->
+    <String key="Installing">Installeren...</String>
+    <String key="Installing:2">Installatie in voortgang</String>
+    <String key="AppDescription">Met %BrandName% Capture kun je je %BrandName%-webcam personaliseren om er optimaal van te profiteren. Even ogenblik geduld, dit proces kan een paar minuten duren.</String>
+    <String key="AppDescription:2">Even ogenblik geduld, dit proces kan een paar minuten duren.</String>
+
+    <!--Install Completed Page-->
+    <String key="Installed">is geinstalleerd</String>
+    <String key="MoreInformation">Ga naar de ondersteuningspagina voor meer informatie</String>
+    <String key="Continue">DOORGAAN</String>
+    <String key="OpenApp">%BRANDNAME% CAPTURE STARTEN</String>
+
+    <!--Restart Page-->
+    <String key="Reboot1">Start uw computer opnieuw op</String>
+    <String key="Reboot2">Uw computer moet opnieuw worden opgestart om de wijzigingen door te voeren. Als je niet opnieuw opstart, werkt je %BrandName%-webcam mogelijk niet goed.</String>
+    <String key="Reboot3">NU OPNIEUW OPSTARTEN</String>
+    <String key="Reboot4">LATER OPNIEUW OPSTARTEN</String>
+
+      <!--Close Apps Page-->
+    <String key="CloseApps:Title">INSTALLATIE KAN NIET WORDEN VOORTGEZET</String>
+    <String key="CloseApps:Message2">Gebruik van Logi Capture-camera detecteren…</String>
+    <String key="CloseApps:Message">Zo te zien is uw Logi Capture-camera in gebruik. Sluit elke toepassing die mogelijk de webcam gebruikt en probeer het opnieuw.</String>
+
+      <!--Any Page-->
+      <String key="RestartRequired:Title">OPNIEUW OPSTARTEN VEREIST</String>
+      <String key="RestartRequired:Message51">U moet opnieuw opstarten om de installatie van %BrandName% voort te zetten.</String>
+      <String key="Reboot52">OPNIEUW OPSTARTEN</String>
+      <String key="CameraInUse:Title">Camera in gebruik</String>
+      <String key="CameraInUse:Message53">Zo te zien is uw Logi Capture-camera in gebruik. Sluit elke toepassing die de webcam misschien gebruikt en probeer het opnieuw. Of klik op OPNIEUW OPSTARTEN om het systeem opnieuw op te starten en de installatie vervolgens te voltooien.</String>
+      <String key="CameraInUse:Message54">Gebruik van Logi Capture-camera detecteren…</String>
+
+      <!--Error Page-->
+    <String key="Error:InstallationFailed">Installatie van %BrandName% Capture mislukt</String>
+    <String key="Button:Quit">INSTALLATIE AFSLUITEN</String>
+      <String key="Button:Quit2">AFSLUITEN</String>
+      <String key="Button:Retry">OPNIEUW</String>
+      <String key="Button:Continue">Doorgaan</String>
+
+
+    <!--Error + Warning Messages-->
+    <String key="Err:Title">Oeps! Er is een probleem</String>
+    <String key="Err:FailedTitle">Installatie van %BrandName% Capture mislukt</String>
+    <String key="Err:Generic">%BrandName% Capture kan niet worden geïnstalleerd. Ga naar de ondersteuningspagina voor meer informatie.</String>
+    <String key="Err:Failed">Uw pc-hardware voldoet niet aan de minimale grafische hardwarevereisten. Neem contact op met de ondersteuning voor meer informatie.</String>
+    <String key="Err:Win7Res">De software kan niet goed worden geïnstalleerd. Neem contact op met de ondersteuning voor meer informatie.</String>
+    <String key="Err:OSCHECK">Er is een probleem opgetreden tijdens het downloaden van een encoder-DLL.  Ga naar de ondersteuningspagina voor meer informatie</String>
+    <String key="Err:Singleton">Er is een ander exemplaar van het %BrandName% Capture-installatieprogramma actief. Voltooi eerst de andere installatie, voordat u dit installatieprogramma uitvoert.</String>
+    <String key="Err:OS">%BrandName% Capture ondersteunt alleen Windows 10 met 64-bits of hoger. Voer een update van Windows uit om %BrandName% Capture op deze computer te gebruiken.</String>
+    <String key="Err:OSTitle">Incompatibele versie van Windows.</String>
+    <String key="Err:Space">%BrandName% Capture kan niet worden verwijderd. Je hebt onvoldoende vrije ruimte op je systeemschijf.</String>
+    <String key="Err:Version">Er is een nieuwere versie van %BrandName% Capture op dit systeem gevonden. Deze installatie wordt niet voortgezet.</String>
+    <String key="Err:Multiuser">Kan niet doorgaan omdat %BrandName% Capture momenteel actief is onder een andere gebruikersaccount op dit systeem. Probeer het opnieuw nadat %BrandName% Capture in andere gebruikersaccounts is gesloten.</String>
+    <String key="Err:Admin">%BrandName% Capture kan niet worden verwijderd.  Voor installatie van deze software zijn beheerdersrechten vereist.</String>
+    <String key="Button:Okay">OK</String>
+    <String key="Err:NoInternetConnection">Je computer moet met internet verbonden zijn. Controleer uw verbinding en probeer het opnieuw.</String>
+
+    <!--Error + Warning Buttons-->
+    <!-- FileLocked -->
+    <String key="Warn:Title:FileLocked">Opnieuw opstarten vereist om de installatie te voltooien</String>
+    <String key="Warn:Body:FileLocked">Uw computer moet opnieuw worden opgestart om het installatieproces te voltooien. %BrandName% Capture werkt niet en mogelijk werken bepaalde apparaatfuncties niet tot de installatie is voltooid.</String>
+    <String key="Warn:ButtonPrimary:FileLocked">NU OPNIEUW OPSTARTEN</String>
+    <String key="Warn:ButtonSecondary:FileLocked">LATER OPNIEUW OPSTARTEN</String>
+      <!-- RestartRequired -->
+      <String key="Warn:Title:RestartRequired">Opnieuw opstarten vereist</String>
+      <String key="Warn:Body:RestartRequired">U moet opnieuw opstarten om de installatie van %BrandName% voort te zetten.</String>
+      <String key="Warn:ButtonPrimary:RestartRequired">AFSLUITEN</String>
+      <String key="Warn:ButtonSecondary:RestartRequired">OPNIEUW OPSTARTEN</String>
+  </Strings>
+</StringDictionary>

@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<StringDictionary version="1.2">
+  <Strings>
+    <String key="Buttons:MinimizeToolTip">최소화</String>
+    <String key="Buttons:CloseToolTip">닫기</String>
+
+    <!--First Page-->
+    <String key="WindowName">%BrandName% Capture 설치 관리자</String>
+    <String key="ApplicationName">%BrandName% Capture 설치 관리자</String>
+    <String key="Welcome">환영합니다.</String>
+    <String key="LWS_UnInstall2">%BrandName% 웹캠</String>
+    <String key="LWS_UnInstall3">소프트웨어 발견</String>
+    <String key="LWS_UnInstall4">새 %BrandName% Capture를 설치하기 전에 %BrandName% Webcam Software를 제거해야 합니다.  이는 두 응용프로그램이 모두 설치된 경우 예기치 않은 동작을 초래할 수 있는 구성 요소를 공유하기 때문입니다.</String>
+    <String key="LWS_UnInstall5">%BRANDNAME% Webcam Software 제거</String>
+    <String key="LogitechOptions">%BrandName% Capture</String>
+    <String key="Install">%BRANDNAME% CAPTURE 설치</String>
+    <String key="Disclaimer:Intro">설치를 클릭하면 다음 조항에 동의하는 것입니다.</String>
+    <String key="Disclaimer:EULA">최종 사용자 라이센스 계약</String>
+
+    <!--Analytics-->
+    <String key="Analytics:HelpUsTitle">제품 개선 지원</String>
+    <String key="Analytics:HelpUsDescription">진단과 사용 데이터를 자동으로 전송하여 %BrandName% 제품과 서비스를 개선할 수 있도록 도와주십시오.</String>
+    <String key="Analytics:Allow">네, 분석 데이터를 공유합니다.</String>
+    <String key="Analytics:Disallow">안 함</String>
+    <String key="Analytics:ChangeInsideApp">%BrandName% Capture에서 변경할 수 있습니다.</String>
+    <String key="Analytics:LearnMore">%BrandName%에 대해 자세히 알아보기</String>
+    <String key="Analytics:PrivacyPolicy"> 개인정보보호 정책</String>
+    <String key="Analytics:WelcomeEULA">최종 사용자 라이센스 계약</String>
+
+    <!--Installing Page-->
+    <String key="Installing">설치 중</String>
+    <String key="Installing:2">설치 진행 중</String>
+    <String key="AppDescription">%BrandName% Capture를 사용하면 %BrandName% 웹캠을 커스터마이징하여 최대한 효과적으로 활용할 수 있습니다. 기다려 주십시오. 이 프로세스는 몇 분 정도 걸릴 수 있습니다.</String>
+    <String key="AppDescription:2">기다려 주십시오. 이 프로세스는 몇 분 정도 걸릴 수 있습니다.</String>
+
+    <!--Install Completed Page-->
+    <String key="Installed">설치됨</String>
+    <String key="MoreInformation">자세한 정보는 지원 페이지를 방문하십시오.</String>
+    <String key="Continue">계속</String>
+    <String key="OpenApp">%BRANDNAME% CAPTURE 실행</String>
+
+    <!--Restart Page-->
+    <String key="Reboot1">컴퓨터를 다시 시작하십시오.</String>
+    <String key="Reboot2">변경 내용을 적용하려면 컴퓨터를 다시 시작해야 합니다. 다시 시작하지 않으면 %BrandName% 웹캠이 올바르게 작동하지 않을 수 있습니다.</String>
+    <String key="Reboot3">지금 다시 시작</String>
+    <String key="Reboot4">나중에 다시 시작</String>
+
+      <!--Close Apps Page-->
+    <String key="CloseApps:Title">설치를 계속할 수 없습니다.</String>
+    <String key="CloseApps:Message2">Logi Capture 카메라 사용 검색 중...</String>
+    <String key="CloseApps:Message">Logi Capture 카메라가 사용 중인 것 같습니다. 카메라를 사용할 수 있는 모든 응용프로그램을 닫고 다시 시도하십시오.</String>
+
+      <!--Any Page-->
+      <String key="RestartRequired:Title">다시 시작 필요</String>
+      <String key="RestartRequired:Message51">%BrandName% Capture 설치를 계속하려면 다시 시작해야 합니다.</String>
+      <String key="Reboot52">다시 시작</String>
+      <String key="CameraInUse:Title">카메라 사용 중</String>
+      <String key="CameraInUse:Message53">Logi Capture 카메라가 사용 중인 것 같습니다. 카메라를 사용할 수 있는 모든 응용 프로그램을 닫은 후 다시 시도하거나, 다시 시작을 클릭해 시스템을 다시 시작한 후 설치를 완료하십시오.</String>
+      <String key="CameraInUse:Message54">Logi Capture 카메라 사용 검색 중...</String>
+
+      <!--Error Page-->
+    <String key="Error:InstallationFailed">%BrandName% Capture 설치 실패</String>
+    <String key="Button:Quit">설치 종료</String>
+      <String key="Button:Quit2">종료</String>
+      <String key="Button:Retry">다시 시도</String>
+      <String key="Button:Continue">계속</String>
+
+
+    <!--Error + Warning Messages-->
+    <String key="Err:Title">죄송합니다! 문제가 있습니다.</String>
+    <String key="Err:FailedTitle">%BrandName% Capture 설치 실패</String>
+    <String key="Err:Generic">%BrandName% Capture를 설치할 수 없습니다. 자세한 정보는 지원 페이지를 방문하십시오.</String>
+    <String key="Err:Failed">PC 하드웨어가 최소 그래픽 하드웨어 요구 사항을 충족하지 않습니다. 자세한 내용은 지원 센터로 문의하십시오.</String>
+    <String key="Err:Win7Res">소프트웨어를 제대로 설치할 수 없습니다. 자세한 내용으 지원부에 문의하십시오.</String>
+    <String key="Err:OSCHECK">인코더 dll을 다운로드하는 중 문제가 발생했습니다.  자세한 내용은 지원 페이지를 방문하십시오.</String>
+    <String key="Err:Singleton">또 다른 %BrandName% Capture 설치 관리자 인스턴스가 실행 중입니다. 이 설치 관리자를 실행하기 전에 다른 설치를 완료하십시오.</String>
+    <String key="Err:OS">%BrandName% Capture는 Windows 10 64비트 이상만 지원합니다. 이 컴퓨터에서 %BrandName% Capture를 사용하려면 Windows를 업데이트하십시오.</String>
+    <String key="Err:OSTitle">호환되지 않는 Windows 버전입니다.</String>
+    <String key="Err:Space">%BrandName% Capture를 설치할 수 없습니다. 시스템 디스크에 공간이 충분하지 않습니다.</String>
+    <String key="Err:Version">이 시스템에서 %BrandName% Capture의 최신 버전이 발견되었습니다. 이 설치는 진행되지 않습니다.</String>
+    <String key="Err:Multiuser">%BrandName% Capture가 현재 이 시스템의 다른 사용자 계정에서 실행 중이므로 계속할 수 없습니다. 다른 사용자 계정에서 %BrandName% Capture를 닫은 후에 다시 시도하십시오.</String>
+    <String key="Err:Admin">%BrandName% Capture를 설치할 수 없습니다.  이 소프트웨어를 설치하려면 관리자 권한이 필요합니다.</String>
+    <String key="Button:Okay">확인</String>
+    <String key="Err:NoInternetConnection">컴퓨터를 인터넷에 연결해야 합니다. 연결을 확인하고 다시 시도하십시오.</String>
+
+    <!--Error + Warning Buttons-->
+    <!-- FileLocked -->
+    <String key="Warn:Title:FileLocked">설치를 완료하려면 다시 시작해야 합니다.</String>
+    <String key="Warn:Body:FileLocked">설치 프로세스를 완료하려면 컴퓨터를 다시 시작해야 합니다. 설치가 완료될 때까지 %BrandName% Capture가 동작하지 않으며 장치 기능이 동작하지 않을 수 있습니다.</String>
+    <String key="Warn:ButtonPrimary:FileLocked">지금 다시 시작</String>
+    <String key="Warn:ButtonSecondary:FileLocked">나중에 다시 시작</String>
+      <!-- RestartRequired -->
+      <String key="Warn:Title:RestartRequired">다시 시작 필요</String>
+      <String key="Warn:Body:RestartRequired">%BrandName% Capture 설치를 계속하려면 다시 시작해야 합니다.</String>
+      <String key="Warn:ButtonPrimary:RestartRequired">종료</String>
+      <String key="Warn:ButtonSecondary:RestartRequired">다시 시작</String>
+  </Strings>
+</StringDictionary>

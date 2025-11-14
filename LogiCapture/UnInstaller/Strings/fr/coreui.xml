@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<StringDictionary version="1.2">
+  <Strings>
+    <String key="Buttons:MinimizeToolTip">Réduire</String>
+    <String key="Buttons:CloseToolTip">Fermer</String>
+
+    <!--First Page-->
+    <String key="WindowName">Programme de désinstallation de %BrandName% Capture</String>
+    <String key="UnInstall11">%BrandName% Capture</String>
+    <String key="ApplicationName">Programme de désinstallation de %BrandName% Capture</String>
+    <String key="Welcome">%BRANDNAME% Capture</String>
+    <String key="LogitechOptions">%BrandName% Capture</String>
+    <String key="Install">Désinstaller %BRANDNAME% Capture</String>
+    <String key="Disclaimer:Intro">En cliquant sur Installer, vous acceptez les conditions du</String>
+    <String key="Disclaimer:EULA">Contrat de licence utilisateur final</String>
+
+    <!--Analytics-->
+    <String key="Analytics:HelpUsTitle">AIDEZ-NOUS À AMÉLIORER NOS PRODUITS</String>
+    <String key="Analytics:HelpUsDescription">Aidez %BrandName% à améliorer ses produits et services en envoyant automatiquement des diagnostics et des données d'utilisation.</String>
+    <String key="Analytics:Allow">DÉSINSTALLER</String>
+    <String key="Analytics:Disallow">QUITTER</String>
+    <String key="Analytics:ChangeInsideApp">Vous pouvez modifier ce paramètre avec le bouton Plus de %BrandName% Capture.</String>
+    <String key="Analytics:LearnMore">En savoir plus sur la politique de confidentialité</String>
+    <String key="Analytics:PrivacyPolicy"> de %BrandName%</String>
+    <String key="Analytics:WelcomeEULA"> Contrat de licence utilisateur final</String>
+      <String key="Analytics:UnInstall2">%BrandName% Capture va être supprimé de votre système. Tous les paramètres que vous avez personnalisés vont retrouver leurs valeurs par défaut.</String>
+      <String key="Analytics:UnInstall3">DÉSINSTALLER</String>
+      <String key="Analytics:UnInstall4">QUITTER</String>
+
+    <!--CloseApps Page-->
+    <String key="CloseApps:Title">La désinstallation ne peut pas continuer</String>
+    <String key="CloseApps:Message">Votre caméra Logi Capture semble être en cours d'utilisation. Veuillez fermer toute application susceptible de l'utiliser, puis réessayez.</String>
+    <String key="CloseApps:Message2">Détection de l'utilisation de la caméra Logi Capture…</String>
+    <String key="Button:Retry">RÉESSAYER</String>
+
+    <!--Installing Page-->
+    <String key="Installing">Désinstallation en cours</String>
+    <String key="Installing:2">INSTALLATION EN COURS</String>
+    <String key="AppDescription">%BrandName% Capture vous permet de personnaliser et de profiter de vos dispositifs %BrandName%.</String>
+    <String key="AppDescription:2">Veuillez patienter, ce processus peut prendre quelques minutes.</String>
+      <String key="UnInstalling3">Désinstallation en cours</String>
+
+    <!--Install Completed Page-->
+    <String key="Installed">EST INSTALLÉ</String>
+    <String key="MoreInformation">Pour plus d'informations, rendez-vous à la page:</String>
+    <String key="Continue">CONTINUER</String>
+    <String key="OpenApp">OUVRIR %BRANDNAME% CAPTURE</String>
+      <String key="UnInstallComplete">Désinstallation terminée</String>
+      <String key="UnInstallComplete2">%BrandName% Capture a été supprimé de votre système.</String>
+      <String key="UnInstallComplete3">FERMER</String>
+      <String key="UnInstallLockedFiles">Nous vous recommandons de redémarrer le système pour terminer la désinstallation.</String>
+      <String key="Reboot">REDÉMARRER</String>
+
+
+      <!--Error Page-->
+    <String key="Error:InstallationFailed">ÉCHEC DE L'INSTALLATION /n DE %BRANDNAME% CAPTURE</String>
+    <String key="Button:Quit">QUITTER L'INSTALLATION</String>
+    <String key="Button:Continue">Continuer</String>
+
+
+    <!--Error + Warning Messages-->
+    <String key="Err:Title">ATTENTION! NOUS AVONS RENCONTRÉ UN PROBLÈME</String>
+    <String key="Err:FailedTitle">ÉCHEC DE L'INSTALLATION /n DE %BRANDNAME% CAPTURE</String>
+    <String key="Err:Failed">Échec de l'installation de %BrandName% Capture. Pour plus d'informations, rendez-vous sur la page du support.</String>
+    <String key="Err:OSCHECK">Cette version du système d'exploitation n'est pas prise en charge\n Pour plus d'informations, rendez-vous sur la page du support.</String>
+    <String key="Err:Singleton">Une autre instance du programme d'installation de %BrandName% Capture est en cours d'exécution. Terminez l'autre installation avant d'exécuter ce programme d'installation.</String>
+    <String key="Err:OS">Impossible d'installer %BrandName% Capture. Un système d'exploitation Windows 7 ou supérieur est requis pour cette installation.</String>
+    <String key="Err:Space">Impossible d'installer %BrandName% Capture. Vous ne disposez pas d'un espace libre suffisant sur votre disque système.</String>
+    <String key="Err:Version">Une nouvelle version de %BrandName% Capture a été détectée sur ce système. Cette installation va être interrompue.</String>
+    <String key="Err:Multiuser">Impossible de continuer car %BrandName% Capture est actuellement en cours d'exécution sur un autre compte utilisateur de ce système. Veuillez fermer %BrandName% Capture dans les autres comptes utilisateurs, puis réessayez.</String>
+    <String key="Err:Admin">Impossible d'installer %BrandName% Capture.  Les privilèges d'administration sont requis pour installer ce logiciel.</String>
+    <String key="Button:Okay">OK</String>
+
+    <!--Error + Warning Buttons-->
+    <!-- FileLocked -->
+    <String key="Warn:Title:FileLocked">REDÉMARRAGE REQUIS POUR TERMINER L'INSTALLATION</String>
+    <String key="Warn:Body:FileLocked">Vous devez redémarrer votre ordinateur pour terminer l'installation. %BrandName% Capture ne fonctionnera pas et vous pouvez perdre les fonctionnalités de votre dispositif tant que l'installation ne sera pas terminée.</String>
+    <String key="Warn:ButtonPrimary:FileLocked">REDÉMARRER MAINTENANT</String>
+    <String key="Warn:ButtonSecondary:FileLocked">REDÉMARRER ULTÉRIEUREMENT</String>
+  </Strings>
+</StringDictionary>

@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<StringDictionary version="1.2">
+  <Strings>
+    <String key="Buttons:MinimizeToolTip">最小化</String>
+    <String key="Buttons:CloseToolTip">關閉</String>
+
+    <!--First Page-->
+    <String key="WindowName">%BrandName% Capture 安裝程式</String>
+    <String key="UnInstall11">%BrandName% Capture</String>
+    <String key="ApplicationName">%BrandName% Capture 安裝程式</String>
+    <String key="Welcome">%BRANDNAME% Capture</String>
+    <String key="LogitechOptions">%BrandName% Capture</String>
+    <String key="Install">解除安裝 %BRANDNAME% CAPTURE</String>
+    <String key="Disclaimer:Intro">按下安裝，即表示您同意下列條款規定：</String>
+    <String key="Disclaimer:EULA">使用者授權協議</String>
+
+    <!--Analytics-->
+    <String key="Analytics:HelpUsTitle">協助我們改善我們的產品</String>
+    <String key="Analytics:HelpUsDescription">透過自動傳送診斷與使用資料，協助 %BrandName% 改善其產品與服務。</String>
+    <String key="Analytics:Allow">解除安裝</String>
+    <String key="Analytics:Disallow">離開</String>
+    <String key="Analytics:ChangeInsideApp">這可透過 %BrandName% Capture 中的「更多」按鈕來變更</String>
+    <String key="Analytics:LearnMore">深入瞭解 %BrandName% 的</String>
+    <String key="Analytics:PrivacyPolicy"> 隱私政策</String>
+    <String key="Analytics:WelcomeEULA"> 一般使用者授權協議</String>
+      <String key="Analytics:UnInstall2">%BrandName% Capture 會從您系統中移除。 所有您自訂的設定將會恢復預設值。</String>
+      <String key="Analytics:UnInstall3">解除安裝</String>
+      <String key="Analytics:UnInstall4">離開</String>
+
+    <!--CloseApps Page-->
+    <String key="CloseApps:Title">無法繼續解除安裝</String>
+    <String key="CloseApps:Message">您的 Logi Capture 攝影機似乎正在使用中，請關閉任何可能使用攝影機的應用程式，然後再試一次。</String>
+    <String key="CloseApps:Message2">正在偵測 Logi Capture 攝影機的使用…</String>
+    <String key="Button:Retry">重試</String>
+
+    <!--Installing Page-->
+    <String key="Installing">正在解除安裝</String>
+    <String key="Installing:2">安裝進行中</String>
+    <String key="AppDescription">%BrandName% Capture 讓您可自訂與享用您的 %BrandName% 裝置。</String>
+    <String key="AppDescription:2">請稍待，此程序會花幾分鐘時間。</String>
+      <String key="UnInstalling3">解除安裝進行中</String>
+
+    <!--Install Completed Page-->
+    <String key="Installed">已安裝</String>
+    <String key="MoreInformation">如需詳細資訊，請造訪</String>
+    <String key="Continue">繼續</String>
+    <String key="OpenApp">啟動 %BRANDNAME% CAPTURE</String>
+      <String key="UnInstallComplete">解除安裝完成</String>
+      <String key="UnInstallComplete2">%BrandName% Capture 已從您系統移除。</String>
+      <String key="UnInstallComplete3">關閉</String>
+      <String key="UnInstallLockedFiles">建議重新啟動系統以完成解除安裝程序。</String>
+      <String key="Reboot">重新啟動</String>
+
+
+      <!--Error Page-->
+    <String key="Error:InstallationFailed">%BRANDNAME% CAPTURE /n 安裝失敗</String>
+    <String key="Button:Quit">結束安裝</String>
+    <String key="Button:Continue">繼續</String>
+
+
+    <!--Error + Warning Messages-->
+    <String key="Err:Title">糟糕！ 我們遭遇了問題</String>
+    <String key="Err:FailedTitle">%BRANDNAME% CAPTURE /n 安裝失敗</String>
+    <String key="Err:Failed">無法安裝 %BrandName% Capture。 如需詳細資訊，請造訪支援頁面</String>
+    <String key="Err:OSCHECK">不支援這個作業系統版本\n 如須詳細資訊，請造訪支援頁面。</String>
+    <String key="Err:Singleton">另一個 %BrandName% Capture 安裝程式執行個體正在執行中。 請在執行此安裝程式之前，完成其他安裝。</String>
+    <String key="Err:OS">無法安裝 %BrandName% Capture。. 此安裝程序需要 Windows 7 或更高版本。</String>
+    <String key="Err:Space">無法安裝 %BrandName% Capture。. 您在系統磁碟上沒有足夠的可用空間。</String>
+    <String key="Err:Version">在此系統上偵測到有更新版本的 %BrandName% Capture。 此安裝程序將不會繼續進行。</String>
+    <String key="Err:Multiuser">無法繼續，因為此系統上其他使用者帳號有正在執行中的 %BrandName% Capture。 請在其他使用者帳號的 %BrandName% Capture 關閉後再試一次。</String>
+    <String key="Err:Admin">無法安裝 %BrandName% Capture。.  安裝此軟體需要擁有管理員權限。</String>
+    <String key="Button:Okay">確定</String>
+
+    <!--Error + Warning Buttons-->
+    <!-- FileLocked -->
+    <String key="Warn:Title:FileLocked">必須重新啟動才能完成安裝程序</String>
+    <String key="Warn:Body:FileLocked">您的電腦必須重新啟動才能完成安裝程序。 在安裝完成前無法使用 %BrandName% Capture，且可能會無法使用裝置功能。</String>
+    <String key="Warn:ButtonPrimary:FileLocked">立即重新啟動</String>
+    <String key="Warn:ButtonSecondary:FileLocked">稍後重新啟動</String>
+  </Strings>
+</StringDictionary>

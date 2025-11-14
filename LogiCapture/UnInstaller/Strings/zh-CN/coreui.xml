@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<StringDictionary version="1.2">
+  <Strings>
+    <String key="Buttons:MinimizeToolTip">最小化</String>
+    <String key="Buttons:CloseToolTip">关闭</String>
+
+    <!--First Page-->
+    <String key="WindowName">%BrandName% Capture 卸载程序</String>
+    <String key="UnInstall11">%BrandName% Capture</String>
+    <String key="ApplicationName">%BrandName% Capture 卸载程序</String>
+    <String key="Welcome">%BRANDNAME% Capture</String>
+    <String key="LogitechOptions">%BrandName% Capture</String>
+    <String key="Install">卸载 %BRANDNAME% CAPTURE</String>
+    <String key="Disclaimer:Intro">单击安装，即表示您已同意</String>
+    <String key="Disclaimer:EULA">最终用户许可协议</String>
+
+    <!--Analytics-->
+    <String key="Analytics:HelpUsTitle">帮助我们改善产品</String>
+    <String key="Analytics:HelpUsDescription">通过自动发送诊断与使用数据，帮助 %BrandName% 改善其产品与服务。</String>
+    <String key="Analytics:Allow">卸载</String>
+    <String key="Analytics:Disallow">退出</String>
+    <String key="Analytics:ChangeInsideApp">可点击 %BrandName% Capture 中的“更多”按钮更改设置。</String>
+    <String key="Analytics:LearnMore">了解 %BrandName% 隐私政策的</String>
+    <String key="Analytics:PrivacyPolicy"> 相关信息</String>
+    <String key="Analytics:WelcomeEULA"> 最终用户许可协议</String>
+      <String key="Analytics:UnInstall2">%BrandName% Capture 将从系统中移除。 您自定义的任何设置都将恢复默认值。</String>
+      <String key="Analytics:UnInstall3">卸载</String>
+      <String key="Analytics:UnInstall4">退出</String>
+
+    <!--CloseApps Page-->
+    <String key="CloseApps:Title">卸载无法继续</String>
+    <String key="CloseApps:Message">您的 Logi Capture 摄像头正在使用中，请关闭可能正在使用该摄像头的任何应用程序并重试。</String>
+    <String key="CloseApps:Message2">检测到 Logi Capture 摄像头正在使用中…</String>
+    <String key="Button:Retry">重试</String>
+
+    <!--Installing Page-->
+    <String key="Installing">正在卸载</String>
+    <String key="Installing:2">正在安装中</String>
+    <String key="AppDescription">%BrandName% Capture 让您可以自定义并充分发挥您的 %BrandName% 设备性能。</String>
+    <String key="AppDescription:2">请稍等，此过程可能需要几分钟时间。</String>
+      <String key="UnInstalling3">正在卸载</String>
+
+    <!--Install Completed Page-->
+    <String key="Installed">已安装</String>
+    <String key="MoreInformation">更多信息，请访问</String>
+    <String key="Continue">继续</String>
+    <String key="OpenApp">启用 %BRANDNAME% CAPTURE</String>
+      <String key="UnInstallComplete">卸载完成</String>
+      <String key="UnInstallComplete2">%BrandName% Capture 已从您的系统中移除。</String>
+      <String key="UnInstallComplete3">关闭</String>
+      <String key="UnInstallLockedFiles">建议重新启动系统以完成卸载。</String>
+      <String key="Reboot">重新启动</String>
+
+
+      <!--Error Page-->
+    <String key="Error:InstallationFailed">%BRANDNAME% CAPTURE /n 安装失败</String>
+    <String key="Button:Quit">退出安装</String>
+    <String key="Button:Continue">继续</String>
+
+
+    <!--Error + Warning Messages-->
+    <String key="Err:Title">糟糕！ 出现了问题</String>
+    <String key="Err:FailedTitle">%BRANDNAME% CAPTURE /n 安装失败</String>
+    <String key="Err:Failed">无法安装 %BrandName% Capture。 更多信息，请访问支持页面。</String>
+    <String key="Err:OSCHECK">不支持此操作系统版本\n 了解更多信息，请访问支持页面。</String>
+    <String key="Err:Singleton">%BrandName% Capture 安装程序的另一实例正在运行中。 运行该安装程序之前，请完成另一个安装程序。</String>
+    <String key="Err:OS">无法安装 %BrandName% Capture。 该安装要求 Windows 7 或更高版本。</String>
+    <String key="Err:Space">无法安装 %BrandName% Capture。 系统磁盘可用空间不足。</String>
+    <String key="Err:Version">在此系统中检测到 %BrandName% Capture 的更新版本。 安装无法继续。</String>
+    <String key="Err:Multiuser">由于此系统中的另一用户账户中正在运行 %BrandName% Capture，因此无法继续操作。 请在关闭其他用户帐户中的 %BrandName% Capture 后重试。</String>
+    <String key="Err:Admin">无法安装 %BrandName% Capture。  安装此软件需要管理权限。</String>
+    <String key="Button:Okay">确定</String>
+
+    <!--Error + Warning Buttons-->
+    <!-- FileLocked -->
+    <String key="Warn:Title:FileLocked">需要重启以完成安装</String>
+    <String key="Warn:Body:FileLocked">您的电脑需要重启以完成安装过程。 安装完成前，%BrandName% Capture 无法运行，且设备也可能无法工作。</String>
+    <String key="Warn:ButtonPrimary:FileLocked">立即重启</String>
+    <String key="Warn:ButtonSecondary:FileLocked">稍后重启</String>
+  </Strings>
+</StringDictionary>

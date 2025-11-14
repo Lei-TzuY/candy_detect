@@ -1,0 +1,636 @@
+<html>
+  <head>
+    <title>Overlay</title>
+    <link rel="stylesheet" href="brownpro.css" />
+    <style type="text/css">
+      :root {
+        --top-shadow: inset 0px 3px 5px -3px rgba(0, 0, 0, 0.5);
+        --left-shadow: inset 3px 0px 5px -3px rgba(0, 0, 0, 0.5);
+        --bottom-shadow: inset 0px -5px 3px -3px rgba(0, 0, 0, 0.5);
+        --right-shadow: inset -3px 0px 5px -3px rgba(0, 0, 0, 0.5);
+      }
+
+      /*--top-left: var(--bottom-shadow), var(--right-shadow);*/
+
+      body {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        height: 100%;
+        text-align: center;
+        color: white;
+        font-size: 144px;
+        font-family: "BrownPro";
+        overflow: hidden;
+        margin: 0;
+      }
+
+      body.error {
+        align-items: flex-end;
+        background-color: rgba(0, 0, 0, 0);
+      }
+
+      .active {
+        background-color: rgba(0, 0, 0, 0.7);
+      }
+
+      #shutter {
+        opacity: 0;
+        transition: all 30ms ease-in; /* Shutter speed */
+        position: fixed;
+        height: 0%;
+        width: 0%;
+        pointer-events: none;
+        background-color: white; /* Shutter Color */
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        -webkit-transform: translate(-50%, -50%);
+      }
+
+      #grid {
+        width: 100%;
+        height: 100%;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        display: flex;
+        opacity: 0.4;
+        display: none;
+        position: absolute;
+      }
+
+      #grid div {
+        width: calc(100% / 3);
+        height: calc(100% / 3);
+        border: 2px solid rgba(255, 255, 255, 0.75);
+        box-sizing: border-box;
+      }
+
+      /* left side */
+      #grid div:nth-child(3n + 1) {
+        border-left: none;
+      }
+
+      /* right side */
+      #grid div:nth-child(3n) {
+        border-right: none;
+      }
+
+      /* top */
+      #grid div:nth-child(-n + 3) {
+        border-top: none;
+      }
+
+      /* bottom */
+      #grid div:nth-last-child(-n + 3) {
+        border-bottom: none;
+      }
+
+      #grid div:nth-child(1) {
+        /*box-shadow: var(--top-shadow);*/
+        box-shadow: var(--bottom-shadow), var(--right-shadow);
+      }
+
+      #grid div:nth-child(2) {
+        /*box-shadow: var(--top-left);*/
+        box-shadow: var(--bottom-shadow), var(--right-shadow),
+          var(--left-shadow);
+      }
+
+      #grid div:nth-child(3) {
+        /*box-shadow: var(--top-left);*/
+        box-shadow: var(--bottom-shadow), var(--left-shadow);
+      }
+
+      #grid div:nth-child(4) {
+        /*box-shadow: var(--top-left);*/
+        box-shadow: var(--top-shadow), var(--bottom-shadow), var(--right-shadow);
+      }
+
+      #grid div:nth-child(5) {
+        /*box-shadow: var(--top-left);*/
+        box-shadow: var(--top-shadow), var(--bottom-shadow), var(--left-shadow),
+          var(--right-shadow);
+      }
+
+      #grid div:nth-child(6) {
+        /*box-shadow: var(--top-left);*/
+        box-shadow: var(--top-shadow), var(--bottom-shadow), var(--left-shadow);
+      }
+
+      #grid div:nth-child(7) {
+        /*box-shadow: var(--top-shadow);*/
+        box-shadow: var(--top-shadow), var(--right-shadow);
+      }
+
+      #grid div:nth-child(8) {
+        /*box-shadow: var(--top-left);*/
+        box-shadow: var(--top-shadow), var(--right-shadow), var(--left-shadow);
+      }
+
+      #grid div:nth-child(9) {
+        /*box-shadow: var(--top-left);*/
+        box-shadow: var(--top-shadow), var(--left-shadow);
+      }
+
+      #recTimer {
+        position: absolute;
+        color: #fff;
+        padding: 6px 10px;
+        visibility: hidden;
+        font-size: 14px;
+        font-weight: bold;
+        letter-spacing: 0.09px;
+        line-height: 19px;
+        text-align: center;
+        border-radius: 15px;
+        background-color: #ff2947;
+        top: 30px;
+        right: 30px;
+        box-sizing: border-box;
+        width: 80px;
+        height: 30px;
+      }
+
+      #rectimer.expand {
+        width: 90px;
+      }
+
+      #shutter.on {
+        opacity: 1; /* Shutter Transparency */
+        height: 100%;
+        width: 100%;
+      }
+
+      body.error #content {
+        width: 100%;
+        background-color: #fbfbfb;
+        width: 100%;
+        height: 100%;
+        opacity: 0.9;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        font-size: 22px;
+      }
+
+      body.error #content span {
+        font-size: 2vw;
+        color: #222425;
+        font-weight: 300;
+        letter-spacing: 0.19px;
+        font-family: "BrownPro";
+      }
+
+      body.error #content > div {
+        margin-top: 30px;
+      }
+
+      body.error #content div {
+        font-size: 7vw;
+        color: #222425;
+        font-family: "BrownPro-Bold";
+        font-weight: bold;
+      }
+
+      body.error #content span .img {
+        background-image: url('video-active.png');
+        height: 25px;
+        width: 25px;
+        vertical-align: middle;
+        display: inline-block;
+        background-position: center;
+        background-size: 100%;
+        background-repeat: no-repeat;
+      }
+
+      body.dark.error #content {
+        background-color: #262829;
+      }
+
+      body.dark.error #content span {
+        color: #c3c6c8;
+      }
+
+      body.dark.error #content div {
+        color: #c3c6c8;
+      }
+
+      body.dark.error #content span .img {
+        background-image: url('video.png');
+      }
+
+      #content span {
+        font-size: 20px;
+        padding: 30px 10px;
+        text-align: center;
+        display: inline-block;
+      }
+
+      #content span .img {
+        height: 30px;
+        width: 30px;
+        vertical-align: middle;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="shutter"></div>
+    <div id="content"></div>
+    <div id="grid">
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+    </div>
+    <div id="recTimer"></div>
+    <audio src="camera_shutter_click.ogg"></audio>
+    <script type="text/javascript">
+      const shutter = document.getElementById('shutter');
+      const grid = document.getElementById('grid');
+      const content = document.getElementById('content');
+      const recTimer = document.getElementById('recTimer');
+      const audio = document.querySelector('audio');
+      const body = document.querySelector('body');
+
+      const recordingTimerInterval = 20;
+
+      let gridDisabled = false;
+      let warningDisabled = false;
+      let totalTime = 0;
+      let recordStart, recordTimeout, warningTimeout;
+      const callbacks = [];
+
+      const toggleTheme = () => {
+        if (localStorage.theme && localStorage.theme === 'dark') {
+          body.classList.add('dark');
+        } else {
+          body.classList.remove('dark');
+        }
+      };
+
+      const toggleGrid = () => {
+        if (gridDisabled) {
+          return;
+        }
+        const gridEnabled = localStorage.grid;
+        if (gridEnabled && gridEnabled === 'true') {
+          grid.style.display = 'flex';
+        } else {
+          grid.style.display = 'none';
+        }
+      };
+
+      const removeCountdown = () => {
+        warningDisabled = false;
+        document.body.classList.remove('active');
+        window.external.CallHostFunc('Call', 'overlay');
+        localStorage.removeItem('screenshot');
+        localStorage.removeItem('record');
+        localStorage.removeItem('warning');
+        gridDisabled = false;
+        toggleGrid();
+      };
+
+      const playShutter = () => {
+        shutter.classList.add('on');
+        audio.play();
+        setTimeout(() => {
+          shutter.classList.remove('on');
+          setTimeout(removeCountdown, 100);
+        }, 105);
+      };
+
+      const start = (t = 3) => {
+        if (t === 0) {
+          content.textContent = '';
+          if (localStorage.screenshot) {
+            playShutter();
+          } else {
+            removeCountdown();
+          }
+          return;
+        } else if (t === 3) {
+          document.body.classList.add('active');
+        }
+        content.textContent = String(t);
+        setTimeout(start, 1000, t - 1);
+      };
+
+      const screenShot = () => {
+        const screenshotString = localStorage.screenshot;
+        if (screenshotString && screenshotString === 'true') {
+          removeWarning(false);
+          // remove grid
+          gridDisabled = true;
+          grid.style.display = 'none';
+          // countdown then flash
+          warningDisabled = true;
+          start();
+        } else if (screenshotString === 'false') {
+          // remove grid
+          gridDisabled = true;
+          grid.style.display = 'none';
+          // flash
+          warningDisabled = true;
+          playShutter();
+        }
+      };
+
+      const record = () => {
+        const recordString = localStorage.record;
+        if (recordString) {
+          removeWarning(false);
+          // remove grid
+          grid.style.display = 'none';
+          // countdown then record
+          warningDisabled = true;
+          start();
+        }
+      };
+
+      const _arrayToObj = (array, separator) => {
+        const obj = {};
+        array.map(function(el) {
+          const _split = el.split(separator);
+          obj[[_split[0]]] = _split[1];
+          return true;
+        });
+        return obj;
+      };
+
+      const getParameters = paramString => {
+        const paramArray = paramString.split('&');
+        return _arrayToObj(paramArray, '=');
+      };
+
+      const replaceVars = (str, vars) => {
+        return Object.keys(vars).reduce(
+          (input, key) => input.replace(`$${key}`, vars[key]),
+          str
+        );
+      };
+
+      const warningkeys = {
+        "battery" : {
+          "title" : "plug_computer",
+          "details" : "plug_computer_details"
+        },
+        "system" : {
+          "title" : "perf_issues",
+          "details" : "perf_issues_details"
+        },
+        "360p" : {
+          "title" : "perf_issues",
+          "details" : "perf_issues_details"
+        },
+        "self" : {
+          "title" : "video_lagging",
+          "details" : "video_lagging_details"
+        },
+      }
+
+      const setPerfWarning = (errorType, resolution, fps) => {
+        const asyncId = external.CallHostFunc('GetCountdownLang');
+        callbacks[asyncId] = result => {
+          document.body.classList.add('active', 'error');
+          const perfWarning = document.createElement('span');
+          const perfWarningTitle = document.createElement('div');
+          const videoURL =
+            localStorage.theme && localStorage.theme === 'dark'
+              ? 'video'
+              : 'video-active';
+          try {
+            // replace variables with arguments
+
+            let resolutionArray = [];
+            if (resolution) {
+              resolutionArray = resolution.split('x');
+            }
+
+            if (
+              ['self', 'system'].includes(errorType) &&
+              resolutionArray.includes('360')
+            ) {
+              errorType = '360p';
+            }
+
+            // const warningTitle = 
+
+            const PERF_WARNING = JSON.parse(result);
+            const titleKey = warningkeys[errorType]["title"];
+            const detailsKey = warningkeys[errorType]["details"];
+            perfWarningTitle.innerHTML = PERF_WARNING[titleKey];
+
+            perfWarning.innerHTML = replaceVars(
+              PERF_WARNING[detailsKey],
+              {
+                resolution,
+                fps,
+                campic: `<div class="img"></div>`,
+                br: '<br \\>',
+              }
+            );
+            content.innerHTML = '';
+            content.appendChild(perfWarningTitle);
+            content.appendChild(perfWarning);
+          } catch (e) {}
+        };
+      };
+
+      const showWarning = () => {
+        if (warningDisabled) {
+          return;
+        }
+
+        const warningString = localStorage.warning;
+        // check first for value, if removed (null), remove warning then return;
+        if (!warningString) {
+          removeWarning(false);
+          return;
+        }
+
+        const warningParams = getParameters(warningString);
+        const { errortype, resolution, fps } = warningParams;
+
+        setPerfWarning(errortype, resolution, fps);
+
+        gridDisabled = true;
+        recTimer.style.visibility = 'hidden';
+        grid.style.display = 'none';
+        warningTimeout = setTimeout(removeWarning, 4000);
+      };
+
+      const removeWarning = (callAwaitOverlay = true) => {
+        content.innerHTML = '';
+        document.body.classList.remove('error');
+        document.body.classList.remove('active');
+        if (callAwaitOverlay) {
+          window.external.CallHostFunc('Call', 'overlay');
+        }
+
+        if (warningTimeout) {
+          clearTimeout(warningTimeout);
+          warningTimeout = null;
+        }
+        const recordState = localStorage.recState;
+        // show recTimer if needed
+        if (recordState && ['start', 'pause', 'resume'].includes(recordState)) {
+          recTimer.style.visibility = 'visible';
+        }
+        localStorage.removeItem('warning');
+        gridDisabled = false;
+        toggleGrid();
+      };
+
+      const setRecordingTime = () => {
+        if (!recordStart) {
+          return;
+        }
+        const timeNow = Math.ceil(new Date().getTime() / 10);
+        let diff = timeNow - recordStart + totalTime;
+
+        const ms = Math.round(diff % 100);
+        diff = Math.floor(diff / 100);
+
+        const seconds = Math.round(diff % 60);
+        diff = Math.floor(diff / 60);
+
+        const minutes = Math.round(diff % 60);
+        diff = Math.floor(diff / 60);
+
+        const msDiff = (ms < 10 ? '0' : '') + ms;
+        const secondsDiff = (seconds < 10 ? '0' : '') + seconds;
+        const minutesDiff = (minutes < 10 ? '0' : '') + minutes;
+
+        if (diff > 0) {
+          recTimer.classList.add('expand');
+        } else {
+          recTimer.classList.remove('expand');
+        }
+
+        const recContent =
+          diff > 0
+            ? `${diff}:${minutesDiff}:${secondsDiff}`
+            : `${minutesDiff}:${secondsDiff}`;
+        recTimer.textContent = recContent;
+        recordTimeout = setTimeout(setRecordingTime, recordingTimerInterval);
+      };
+
+      const clearRecordStats = () => {
+        toggleGrid();
+        if (recordTimeout) {
+          clearTimeout(recordTimeout);
+          recordTimeout = null;
+        }
+        recordStart = null;
+        totalTime = 0;
+        recTimer.style.visibility = 'hidden';
+        recTimer.textContent = '00:00';
+        recTimer.classList.remove('expand');
+        localStorage.removeItem('recState');
+        localStorage.removeItem('warning');
+      };
+
+      const recordTimer = () => {
+        const recordState = localStorage.recState;
+        switch (recordState) {
+          case 'start':
+            recTimer.textContent = '00:00';
+            recTimer.classList.remove('expand');
+            // if warning is not shown
+            if (!warningTimeout) {
+              recTimer.style.visibility = 'visible';
+            }
+            recordStart = Math.ceil(new Date().getTime() / 10);
+            recordTimeout = setTimeout(
+              setRecordingTime,
+              recordingTimerInterval
+            );
+            break;
+
+          case 'pause':
+            if (recordTimeout) {
+              clearTimeout(recordTimeout);
+              recordTimeout = null;
+            }
+            const timeNow = Math.ceil(new Date().getTime() / 10);
+            totalTime = timeNow - recordStart + totalTime;
+            // grid.style.display = 'none';
+            break;
+
+          case 'resume':
+            toggleGrid();
+            recordStart = Math.ceil(new Date().getTime() / 10);
+            recordTimeout = setTimeout(
+              setRecordingTime,
+              recordingTimerInterval
+            );
+            break;
+
+          case 'stop':
+            clearRecordStats();
+            break;
+
+          default:
+            clearRecordStats();
+        }
+      };
+
+      const checkEvent = evt => {
+        switch (evt.key) {
+          case 'grid':
+            toggleGrid();
+            break;
+
+          case 'screenshot':
+            screenShot();
+            break;
+
+          case 'record':
+            record();
+            break;
+
+          case 'recState':
+            recordTimer();
+            break;
+
+          case 'warning':
+            showWarning();
+            break;
+
+          case 'theme':
+            toggleTheme();
+
+          default:
+          // do nothing
+        }
+      };
+
+      window.SetVolume = () => {};
+      window.OnSceneLoad = () => {};
+
+      window.OnAsyncCallback = (asyncId, data) => {
+        if (callbacks[asyncId]) {
+          callbacks[asyncId](data);
+          delete callbacks[asyncId];
+        }
+      };
+      window.OnAsyncCallError = (asyncId, data) => {
+        console.error('Async Call Error', asyncId, data);
+      };
+
+      window.addEventListener('storage', checkEvent);
+      toggleGrid();
+      toggleTheme();
+    </script>
+  </body>
+</html>

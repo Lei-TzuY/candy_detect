@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<StringDictionary version="1.2">
+  <Strings>
+    <String key="Buttons:MinimizeToolTip">Minimera</String>
+    <String key="Buttons:CloseToolTip">Stäng</String>
+
+    <!--First Page-->
+    <String key="WindowName">%BrandName% Capture-avinstallerare</String>
+    <String key="UnInstall11">%BrandName% Capture</String>
+    <String key="ApplicationName">%BrandName% Capture-avinstallerare</String>
+    <String key="Welcome">%BRANDNAME% Capture</String>
+    <String key="LogitechOptions">%BrandName% Capture</String>
+    <String key="Install">Avinstallera %BRANDNAME% Capture</String>
+    <String key="Disclaimer:Intro">Genom att klicka på installera godkänner du villkoren i</String>
+    <String key="Disclaimer:EULA">licensavtalet för slutanvändare</String>
+
+    <!--Analytics-->
+    <String key="Analytics:HelpUsTitle">HJÄLP OSS ATT FÖRBÄTTRA VÅRA PRODUKTER</String>
+    <String key="Analytics:HelpUsDescription">Hjälp %BrandName% att förbättra sina produkter och tjänster genom att automatiskt skicka diagnostik och användardata.</String>
+    <String key="Analytics:Allow">AVINSTALLERA</String>
+    <String key="Analytics:Disallow">STÄNG</String>
+    <String key="Analytics:ChangeInsideApp">Detta kan ändras via knappen Mer i %BrandName% Capture</String>
+    <String key="Analytics:LearnMore">Lär dig mer om %BrandName%'s</String>
+    <String key="Analytics:PrivacyPolicy"> integritetspolicy</String>
+    <String key="Analytics:WelcomeEULA"> licensavtalet för slutanvändare</String>
+      <String key="Analytics:UnInstall2">%BrandName% Capture kommer att tas bort från systemet. Samtliga anpassade inställningar kommer att återställas till standardvärden.</String>
+      <String key="Analytics:UnInstall3">AVINSTALLERA</String>
+      <String key="Analytics:UnInstall4">STÄNG</String>
+
+    <!--CloseApps Page-->
+    <String key="CloseApps:Title">Avinstalleringen kan inte fortsätta</String>
+    <String key="CloseApps:Message">Din Logi Capture-kamera verkar vara i bruk, stäng alla applikationer som kan använda den och försök sedan igen.</String>
+    <String key="CloseApps:Message2">Upptäckt av Logi Capture-kameraanvändning...</String>
+    <String key="Button:Retry">FÖRSÖK IGEN</String>
+
+    <!--Installing Page-->
+    <String key="Installing">Avinstallerar</String>
+    <String key="Installing:2">INSTALLATIONEN PÅGÅR</String>
+    <String key="AppDescription">Med %BrandName% Capture kan du anpassa och få ut så mycket som möjligt av dina enheter från %BrandName%.</String>
+    <String key="AppDescription:2">Vänta lite. Den här processen kan ta några minuter.</String>
+      <String key="UnInstalling3">Avinstallation pågår</String>
+
+    <!--Install Completed Page-->
+    <String key="Installed">HAR INSTALLERATS</String>
+    <String key="MoreInformation">För mer information, gå till</String>
+    <String key="Continue">FORTSÄTT</String>
+    <String key="OpenApp">STARTA %BRANDNAME% CAPTURE</String>
+      <String key="UnInstallComplete">Avinstallation slutförd</String>
+      <String key="UnInstallComplete2">%BrandName% Capture har tagits bort från systemet.</String>
+      <String key="UnInstallComplete3">STÄNG</String>
+      <String key="UnInstallLockedFiles">Vi rekommenderar att du startar om systemet för att slutföra avinstallationen.</String>
+      <String key="Reboot">OMSTART</String>
+
+
+      <!--Error Page-->
+    <String key="Error:InstallationFailed">%BRANDNAME% CAPTURE /n INSTALLATIONEN MISSLYCKADES</String>
+    <String key="Button:Quit">AVSLUTA INSTALLATION</String>
+    <String key="Button:Continue">Fortsätt</String>
+
+
+    <!--Error + Warning Messages-->
+    <String key="Err:Title">HOPPSAN! VI HAR ETT PROBLEM</String>
+    <String key="Err:FailedTitle">%BRANDNAME% CAPTURE /n INSTALLATIONEN MISSLYCKADES</String>
+    <String key="Err:Failed">Det gick inte att installera %BrandName% Capture. Besök supportsidan för mer information.</String>
+    <String key="Err:OSCHECK">Denna version av OS stöds inte\n Besök supportsidan för mer information.</String>
+    <String key="Err:Singleton">En instans av installationsprogrammet för %BrandName% Capture körs redan. Slutför den andra installationen innan du kör installationsprogrammet.</String>
+    <String key="Err:OS">Det gick inte att installera %BrandName% Capture. Windows 7 eller högre krävs för denna installation.</String>
+    <String key="Err:Space">Det gick inte att installera %BrandName% Capture. Du har inte tillräckligt med ledigt utrymme på din hårddisk.</String>
+    <String key="Err:Version">En nyare version av %BrandName% Capture har upptäckts på datorn. Installationen kommer att avslutas.</String>
+    <String key="Err:Multiuser">Det går inte att fortsätta eftersom %BrandName% Capture för närvarande körs i ett annat konto på datorn. Avsluta %BrandName% Capture i det andra kontot och försök igen.</String>
+    <String key="Err:Admin">Det gick inte att installera %BrandName% Capture.  Det krävs administratörsrättigheter för att kunna installera programvaran.</String>
+    <String key="Button:Okay">OK</String>
+
+    <!--Error + Warning Buttons-->
+    <!-- FileLocked -->
+    <String key="Warn:Title:FileLocked">OMSTART KRÄVS FÖR ATT SLUTFÖRA INSTALLATIONEN</String>
+    <String key="Warn:Body:FileLocked">Datorn måste startas om för att installationen ska slutföras. %BrandName% Capture fungerar inte och du kan förlora enhetens funktionalitet tills installationen har slutförts.</String>
+    <String key="Warn:ButtonPrimary:FileLocked">STARTA OM NU</String>
+    <String key="Warn:ButtonSecondary:FileLocked">STARTA OM SENARE</String>
+  </Strings>
+</StringDictionary>

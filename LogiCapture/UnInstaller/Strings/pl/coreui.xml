@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<StringDictionary version="1.2">
+  <Strings>
+    <String key="Buttons:MinimizeToolTip">Minimalizuj</String>
+    <String key="Buttons:CloseToolTip">Zamknij</String>
+
+    <!--First Page-->
+    <String key="WindowName">Dezinstalator oprogramowania %BrandName% Capture</String>
+    <String key="UnInstall11">%BrandName% Capture</String>
+    <String key="ApplicationName">Dezinstalator oprogramowania %BrandName% Capture</String>
+    <String key="Welcome">%BRANDNAME% Capture</String>
+    <String key="LogitechOptions">%BrandName% Capture</String>
+    <String key="Install">Odinstaluj oprogramowanie %BRANDNAME% Capture</String>
+    <String key="Disclaimer:Intro">Klikając przycisk Instaluj, wyrażasz zgodę na warunki</String>
+    <String key="Disclaimer:EULA">Umowa licencyjna użytkownika końcowego</String>
+
+    <!--Analytics-->
+    <String key="Analytics:HelpUsTitle">POMÓŻ NAM ULEPSZYĆ PRODUKTY</String>
+    <String key="Analytics:HelpUsDescription">Pomóż firmie %BrandName% ulepszać produkty i usługi, zezwalając na automatyczne wysyłanie danych diagnostycznych i dotyczących użytkowania.</String>
+    <String key="Analytics:Allow">ODINSTALUJ</String>
+    <String key="Analytics:Disallow">ZAMKNIJ</String>
+    <String key="Analytics:ChangeInsideApp">To ustawienie można zmienić przy użyciu przycisku Więcej w oprogramowaniu %BrandName% Capture</String>
+    <String key="Analytics:LearnMore">Dowiedz się więcej  o</String>
+    <String key="Analytics:PrivacyPolicy"> polityce prywatności firmy %BrandName%</String>
+    <String key="Analytics:WelcomeEULA"> Umowy licencyjnej użytkownika końcowego</String>
+      <String key="Analytics:UnInstall2">Oprogramowanie %BrandName% Capture zostanie usunięte z systemu. Wszystkie dostosowane ustawienia zostaną przywrócone do wartości domyślnych.</String>
+      <String key="Analytics:UnInstall3">ODINSTALUJ</String>
+      <String key="Analytics:UnInstall4">ZAMKNIJ</String>
+
+    <!--CloseApps Page-->
+    <String key="CloseApps:Title">Nie można kontynuować dezinstalacji</String>
+    <String key="CloseApps:Message">Kamera Logi Capture prawdopodobnie jest w użyciu; zamknij wszystkie aplikacje, które mogą jej używać, po czym spróbuj ponownie.</String>
+    <String key="CloseApps:Message2">Wykrywanie używania kamery Logi Capture…</String>
+    <String key="Button:Retry">SPRÓBUJ PONOWNIE</String>
+
+    <!--Installing Page-->
+    <String key="Installing">Odinstalowywanie</String>
+    <String key="Installing:2">TRWA INSTALACJA</String>
+    <String key="AppDescription">Oprogramowanie %BrandName% Capture umożliwia dostosowanie i pełne wykorzystanie urządzeń %BrandName%.</String>
+    <String key="AppDescription:2">Czekaj, ten proces może potrwać kilka minut.</String>
+      <String key="UnInstalling3">Trwa dezinstalacja</String>
+
+    <!--Install Completed Page-->
+    <String key="Installed">ZAINSTALOWANO</String>
+    <String key="MoreInformation">Aby uzyskać więcej informacji, odwiedź stronę</String>
+    <String key="Continue">KONTYNUUJ</String>
+    <String key="OpenApp">URUCHOM OPROGRAMOWANIE %BRANDNAME% CAPTURE</String>
+      <String key="UnInstallComplete">Dezinstalacja ukończona</String>
+      <String key="UnInstallComplete2">Oprogramowanie %BrandName% Capture zostało usunięte z systemu.</String>
+      <String key="UnInstallComplete3">ZAMKNIJ</String>
+      <String key="UnInstallLockedFiles">Zalecamy ponowne uruchomienie systemu w celu zakończenia dezinstalacji.</String>
+      <String key="Reboot">URUCHOM PONOWNIE</String>
+
+
+      <!--Error Page-->
+    <String key="Error:InstallationFailed">INSTALACJA OPROGRAMOWANIA %BRANDNAME% CAPTURE /n NIE POWIODŁA SIĘ</String>
+    <String key="Button:Quit">ZAKOŃCZ INSTALACJĘ</String>
+    <String key="Button:Continue">Kontynuuj</String>
+
+
+    <!--Error + Warning Messages-->
+    <String key="Err:Title">UPS! WYSTĄPIŁ PROBLEM</String>
+    <String key="Err:FailedTitle">INSTALACJA OPROGRAMOWANIA %BRANDNAME% CAPTURE /n NIE POWIODŁA SIĘ</String>
+    <String key="Err:Failed">Nie udało się zainstalować oprogramowania %BrandName% Capture. Aby uzyskać więcej informacji, odwiedź stronę pomocy.</String>
+    <String key="Err:OSCHECK">Ta wersja systemu operacyjnego nie jest obsługiwana\n Aby uzyskać więcej informacji, odwiedź stronę pomocy.</String>
+    <String key="Err:Singleton">Uruchomiona jest inna instancja instalatora oprogramowania %BrandName% Capture. Zakończ inną instalację przed uruchomieniem tego instalatora.</String>
+    <String key="Err:OS">Nie można zainstalować oprogramowania %BrandName% Capture. Dla tej instalacji wymagany jest system Windows 7 lub nowszy.</String>
+    <String key="Err:Space">Nie można zainstalować oprogramowania %BrandName% Capture. Zbyt mało wolnego miejsca na dysku systemowym.</String>
+    <String key="Err:Version">W systemie wykryto nowszą wersję oprogramowania %BrandName% Capture. Ta instalacja nie będzie kontynuowana.</String>
+    <String key="Err:Multiuser">Nie można kontynuować, ponieważ oprogramowanie %BrandName% Capture jest uruchomione na innym koncie użytkownika w tym systemie. Zamknij oprogramowanie %BrandName% Capture na innych kontach użytkowników i spróbuj ponownie.</String>
+    <String key="Err:Admin">Nie można zainstalować oprogramowania %BrandName% Capture.  W celu zainstalowania tego oprogramowania wymagane są uprawnienia administracyjne.</String>
+    <String key="Button:Okay">OK</String>
+
+    <!--Error + Warning Buttons-->
+    <!-- FileLocked -->
+    <String key="Warn:Title:FileLocked">DO UKOŃCZENIA INSTALACJI WYMAGANE JEST PONOWNE URUCHOMIENIE</String>
+    <String key="Warn:Body:FileLocked">Aby ukończyć proces instalacji, wymagane jest ponowne uruchomienie komputera. Do momentu ukończenia instalacji oprogramowanie %BrandName% Capture nie będzie działać. Korzystanie z urządzenia może nie być możliwe.</String>
+    <String key="Warn:ButtonPrimary:FileLocked">URUCHOM PONOWNIE TERAZ</String>
+    <String key="Warn:ButtonSecondary:FileLocked">URUCHOM PONOWNIE PÓŹNIEJ</String>
+  </Strings>
+</StringDictionary>

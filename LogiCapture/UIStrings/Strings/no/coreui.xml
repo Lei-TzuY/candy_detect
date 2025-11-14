@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<StringDictionary version="1.2">
+  <Strings>
+    <String key="Buttons:MinimizeToolTip">Minimer</String>
+    <String key="Buttons:CloseToolTip">Lukk</String>
+
+    <!--First Page-->
+    <String key="WindowName">Installasjonsprogram for %BrandName% Capture</String>
+    <String key="ApplicationName">Installasjonsprogram for %BrandName% Capture</String>
+    <String key="Welcome">Velkommen til</String>
+    <String key="LWS_UnInstall2">Programvare til %BrandName%-webkameraet</String>
+    <String key="LWS_UnInstall3">oppdaget</String>
+    <String key="LWS_UnInstall4">Før du installerer den nye %BrandName% Capture, må du avinstallere %BrandName% Webcam Software.  Dette skyldes at de deler komponenter som kan forårsake uventet atferd hvis begge programmene er installert.</String>
+    <String key="LWS_UnInstall5">AVINSTALLER %BRANDNAME% WEBCAM SOFTWARE</String>
+    <String key="LogitechOptions">%BrandName% Capture</String>
+    <String key="Install">INSTALLER %BRANDNAME% CAPTURE</String>
+    <String key="Disclaimer:Intro">Når du trykker på Installer, godtar du vilkårene i</String>
+    <String key="Disclaimer:EULA">Lisensavtale for sluttbrukere</String>
+
+    <!--Analytics-->
+    <String key="Analytics:HelpUsTitle">Hjelp oss med å forbedre produktene våre</String>
+    <String key="Analytics:HelpUsDescription">Hjelp %BrandName% med å forbedre produktene og tjenestene sine ved å sende diagnostikk og bruksdata automatisk.</String>
+    <String key="Analytics:Allow">JA, DEL ANALYSEDATA</String>
+    <String key="Analytics:Disallow">NEI TAKK</String>
+    <String key="Analytics:ChangeInsideApp">Du kan endre dette i %BrandName% Capture.</String>
+    <String key="Analytics:LearnMore">Finn ut mer om %BrandName%'s</String>
+    <String key="Analytics:PrivacyPolicy"> personvernerklæring</String>
+    <String key="Analytics:WelcomeEULA">Lisensavtale for sluttbrukere</String>
+
+    <!--Installing Page-->
+    <String key="Installing">Installerer</String>
+    <String key="Installing:2">Installasjon pågår</String>
+    <String key="AppDescription">Med %BrandName% Capture kan du tilpasse og få mest mulig ut av dine %BrandName%-webkameraer. Vent litt, denne prosessen kan ta et par minutter.</String>
+    <String key="AppDescription:2">Vent litt, denne prosessen kan ta et par minutter.</String>
+
+    <!--Install Completed Page-->
+    <String key="Installed">er installert</String>
+    <String key="MoreInformation">Du finner mer informasjon på støttesiden</String>
+    <String key="Continue">FORTSETT</String>
+    <String key="OpenApp">START %BRANDNAME% CAPTURE</String>
+
+    <!--Restart Page-->
+    <String key="Reboot1">Start datamaskinen på nytt</String>
+    <String key="Reboot2">Datamaskinen må startes på nytt for at endringene skal tre i kraft. Hvis du ikke starter enheten på nytt, er det mulig at %BrandName%-webkameraet ikke fungere som det skal.</String>
+    <String key="Reboot3">START PÅ NYTT NÅ</String>
+    <String key="Reboot4">START PÅ NYTT SENERE</String>
+
+      <!--Close Apps Page-->
+    <String key="CloseApps:Title">KAN IKKE FORTSETTE MED INSTALLASJONEN</String>
+    <String key="CloseApps:Message2">Registrerer bruk av Logi Capture-kamera …</String>
+    <String key="CloseApps:Message">Ditt Logi Capture-kamera er i bruk. Du må lukke alle programmene som eventuelt bruker det, og prøve på nytt.</String>
+
+      <!--Any Page-->
+      <String key="RestartRequired:Title">OMSTART KREVES</String>
+      <String key="RestartRequired:Message51">Du må starte datamaskinen på nytt for å fortsette med installasjonen av %BrandName% Capture.</String>
+      <String key="Reboot52">START PÅ NYTT</String>
+      <String key="CameraInUse:Title">Kamera i bruk</String>
+      <String key="CameraInUse:Message53">Ditt Logi Capture-kamera er i bruk. Du må lukke alle programmene som eventuelt bruker det, og prøve på nytt. Du kan eventuelt også klikke på START PÅ NYTT for å starte systemet på nytt og fullføre installasjonen.</String>
+      <String key="CameraInUse:Message54">Registrerer bruk av Logi Capture-kamera …</String>
+
+      <!--Error Page-->
+    <String key="Error:InstallationFailed">Installasjonen av %BrandName% Capture mislyktes</String>
+    <String key="Button:Quit">AVSLUTT INSTALLASJON</String>
+      <String key="Button:Quit2">AVSLUTT</String>
+      <String key="Button:Retry">PRØV PÅ NYTT</String>
+      <String key="Button:Continue">Fortsett</String>
+
+
+    <!--Error + Warning Messages-->
+    <String key="Err:Title">Uff da! Vi har et problem</String>
+    <String key="Err:FailedTitle">Installasjonen av %BrandName% Capture mislyktes</String>
+    <String key="Err:Generic">Vi kunne ikke installere %BrandName% Capture. Du finner mer informasjon på støttesiden.</String>
+    <String key="Err:Failed">PC-maskinvaren din oppfyller ikke minimumskravene til grafikkmaskinvare. Kontakt brukerstøtte for mer informasjon.</String>
+    <String key="Err:Win7Res">Hvis du ikke kan installere programvaren riktig, kontakter du Brukerstøtte for mer informasjon.</String>
+    <String key="Err:OSCHECK">Det har oppstått et problem under forsøk på å laste ned en encoder dll.  Du finner mer informasjon på støttesiden</String>
+    <String key="Err:Singleton">En annen forekomst av installasjonsprogrammet for %BrandName% Capture kjører allerede. Fullfør den andre installasjonen før du kjører dette installeringsprogrammet.</String>
+    <String key="Err:OS">%BrandName% Capture støtter bare Windows 10 64-biters eller høyere. Oppdater Windows for å bruke %BrandName% Capture på denne datamaskinen.</String>
+    <String key="Err:OSTitle">Inkompatibel versjon av Windows.</String>
+    <String key="Err:Space">Kan ikke installere %BrandName% Capture. Du har ikke nok ledig plass på systemdisken.</String>
+    <String key="Err:Version">En nyere versjon av %BrandName% Capture er oppdaget på systemet. Installasjonen vil ikke fortsette.</String>
+    <String key="Err:Multiuser">Kan ikke fortsette fordi %BrandName% Capture for øyeblikket kjører i en annen brukerkonto på dette systemet. Prøv igjen når du har lukket %BrandName% Capture i alle andre brukerkontoer.</String>
+    <String key="Err:Admin">Kan ikke installere %BrandName% Capture.  Du må ha administratorrettigheter for å installere denne programvaren.</String>
+    <String key="Button:Okay">OK</String>
+    <String key="Err:NoInternetConnection">Datamaskinen må være tilkoblet Internett. Kontroller-tilkoblingen og prøv på nytt.</String>
+
+    <!--Error + Warning Buttons-->
+    <!-- FileLocked -->
+    <String key="Warn:Title:FileLocked">Start datamaskinen på nytt for å fullføre installasjonen</String>
+    <String key="Warn:Body:FileLocked">Du må starte datamaskinen på nytt for å fullføre installasjonen. %BrandName% Capture vil ikke fungere, og du kan miste noen av enhetens funksjoner til installasjonen er fullført.</String>
+    <String key="Warn:ButtonPrimary:FileLocked">START PÅ NYTT NÅ</String>
+    <String key="Warn:ButtonSecondary:FileLocked">START PÅ NYTT SENERE</String>
+      <!-- RestartRequired -->
+      <String key="Warn:Title:RestartRequired">Omstart kreves</String>
+      <String key="Warn:Body:RestartRequired">Du må starte datamaskinen på nytt for å fortsette med installasjonen av %BrandName% Capture.</String>
+      <String key="Warn:ButtonPrimary:RestartRequired">Avslutt</String>
+      <String key="Warn:ButtonSecondary:RestartRequired">START PÅ NYTT</String>
+  </Strings>
+</StringDictionary>

@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<StringDictionary version="1.2">
+  <Strings>
+    <String key="Buttons:MinimizeToolTip">Ελαχιστοποίηση</String>
+    <String key="Buttons:CloseToolTip">Κλείσιμο</String>
+
+    <!--First Page-->
+    <String key="WindowName">Πρόγραμμα κατάργησης εγκατάστασης %BrandName% Capture</String>
+    <String key="UnInstall11">%BrandName% Capture</String>
+    <String key="ApplicationName">Πρόγραμμα κατάργησης εγκατάστασης %BrandName% Capture</String>
+    <String key="Welcome">%BRANDNAME% Capture</String>
+    <String key="LogitechOptions">%BrandName% Capture</String>
+    <String key="Install">Κατάργηση εγκατάστασης %BRANDNAME% Capture</String>
+    <String key="Disclaimer:Intro">Κάνοντας κλικ στο κουμπί εγκατάστασης, αποδέχεστε τους όρους που αναφέρονται στην</String>
+    <String key="Disclaimer:EULA">Άδεια χρήσης τελικού χρήστη</String>
+
+    <!--Analytics-->
+    <String key="Analytics:HelpUsTitle">ΣΥΜΒΑΛΛΕΤΕ ΣΤΗ ΒΕΛΤΙΩΣΗ ΤΩΝ ΠΡΟΪΟΝΤΩΝ ΜΑΣ</String>
+    <String key="Analytics:HelpUsDescription">Βοηθήστε την %BrandName% να βελτιώσει τα προϊόντα και τις υπηρεσίες της με την αυτόματη αποστολή διαγνωστικών στοιχείων και δεδομένων χρήσης.</String>
+    <String key="Analytics:Allow">ΚΑΤΑΡΓΗΣΗ ΕΓΚΑΤΑΣΤΑΣΗΣ</String>
+    <String key="Analytics:Disallow">ΤΕΡΜΑΤΙΣΜΟΣ</String>
+    <String key="Analytics:ChangeInsideApp">Μπορείτε να αλλάξετε αυτήν την επιλογή από το κουμπί περισσότερων επιλογών του %BrandName% Capture</String>
+    <String key="Analytics:LearnMore">Μάθετε περισσότερα σχετικά με της %BrandName% την</String>
+    <String key="Analytics:PrivacyPolicy"> πολιτική απορρήτου</String>
+    <String key="Analytics:WelcomeEULA"> Άδεια χρήσης τελικού χρήστη</String>
+      <String key="Analytics:UnInstall2">Το %BrandName% Capture θα καταργηθεί από το σύστημά σας. Τυχόν ρυθμίσεις που έχετε προσαρμόσει θα επανέλθουν στις προεπιλεγμένες τιμές τους.</String>
+      <String key="Analytics:UnInstall3">ΚΑΤΑΡΓΗΣΗ ΕΓΚΑΤΑΣΤΑΣΗΣ</String>
+      <String key="Analytics:UnInstall4">ΤΕΡΜΑΤΙΣΜΟΣ</String>
+
+    <!--CloseApps Page-->
+    <String key="CloseApps:Title">Δεν είναι δυνατή η συνέχιση της κατάργησης της εγκατάστασης</String>
+    <String key="CloseApps:Message">Η κάμερα Logi Capture φαίνεται πως χρησιμοποιείται. Κλείστε την εφαρμογή που μπορεί να τη χρησιμοποιεί και, στη συνέχεια, δοκιμάστε ξανά.</String>
+    <String key="CloseApps:Message2">Ανίχνευση χρήσης κάμερας Logi Capture…</String>
+    <String key="Button:Retry">ΕΠΑΝΑΛΗΨΗ</String>
+
+    <!--Installing Page-->
+    <String key="Installing">Κατάργηση εγκατάστασης σε εξέλιξη</String>
+    <String key="Installing:2">ΕΓΚΑΤΑΣΤΑΣΗ ΣΕ ΕΞΕΛΙΞΗ</String>
+    <String key="AppDescription">Το %BrandName% Capture σας επιτρέπει να προσαρμόζετε και να απολαμβάνετε τις συσκευές σας %BrandName%.</String>
+    <String key="AppDescription:2">Περιμένετε λίγο, η διαδικασία μπορεί να διαρκέσει αρκετά λεπτά.</String>
+      <String key="UnInstalling3">Η διαδικασία κατάργησης εγκατάστασης βρίσκεται σε εξέλιξη</String>
+
+    <!--Install Completed Page-->
+    <String key="Installed">ΕΓΚΑΤΑΣΤΑΘΗΚΕ</String>
+    <String key="MoreInformation">Για περισσότερες πληροφορίες επισκεφτείτε</String>
+    <String key="Continue">ΣΥΝΕΧΕΙΑ</String>
+    <String key="OpenApp">ΕΚΚΙΝΗΣΗ %BRANDNAME% CAPTURE</String>
+      <String key="UnInstallComplete">Η κατάργηση της εγκατάστασης ολοκληρώθηκε</String>
+      <String key="UnInstallComplete2">Το %BrandName% Capture καταργήθηκε από το σύστημά σας.</String>
+      <String key="UnInstallComplete3">ΚΛΕΙΣΙΜΟ</String>
+      <String key="UnInstallLockedFiles">Συνιστάται η επανεκκίνηση του συστήματος για την ολοκλήρωση της κατάργησης της εγκατάστασης.</String>
+      <String key="Reboot">ΕΠΑΝΕΚΚΙΝΗΣΗ</String>
+
+
+      <!--Error Page-->
+    <String key="Error:InstallationFailed">ΑΠΕΤΥΧΕ Η ΕΓΚΑΤΑΣΤΑΣΗ ΤΟΥ /n %BRANDNAME% CAPTURE</String>
+    <String key="Button:Quit">ΤΕΡΜΑΤΙΣΜΟΣ ΕΓΚΑΤΑΣΤΑΣΗΣ</String>
+    <String key="Button:Continue">Συνέχεια</String>
+
+
+    <!--Error + Warning Messages-->
+    <String key="Err:Title">ΩΧ! ΠΑΡΟΥΣΙΑΣΤΗΚΕ ΠΡΟΒΛΗΜΑ</String>
+    <String key="Err:FailedTitle">ΑΠΕΤΥΧΕ Η ΕΓΚΑΤΑΣΤΑΣΗ ΤΟΥ /n %BRANDNAME% CAPTURE</String>
+    <String key="Err:Failed">Δεν είναι δυνατή η εγκατάσταση του %BrandName% Capture. Για περισσότερες πληροφορίες, επισκεφτείτε τη σελίδα υποστήριξης.</String>
+    <String key="Err:OSCHECK">Αυτή η έκδοση του λειτουργικού συστήματος δεν υποστηρίζεται\n Για περισσότερες πληροφορίες, επισκεφτείτε τη σελίδα υποστήριξης.</String>
+    <String key="Err:Singleton">Εκτελείται μια άλλη παρουσία του προγράμματος εγκατάστασης του %BrandName% Capture. Ολοκληρώστε την άλλη εγκατάσταση πριν από την εκτέλεση αυτού του προγράμματος εγκατάστασης.</String>
+    <String key="Err:OS">Δεν είναι δυνατή η εγκατάσταση του %BrandName% Capture. Απαιτούνται Windows 7 ή νεότερη έκδοση για αυτήν την εγκατάσταση.</String>
+    <String key="Err:Space">Δεν είναι δυνατή η εγκατάσταση του %BrandName% Capture. Ο ελεύθερος χώρος στον δίσκο συστήματος δεν επαρκεί.</String>
+    <String key="Err:Version">Εντοπίστηκε νεότερη έκδοση του %BrandName% Capture σε αυτό το σύστημα. Δεν θα συνεχιστεί αυτή η εγκατάσταση.</String>
+    <String key="Err:Multiuser">Δεν είναι δυνατή η συνέχιση επειδή το %BrandName% Capture εκτελείται σε άλλο λογαριασμό χρήστη σε αυτό το σύστημα. Δοκιμάστε ξανά αφού κλείσει το %BrandName% Capture στους άλλους λογαριασμούς χρηστών.</String>
+    <String key="Err:Admin">Δεν είναι δυνατή η εγκατάσταση του %BrandName% Capture.  Απαιτείται δικαίωμα διαχειριστή για την εγκατάσταση αυτού του λογισμικού.</String>
+    <String key="Button:Okay">OK</String>
+
+    <!--Error + Warning Buttons-->
+    <!-- FileLocked -->
+    <String key="Warn:Title:FileLocked">ΑΠΑΙΤΕΙΤΑΙ ΕΠΑΝΕΚΚΙΝΗΣΗ ΓΙΑ ΤΗΝ ΟΛΟΚΛΗΡΩΣΗ ΤΗΣ ΕΓΚΑΤΑΣΤΑΣΗΣ</String>
+    <String key="Warn:Body:FileLocked">Πρέπει να επανεκκινήσετε τον υπολογιστή σας για να ολοκληρώσετε τη διαδικασία εγκατάστασης. Μέχρι να ολοκληρωθεί η εγκατάσταση, το %BrandName% Capture δεν θα λειτουργεί και ενδέχεται να μην έχετε πρόσβαση στις λειτουργίες της συσκευής.</String>
+    <String key="Warn:ButtonPrimary:FileLocked">ΕΠΑΝΕΚΚΙΝΗΣΗ ΤΩΡΑ</String>
+    <String key="Warn:ButtonSecondary:FileLocked">ΕΠΑΝΕΚΚΙΝΗΣΗ ΑΡΓΟΤΕΡΑ</String>
+  </Strings>
+</StringDictionary>

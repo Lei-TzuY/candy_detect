@@ -1,0 +1,381 @@
+<html>
+  <head>
+    <title>Camera not available</title>
+    <link rel="stylesheet" href="brownpro.css" />
+    <style type="text/css">
+      * {
+        font-family: 'BrownPro';
+      }
+
+      body {
+        background: rgba(251, 251, 251);
+        overflow: hidden;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        font-size: 32px;
+        margin: 0;
+      }
+
+      #main {
+        padding: 0 5%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        box-sizing: border-box;
+      }
+
+      h1 {
+        color: #222425;
+        font-weight: bold;
+        font-size: 7em;
+        line-height: 1;
+        letter-spacing: 0;
+        margin: 0 0 40px 0;
+      }
+
+      p {
+        font-size: 2em;
+        letter-spacing: 0;
+        color: #222425;
+        margin: 0;
+        font-weight: 300;
+      }
+
+      #main.hidden {
+        display: none;
+      }
+
+      #main.portrait,
+      #main.square,
+      #main.landscape {
+        padding: 0;
+      }
+
+      #main.portrait h1 {
+        padding: 0 25%;
+        font-size: 5em;
+      }
+
+      #main.portrait p {
+        padding: 0 25%;
+        font-size: 1.5em;
+      }
+
+      #main.square h1 {
+        padding: 0 25%;
+        font-size: 8em;
+      }
+
+      #main.square p {
+        padding: 0 25%;
+        font-size: 2em;
+      }
+
+      #main.landscape h1 {
+        padding: 0 25%;
+        font-size: 8em;
+      }
+
+      #main.landscape p {
+        padding: 0 25%;
+        font-size: 2em;
+      }
+
+      #main.hidden {
+        display: none;
+      }
+
+      body.dark {
+        background: #262829;
+      }
+
+      .dark h1 {
+        color: #c3c6c8;
+      }
+
+      .dark p {
+        color: #c3c6c8;
+      }
+
+      span {
+        font-size: 1.8em;
+        color: #814efa;
+      }
+
+      a {
+        color: #814efa;
+        text-decoration: none;
+      }
+    </style>
+  </head>
+
+  <body>
+    <section id="main" class="hidden">
+      <h1>CAMERA NOT AVAILABLE</h1>
+      <p>
+        We detect your camera is either disconnected or being used by another
+        application, try closing any other application(s) that might be using
+        your camera and then restart Logitech Capture.
+      </p>
+    </section>
+    <script type="text/javascript">
+      // disable text highlight
+      document.onselectstart = event => {
+        let nodeName = event.target.nodeName;
+        if (
+          nodeName === 'INPUT' ||
+          nodeName === 'TEXTAREA' ||
+          event.target.contentEditable === true
+        ) {
+          return true;
+        } else {
+          return false;
+        }
+      };
+
+      const main = document.getElementById('main');
+      const resize = () => {
+        const ref = Math.min(innerHeight, innerWidth);
+
+        document.body.style.fontSize = Math.round(ref / 50) + 'px';
+      };
+      resize();
+      window.addEventListener('resize', resize);
+
+      const callbacks = [];
+      window.OnAsyncCallback = (asyncId, data) => {
+        if (callbacks[asyncId]) {
+          callbacks[asyncId](data);
+          delete callbacks[asyncId];
+        }
+      };
+
+      window.OnAsyncCallError = (asyncId, data) => {
+        console.error('Async Call Error', asyncId, data);
+      };
+
+      const setMessage = result => {
+        let content = `<h1>$no_cam</h1><p>$no_cam_details</p>`;
+        let lang = JSON.parse(result);
+        Object.keys(lang).map(key => {
+          content = content.replace(`$${key}`, lang[key]);
+        });
+        main.innerHTML = content;
+        main.classList.remove('hidden');
+      };
+
+      const setDefaultMessage = () => {
+        return new Promise(resolve => {
+          const asyncId = external.CallHostFunc('GetNoCamLang');
+          callbacks[asyncId] = result => {
+            setMessage(result);
+            resolve(true);
+          };
+        });
+      };
+
+      const getOSInfo = () => {
+        return new Promise(resolve => {
+          const systemInfoID = external.CallHostFunc('GetSystemInfo');
+          callbacks[systemInfoID] = result => {
+            try {
+              result = decodeURIComponent(result);
+            } catch (e) {}
+            resolve(result);
+          };
+        });
+      };
+
+      const goAttachVideoitem = () => {
+        return new Promise(resolve => {
+          const itemlistID = window.external.GetLocalProperty('itemlist');
+          callbacks[itemlistID] = result => {
+            try {
+              result = decodeURIComponent(result);
+            } catch (e) {}
+            const itemArray = result.split(',');
+            window.external.AttachVideoItem1(itemArray[0]);
+            resolve(true);
+          };
+        });
+      };
+
+      const _arrayToObj = (array, separator) => {
+        var obj = {};
+        array.map(function(el) {
+          var _split = el.split(separator);
+          obj[[_split[0]]] = _split[1];
+        });
+        return obj;
+      };
+
+      const getCamActiveProcess = async () => {
+        return new Promise(resolve => {
+          const detectCamsId = window.external.GetLocalProperty1(
+            'utils:detectcamactiveprocess'
+          );
+          callbacks[detectCamsId] = result => {
+            try {
+              result = decodeURIComponent(result);
+            } catch (e) {}
+            // result is something like `pid:%u,active:%u|pid:%u,active:%u`
+            const processArray = result.split('|');
+            // convert into objects
+            const newProcessArray = processArray.map((cam, index) => {
+              const camArray = cam.split(',');
+              const camObj = _arrayToObj(camArray, ':');
+              return camObj;
+            });
+            // return the first active one (or more precisely, the only active)
+            activeCam = newProcessArray.find(cam => {
+              return typeof cam['active'] && cam['active'] === '1';
+            });
+
+            resolve(activeCam);
+          };
+        });
+      };
+
+      const setActiveProcessMessage = pid => {
+        return new Promise(resolve => {
+          const processActiveLangID = external.CallHostFunc(
+            'GetProcessActiveLang',
+            pid
+          );
+          callbacks[processActiveLangID] = result => {
+            setMessage(result);
+            resolve(true);
+          };
+        });
+      };
+
+      const getPosition = async resolve => {
+        let posId = window.external.GetLocalProperty1('prop:pos');
+        callbacks[posId] = result => {
+          try {
+            result = decodeURIComponent(result);
+          } catch (e) {}
+          if (result !== 'null' && result !== null) {
+            resolve(result);
+          } else {
+            setTimeout(() => {
+              getPosition(resolve);
+            }, 0);
+          }
+        };
+      };
+
+      const pollPosition = () => {
+        return new Promise(async resolve => {
+          await goAttachVideoitem();
+          const pos = await getPosition(resolve);
+        });
+      };
+
+      const getMixerResolution = () => {
+        return new Promise(async resolve => {
+          let mixerId = window.external.GetLocalProperty1('mixerresolution');
+          callbacks[mixerId] = result => {
+            try {
+              result = decodeURIComponent(result);
+            } catch (e) {}
+            resolve(result);
+          };
+        });
+      };
+
+      const setPositionResolution = async () => {
+        const pos = await pollPosition();
+        const mixerReso = await getMixerResolution();
+        let [left, top, right, bottom] = pos.split(',');
+        let [width, height] = mixerReso.split(',');
+
+        if (parseFloat(left) >= 0 || parseFloat(right) <= 1) {
+          main.classList.remove('square');
+          main.classList.remove('portrait');
+          return;
+        }
+
+        if (parseInt(height) > parseInt(width)) {
+          main.classList.remove('square');
+          main.classList.remove('landscape');
+          main.classList.add('portrait');
+        } else if (height === width) {
+          main.classList.add('square');
+          main.classList.remove('portrait');
+          main.classList.remove('landscape');
+        } else {
+          main.classList.remove('square');
+          main.classList.remove('portrait');
+          main.classList.add('landscape');
+        }
+      };
+
+      const setNoCamScenario = async () => {
+        getOSInfo().then(async osInfo => {
+          const osInfoArray = osInfo.split('|');
+          const isWin10 = Number(osInfoArray[1]) <= 10;
+          const osVersion = Number(osInfoArray[4]);
+          const buildNumber = osInfoArray[5];
+
+          if (
+            isWin10 &&
+            (osVersion > 17134 ||
+              (osVersion == 17134 && buildNumber && Number(buildNumber) >= 407))
+          ) {
+            // get active process
+            await goAttachVideoitem();
+            const activeCam = await getCamActiveProcess();
+
+            if (activeCam) {
+              // get process details
+              await setActiveProcessMessage(activeCam['pid']);
+            } else {
+              await setDefaultMessage();
+            }
+          } else {
+            await setDefaultMessage();
+          }
+        });
+      };
+      setNoCamScenario();
+
+      const body = document.querySelector('body');
+      const toggleTheme = () => {
+        if (localStorage.theme && localStorage.theme === 'dark') {
+          body.classList.add('dark');
+        } else {
+          body.classList.remove('dark');
+        }
+      };
+
+      const checkStorageEvent = evt => {
+        if (evt.key === 'theme') {
+          toggleTheme();
+        } else if (evt.key === 'aspectRatio') {
+          setPositionResolution();
+        }
+      };
+
+      window.addEventListener('storage', checkStorageEvent);
+      toggleTheme();
+
+      // workaround in case language file is not fetched
+      setTimeout(async () => {
+        await setPositionResolution();
+        main.classList.remove('hidden');
+        setNoCamScenario();
+      }, 5000);
+
+      window.SetVolume = function() {};
+      window.OnSceneLoad = function() {};
+    </script>
+  </body>
+</html>

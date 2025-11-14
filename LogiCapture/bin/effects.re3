@@ -1,0 +1,491 @@
+<configuration>
+	<effect id="bloom" name="Bloom">
+		<pixelshader>
+cbuffer myPrivateConst : register(b2)
+{
+    float4 pc0;
+}
+
+static float BloomIntensity = 1.0;		
+static float BaseIntensity = 2.0;
+static float BloomSaturation = 1.0;
+static float BaseSaturation = 1.0;
+
+
+float3 AdjustSaturation(float3 color, float saturation)
+{
+	float grey = dot(color, float3(0.3, 0.59, 0.11));
+	return lerp(grey, color.rgb, saturation);
+}
+
+void CustomPS(VS_TO_PS In, out float4 Out : SV_Target)
+{
+	float BloomThreshold = 0.25f;
+
+	float4 color;
+	TEXSAMPLE(color, In.TexCoord0);
+	
+	float3 base = color.rgb;// / color.a;
+	float3 bloom = saturate((base - BloomThreshold) / (1 - BloomThreshold));
+
+	// Adjust color saturation and intensity.
+	bloom = AdjustSaturation(bloom, BloomSaturation) * BloomIntensity;
+	base = AdjustSaturation(base, BaseSaturation) * BaseIntensity;
+
+	// Darken down the base image in areas where there is a lot of bloom,
+	// to prevent things looking excessively burned-out.
+	base *= (1 - saturate(bloom));
+
+	// Combine the two images.
+	Out = lerp(color, float4((base + bloom) /* * color.a*/, color.a), pc0[0]);
+	
+}
+		</pixelshader>
+		<vertexshader></vertexshader>
+	</effect>
+	<effect id="monochrome" name="Monochrome">
+		<pixelshader>
+cbuffer myPrivateConst : register(b2)
+{
+    float4 pc0;
+}
+
+static float4 FilterColor = float4(1.0, 1.0, 1.0, 1.0);
+
+void CustomPS(VS_TO_PS In, out float4 Out : SV_Target)
+{
+	float4 srcColor;
+	TEXSAMPLE(srcColor, In.TexCoord0);
+
+	float3 rgb = srcColor.rgb;
+	float3 luminance = dot(rgb, float3(0.30, 0.59, 0.11));
+	Out = float4(lerp(srcColor.rgb, luminance * FilterColor.rgb, pc0[0]), srcColor.a);
+	
+}
+		</pixelshader>
+		<vertexshader></vertexshader>
+	</effect>
+	<effect id="oldmovie" name="OldMovie">
+		<pixelshader>
+cbuffer myPrivateConst : register(b2)
+{
+    float4 pc0;
+}
+
+static float ScratchAmount = 0.0;
+static float NoiseAmount = 0.0;
+static float2 RandomCoord1 = 0.0;
+static float2 RandomCoord2 = 0.0;
+static float Frame = 0.0;
+static float ScratchAmountInv = 1.0 / ScratchAmount;
+
+void CustomPS(VS_TO_PS In, out float4 Out : SV_Target)
+{
+	float4 color;
+	TEXSAMPLE(color, In.TexCoord0);
+  float4 origcolor = color;
+
+	float2 uv = In.TexCoord0;
+	
+    // Add Scratch
+    float2 sc = Frame * float2(0.001f, 0.4f);
+    sc.x = frac(uv.x + sc.x);
+
+	float4 color2;
+	TEXSAMPLE(color2, sc);
+	float scratch = color2.r;
+  
+	scratch = 2 * scratch * ScratchAmountInv;
+    scratch = 1 - abs(1 - scratch);
+    scratch = max(0, scratch);
+    color.rgb += scratch.rrr;
+
+    // Calculate random coord + sample
+    //float2 rCoord = (uv + RandomCoord1 + RandomCoord2) * 0.33;
+    //float3 rand = tex2D(noiseSampler, rCoord);
+    // Add noise
+    //if(NoiseAmount > rand.r)
+    //{
+    //    color.rgb = 0.1 + rand.b * 0.4;
+    //}
+
+    // Convert to gray + desaturated Sepia
+    float gray = dot(color, float4(0.3, 0.59, 0.11, 0));
+    color.rgb = gray * float3(0.9, 0.8, 0.6); // Sepia original (0.9, 0.7, 0.3)
+
+    // Calc distance to center
+    float2 dist = 0.5 - uv;
+    // Random light fluctuation
+    float fluc = RandomCoord2.x * 0.04 - 0.02;
+    // Vignette effect
+    color.rgb *= (0.4 + fluc - dot(dist, dist))  * 2.8;
+
+    Out = lerp(origcolor, color, pc0[0]);
+	
+}
+		</pixelshader>
+		<vertexshader></vertexshader>
+	</effect>
+	<effect id="sketchpencilstroke" name="SketchPencilStroke">
+		<pixelshader>
+cbuffer myPrivateConst : register(b2)
+{
+    float4 pc0;
+}
+
+static float brushSize = 0.19;
+
+void CustomPS(VS_TO_PS In, out float4 Out : SV_Target)
+{
+	float4 color;
+	TEXSAMPLE(color, In.TexCoord0);
+
+	float2 samples[4] = {0, -1,	-1,  0, 1, 0, 0, 1 };
+	float4 complement = -4 * color;
+
+	float4 color2;
+	for (int i = 0; i &lt; 4; i++)
+	{
+		TEXSAMPLE(color2, In.TexCoord0 + (brushSize * samples[i]));
+ 		complement += color2;
+ 		complement.r=complement.rgb;
+		complement.g=complement.rgb;
+		complement.b=complement.rgb;
+		complement.a=color.a;
+	}
+
+    complement.rgb=1-complement.rgb;
+	Out = lerp(color, complement, pc0[0]);
+
+}
+		</pixelshader>
+		<vertexshader></vertexshader>
+	</effect>
+	<effect id="invertcolor" name="InvertColor">
+		<pixelshader>
+cbuffer myPrivateConst : register(b2)
+{
+    float4 pc0;
+}
+
+void CustomPS(VS_TO_PS In, out float4 Out : SV_Target)
+{
+	float4 color;
+	TEXSAMPLE(color, In.TexCoord0);
+
+	Out = float4(lerp(color.rgb, float3(1.0, 1.0, 1.0) - color.rgb, pc0[0]), color.a);
+}
+		</pixelshader>
+		<vertexshader></vertexshader>
+	</effect>
+	<effect id="magnifysmooth" name="MagnifySmooth">
+		<pixelshader>
+cbuffer myPrivateConst : register(b2)
+{
+    float4 pc0;
+}
+
+static float2 CenterPoint = float2(0.5, 0.5);
+static float InnerRadius = 0.07;
+static float OuterRadius = 0.6;
+static float MagnificationAmount = 2.91;
+static float AspectRatio = 1.5;
+		
+void CustomPS(VS_TO_PS In, out float4 Out : SV_Target)
+{
+	float2 uv = In.TexCoord0;
+
+	float2 centerToPixel = uv - CenterPoint;
+	float dist = length(centerToPixel / float2(1, AspectRatio));
+	float ratio = smoothstep(InnerRadius, max(InnerRadius, OuterRadius), dist);
+	float2 samplePoint = lerp(CenterPoint + centerToPixel / MagnificationAmount, uv, ratio);
+
+	TEXSAMPLE(Out, samplePoint);
+
+	float4 color;
+	TEXSAMPLE(color, In.TexCoord0);
+
+  Out = lerp(color, Out, pc0[0]);
+}
+		</pixelshader>
+		<vertexshader></vertexshader>
+	</effect>
+	<effect id="cool" name="Cool">
+		<pixelshader>
+		
+cbuffer myPrivateConst : register(b2)
+{
+    float4 pc0;
+    float4 pc1;
+	float4 pc2;
+	float4 pc3;
+}		
+		
+static float Desaturation = pc1[0];
+static float Toned = pc1[1];
+static float4 LightColor = pc2; //float4(0.35, 0.61, 1.0, 1.0);
+static float4 DarkColor = pc3; //float4(0.0, 0.0, 0.5, 1.0);		
+		
+void CustomPS(VS_TO_PS In, out float4 Out : SV_Target)
+{
+	float4 color;
+	TEXSAMPLE(color, In.TexCoord0);
+
+    float3 scnColor = LightColor * (color.rgb /* / color.a */);
+    float gray = dot(float3(0.3, 0.59, 0.11), scnColor);
+    
+    float3 muted = lerp(scnColor, gray.xxx, Desaturation);
+    float3 middle = lerp(DarkColor, LightColor, gray);
+    
+    scnColor = lerp(muted, middle, Toned);
+    Out = float4(lerp(color.rgb, scnColor /* * color.a */, pc0[0]), color.a);
+}
+		</pixelshader>
+		<vertexshader></vertexshader>
+	</effect>	
+	<effect id="warm" name="Warm">
+		<pixelshader>
+		
+cbuffer myPrivateConst : register(b2)
+{
+    float4 pc0;
+    float4 pc1;
+	float4 pc2;
+	float4 pc3;
+}		
+		
+static float Desaturation = pc1[0];
+static float Toned = pc1[1];
+static float4 LightColor = pc2;
+static float4 DarkColor = pc3;
+		
+void CustomPS(VS_TO_PS In, out float4 Out : SV_Target)
+{
+	float4 color;
+	TEXSAMPLE(color, In.TexCoord0);
+
+    float3 scnColor = LightColor * (color.rgb /* / color.a */);
+    float gray = dot(float3(0.3, 0.59, 0.11), scnColor);
+    
+    float3 muted = lerp(scnColor, gray.xxx, Desaturation);
+    float3 middle = lerp(DarkColor, LightColor, gray);
+    
+    scnColor = lerp(muted, middle, Toned);
+    Out = float4(lerp(color.rgb, scnColor /* * color.a */, pc0[0]), color.a);
+}
+		</pixelshader>
+		<vertexshader></vertexshader>
+	</effect>	
+	<effect id="sincity" name="SinCity">
+		<pixelshader>
+cbuffer myPrivateConst : register(b2)
+{
+    float4 pc0;
+}
+
+void CustomPS(VS_TO_PS In, out float4 Out : SV_Target)
+{
+	float4 color;
+	TEXSAMPLE(color, In.TexCoord0);
+
+	float3 colorin, colorout;
+    colorin = color.rgb;
+
+	colorin = pow(abs(colorin), .45f);
+	float bwcolor = dot(colorin.rgb, 1.f.xxx) * 0.33333f;
+	float weight = smoothstep(0.1f, 0.25f, colorin.r - bwcolor);
+	bwcolor = pow(bwcolor * 1.1f, 2.f);
+	colorout = lerp(bwcolor, colorin * float3(1.1f, 0.5f, 0.5f), weight);
+	
+	float4 res = pow(abs(float4(colorout, 1.f)), 2.2f);
+	Out = float4(lerp(color.rgb, res.rgb /* * color.a */, pc0[0]), color.a); 
+}
+		</pixelshader>
+		<vertexshader></vertexshader>
+	</effect>
+	<effect id="median3x3" name="Median3x3">
+		<pixelshader>
+cbuffer myPrivateConst : register(b2)
+{
+    float4 pc0;
+}
+	
+#define s2(a, b)				temp = a; a = min(a, b); b = max(temp, b);
+#define mn3(a, b, c)			s2(a, b); s2(a, c);
+#define mx3(a, b, c)			s2(b, c); s2(a, c);
+#define mnmx3(a, b, c)			mx3(a, b, c); s2(a, b);                                   // 3 exchanges
+#define mnmx4(a, b, c, d)		s2(a, b); s2(c, d); s2(a, c); s2(b, d);                   // 4 exchanges
+#define mnmx5(a, b, c, d, e)	s2(a, b); s2(c, d); mn3(a, c, e); mx3(b, d, e);           // 6 exchanges
+#define mnmx6(a, b, c, d, e, f) s2(a, d); s2(b, e); s2(c, f); mn3(a, b, c); mx3(d, e, f); // 7 exchanges
+
+static float2 R = float2(200.0, 200.0);
+static int Radius = 1.5;
+static float Position = 0.5;
+
+void CustomPS(VS_TO_PS In, out float4 Out : SV_Target)
+{
+	float2 x = In.TexCoord0;
+	float4 v[6];
+	TEXSAMPLE(v[0], x + Radius*float2(-1.0, -1.0)/R);
+	TEXSAMPLE(v[1], x + Radius*float2( 0.0, -1.0)/R);
+	TEXSAMPLE(v[2], x + Radius*float2(+1.0, -1.0)/R);
+	TEXSAMPLE(v[3], x + Radius*float2(-1.0,  0.0)/R);
+	TEXSAMPLE(v[4], x + Radius*float2( 0.0,  0.0)/R);
+	TEXSAMPLE(v[5], x + Radius*float2(+1.0,  0.0)/R);
+
+	// Starting with a subset of size 6, remove the min and max each time
+	float4 temp;
+	mnmx6(v[0], v[1], v[2], v[3], v[4], v[5]);
+	TEXSAMPLE(v[5], x + float2(-1.0, +1.0)/R);
+	mnmx5(v[1], v[2], v[3], v[4], v[5]);
+	TEXSAMPLE(v[5], x + float2( 0.0, +1.0)/R);
+	mnmx4(v[2], v[3], v[4], v[5]);
+	TEXSAMPLE(v[5], x + float2(+1.0, +1.0)/R);
+	mnmx3(v[3], v[4], v[5]);	
+
+	float4 color;
+	TEXSAMPLE(color, In.TexCoord0);
+
+	//color.rgb = v[4].rgb;
+	//color.rgb = v[max(0,min(5,round(pow(Position+.001,.6)*5*.99)))].rgb;
+	//Out = color;
+	//Out = v[4];
+	Out = lerp(color, v[max(0,min(5,round(pow(Position+.001,.6)*5*.99)))], pc0[0]);
+}
+		</pixelshader>
+		<vertexshader></vertexshader>
+	</effect>
+	<effect id="median5x5" name="Median5x5">
+		<pixelshader>
+cbuffer myPrivateConst : register(b2)
+{
+    float4 pc0;
+}
+
+#define s2(a, b) temp = a; a = min(a, b); b = max(temp, b);		
+#define t2(a, b) s2(v[a], v[b]);
+#define t24(a, b, c, d, e, f, g, h)	t2(a, b); t2(c, d); t2(e, f); t2(g, h); 
+#define t25(a, b, c, d, e, f, g, h, i, j) t24(a, b, c, d, e, f, g, h); t2(i, j);
+		
+static float2 R = float2(200.0, 200.0);
+static int Radius = 1.0;
+static float Position = 0.5;
+		
+void CustomPS(VS_TO_PS In, out float4 Out : SV_Target)
+{
+	float2 x = In.TexCoord0;
+
+	float4 v[25];
+	for(int dX = -2; dX &lt;= 2; ++dX) {
+		for(int dY = -2; dY &lt;= 2; ++dY) {		
+			float2 offset = float2(float(dX), float(dY));
+			TEXSAMPLE(v[(dX + 2) * 5 + (dY + 2)], x + Radius*offset/R);
+    	}	
+	}
+
+	float4 temp;
+	t25(0, 1,			3, 4,		2, 4,		2, 3,		6, 7);
+	t25(5, 7,			5, 6,		9, 7,		1, 7,		1, 4);
+	t25(12, 13,		11, 13,		11, 12,		15, 16,		14, 16);
+	t25(14, 15,		18, 19,		17, 19,		17, 18,		21, 22);
+	t25(20, 22,		20, 21,		23, 24,		2, 5,		3, 6);
+	t25(0, 6,			0, 3,		4, 7,		1, 7,		1, 4);
+	t25(11, 14,		8, 14,		8, 11,		12, 15,		9, 15);
+	t25(9, 12,		13, 16,		10, 16,		10, 13,		20, 23);
+	t25(17, 23,		17, 20,		21, 24,		18, 24,		18, 21);
+	t25(19, 22,		8, 17,		9, 18,		0, 18,		0, 9);
+	t25(10, 19,		1, 19,		1, 10,		11, 20,		2, 20);
+	t25(2, 11,		12, 21,		3, 21,		3, 12,		13, 22);
+	t25(4, 22,		4, 13,		14, 23,		5, 23,		5, 14);
+	t25(15, 24,		6, 24,		6, 15,		7, 16,		7, 19);
+	t25(3, 11,		5, 17,		11, 17,		9, 17,		4, 10);
+	t25(6, 12,		7, 14,		4, 6,		4, 7,		12, 14);
+	t25(10, 14,		6, 7,		10, 12,		6, 10,		6, 17);
+	t25(12, 17,		7, 17,		7, 10,		12, 18,		7, 12);
+	t24(10, 18,		12, 20,		10, 20,		10, 12);
+
+	float4 color;
+	TEXSAMPLE(color, In.TexCoord0);
+//	color.a = v[max(0,min(24,round(Position*24*.999)))].a;
+//	Out = color;
+	Out = lerp(color, v[max(0,min(24,round(Position*24*.999)))], pc0[0]);
+}
+		</pixelshader>
+		<vertexshader></vertexshader>
+	</effect>
+	<effect id="lut" name="Look-Up Table">
+		<pixelshader>
+Texture2D texlut : register(t4);
+
+cbuffer myPrivateConst : register(b2)
+{
+    float4 pc0;
+}
+
+SamplerState lutSampler
+{
+	Filter = MIN_MAG_MIP_POINT;
+	AddressU = Clamp;
+	AddressV = Clamp;
+};
+
+void CustomPS(VS_TO_PS In, out float4 Out : SV_Target)
+{
+	float4 color;
+	TEXSAMPLE(color, In.TexCoord0);
+
+	float color_b = color.b * 63.0;
+
+	float2 TexCoord1;
+	TexCoord1.y = floor(floor(color_b) / 8.0);
+	TexCoord1.x = floor(color_b) - (TexCoord1.y * 8.0);
+
+	float2 TexCoord2;
+	TexCoord2.y = floor(ceil(color_b) / 8.0);
+	TexCoord2.x = ceil(color_b) - (TexCoord2.y * 8.0);
+
+	TexCoord1 = float2(
+		(TexCoord1.x * 0.125) + 0.5/512.0 + ((0.125 - 1.0/512.0) * color.r),
+		(TexCoord1.y * 0.125) + 0.5/512.0 + ((0.125 - 1.0/512.0) * color.g));
+
+	TexCoord2 = float2(
+		(TexCoord2.x * 0.125) + 0.5/512.0 + ((0.125 - 1.0/512.0) * color.r),
+		(TexCoord2.y * 0.125) + 0.5/512.0 + ((0.125 - 1.0/512.0) * color.g));
+
+	float4 color1 = texlut.Sample(lutSampler, lerp(float2(psfx, psfy), float2(psfu, psfv), TexCoord1));
+	float4 color2 = texlut.Sample(lutSampler, lerp(float2(psfx, psfy), float2(psfu, psfv), TexCoord2));
+	float4 color_mixed = lerp(color1, color2, frac(color_b));
+
+	Out = float4(lerp(color, color_mixed, pc0[0]).rgb, color.a);
+}
+		</pixelshader>
+		<vertexshader></vertexshader>
+	</effect>
+	<effect id="blur" name="Blur">
+		<pixelshader>
+static float blur_x[128] = { 0.006589, 0.000000, -0.015021, 0.001969, 0.019548, 0.011014, -0.012348, -0.025000, -0.015363, 0.007812, 0.026642, 0.028335, 0.012309, -0.011630, -0.030330, -0.034478, -0.022455, 0.000000, 0.023183, 0.037806, 0.038486, 0.025249, 0.002939, -0.020891, -0.038649, -0.045027, -0.038340, -0.020689, 0.002946, 0.026256, 0.043311, 0.050000, 0.044870, 0.029268, 0.006839, -0.017431, -0.038363, -0.051672, -0.054770, -0.047167, -0.030441, -0.007815, 0.016524, 0.038223, 0.053533, 0.059916, 0.056397, 0.043647, 0.023791, -0.000000, -0.024042, -0.044721, -0.059018, -0.064922, -0.061667, -0.049786, -0.030976, -0.007826, 0.016569, 0.039027, 0.056691, 0.067378, 0.069819, 0.063778, 0.050041, 0.030287, 0.006855, -0.017544, -0.040151, -0.058461, -0.070497, -0.075000, -0.071539, -0.060529, -0.043162, -0.021257, 0.002946, 0.027018, 0.048590, 0.065580, 0.076384, 0.080015, 0.076174, 0.065260, 0.048311, 0.026892, 0.002944, -0.021407, -0.044033, -0.062988, -0.076674, -0.083964, -0.084282, -0.077638, -0.064611, -0.046287, -0.024159, -0.000000, 0.024286, 0.046813, 0.065858, 0.079988, 0.088161, 0.089796, 0.084802, 0.073575, 0.056958, 0.036169, 0.012707, -0.011762, -0.035523, -0.056934, -0.074534, -0.087142, -0.093930, -0.094468, -0.088746, -0.077166, -0.060508, -0.039867, -0.016585, 0.007851, 0.031894, 0.054042, 0.072931, 0.087410, 0.096612, 0.100000 };
+static float blur_y[128] = { -0.005892, 0.012500, -0.002957, -0.017568, -0.002917, 0.018640, 0.019859, 0.000000, -0.021613, -0.026837, -0.012230, 0.011604, 0.029396, 0.030960, 0.015873, -0.007828, -0.028704, -0.037500, -0.030772, -0.011541, 0.012629, 0.032882, 0.042288, 0.037929, 0.021432, -0.001964, -0.025286, -0.041946, -0.047507, -0.040674, -0.023368, -0.000000, 0.023766, 0.042422, 0.051842, 0.050087, 0.037668, 0.017285, -0.006867, -0.030004, -0.047712, -0.056747, -0.055555, -0.044458, -0.025491, -0.001962, 0.022165, 0.042953, 0.057115, 0.062500, 0.058364, 0.045415, 0.025641, 0.001963, -0.022226, -0.043548, -0.059107, -0.066858, -0.065840, -0.056253, -0.039392, -0.017433, 0.006869, 0.030536, 0.050735, 0.065107, 0.072024, 0.070744, 0.061470, 0.045288, 0.024021, -0.000000, -0.024194, -0.046016, -0.063217, -0.074065, -0.077505, -0.073238, -0.061733, -0.044151, -0.022217, 0.001964, 0.026113, 0.047996, 0.065625, 0.077431, 0.082391, 0.080104, 0.070811, 0.055352, 0.035078, 0.011728, -0.012733, -0.036277, -0.056985, -0.073195, -0.083633, -0.087500, -0.084526, -0.074973, -0.059610, -0.039632, -0.016567, 0.007850, 0.031807, 0.053553, 0.071520, 0.084435, 0.091401, 0.091953, 0.086081, 0.074220, 0.057209, 0.036228, 0.012710, -0.011763, -0.035564, -0.057132, -0.075071, -0.088236, -0.095802, -0.097312, -0.092694, -0.082261, -0.066683, -0.046939, -0.024250, -0.000000};
+
+cbuffer myPrivateConst : register(b2)
+{
+    float4 pc0;
+}
+
+void CustomPS(VS_TO_PS In, out float4 Out : SV_Target)
+{
+	TEXSAMPLE(Out, In.TexCoord0);
+
+	int offsetsize = pc0[0] * 64.0;
+	float weight = 1;
+	for (int i = 0; i &lt; 64; i++) {
+		if (i &gt;= offsetsize) break;
+		float4 pix;
+		TEXSAMPLE(pix, In.TexCoord0 + float2(blur_x[i], blur_y[i]));
+		Out.rgb += pix.rgb * pix.a; weight += pix.a;
+	}
+	Out.rgb /= weight;
+}
+		</pixelshader>
+		<vertexshader></vertexshader>
+	</effect>
+</configuration>

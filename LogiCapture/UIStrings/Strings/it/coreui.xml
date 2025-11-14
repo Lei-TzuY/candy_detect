@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<StringDictionary version="1.2">
+  <Strings>
+    <String key="Buttons:MinimizeToolTip">Riduci a icona</String>
+    <String key="Buttons:CloseToolTip">Chiudi</String>
+
+    <!--First Page-->
+    <String key="WindowName">Programma di installazione %BrandName% Capture</String>
+    <String key="ApplicationName">Programma di installazione %BrandName% Capture</String>
+    <String key="Welcome">Benvenuto in</String>
+    <String key="LWS_UnInstall2">Software webcam %BrandName%</String>
+    <String key="LWS_UnInstall3">rilevato</String>
+    <String key="LWS_UnInstall4">Prima di installare il nuovo %BrandName% Capture, devi disinstallare il software della webcam %BrandName%.  Questi software condividono componenti che possono causare comportamenti imprevisti se vengono installate entrambe le applicazioni.</String>
+    <String key="LWS_UnInstall5">DISINSTALLA %BRANDNAME% WEBCAM SOFTWARE</String>
+    <String key="LogitechOptions">%BrandName% Capture</String>
+    <String key="Install">INSTALLAZIONE DI %BRANDNAME% CAPTURE</String>
+    <String key="Disclaimer:Intro">Facendo clic su Installa sia accettano i termini del</String>
+    <String key="Disclaimer:EULA">Contratto di licenza con l'utente finale</String>
+
+    <!--Analytics-->
+    <String key="Analytics:HelpUsTitle">Aiutaci a migliorare i nostri prodotti</String>
+    <String key="Analytics:HelpUsDescription">È possibile aiutare %BrandName% a migliorare i propri prodotti e servizi inviando automaticamente report diagnostici e dati sull'utilizzo.</String>
+    <String key="Analytics:Allow">SÌ, CONDIVIDI DATI DI ANALISI</String>
+    <String key="Analytics:Disallow">NO GRAZIE</String>
+    <String key="Analytics:ChangeInsideApp">Questa impostazione può essere modificata in %BrandName% Capture.</String>
+    <String key="Analytics:LearnMore">Ulteriori informazioni sull'Informativa sulla privacy di</String>
+    <String key="Analytics:PrivacyPolicy"> %BrandName%</String>
+    <String key="Analytics:WelcomeEULA">Contratto di licenza con l'utente finale</String>
+
+    <!--Installing Page-->
+    <String key="Installing">Installazione</String>
+    <String key="Installing:2">Installazione in corso...</String>
+    <String key="AppDescription">%BrandName% Capture ti consente di personalizzare e ottenere il massimo dalla webcam %BrandName%. Attendi, questo processo può richiedere alcuni minuti.</String>
+    <String key="AppDescription:2">Attendi, questo processo può richiedere alcuni minuti.</String>
+
+    <!--Install Completed Page-->
+    <String key="Installed">è installato</String>
+    <String key="MoreInformation">Per ulteriori informazioni, visita la pagina del Supporto</String>
+    <String key="Continue">CONTINUA</String>
+    <String key="OpenApp">AVVIA %BRANDNAME% CAPTURE</String>
+
+    <!--Restart Page-->
+    <String key="Reboot1">Riavvia il computer</String>
+    <String key="Reboot2">Il computer deve essere riavviato affinché le modifiche abbiano effetto. Se non esegui il riavvio la webcam %BrandName% potrebbe non funzionare correttamente.</String>
+    <String key="Reboot3">RIAVVIA ORA</String>
+    <String key="Reboot4">RIAVVIA IN SEGUITO</String>
+
+      <!--Close Apps Page-->
+    <String key="CloseApps:Title">L'INSTALLAZIONE NON PUÒ CONTINUARE</String>
+    <String key="CloseApps:Message2">Rilevamento utilizzo videocamera Logi Capture…</String>
+    <String key="CloseApps:Message">La videocamera Logi Capture sembra essere in uso, chiudi qualsiasi applicazione che potrebbe utilizzarla e riprova.</String>
+
+      <!--Any Page-->
+      <String key="RestartRequired:Title">RIAVVIO RICHIESTO</String>
+      <String key="RestartRequired:Message51">Il riavvio è richiesto per continuare con l'installazione di %BrandName% Capture.</String>
+      <String key="Reboot52">RIAVVIA</String>
+      <String key="CameraInUse:Title">Videocamera in uso</String>
+      <String key="CameraInUse:Message53">La videocamera Logi Capture sembra essere in uso, chiudi qualsiasi applicazione che potrebbe utilizzarla e riprova. In alternativa fai clic su RIAVVIA per riavviare il sistema e terminare l'installazione dopo il riavvio.</String>
+      <String key="CameraInUse:Message54">Rilevamento utilizzo videocamera Logi Capture…</String>
+
+      <!--Error Page-->
+    <String key="Error:InstallationFailed">Installazione di %BrandName% Capture non riuscita</String>
+    <String key="Button:Quit">ESCI DA INSTALLAZIONE</String>
+      <String key="Button:Quit2">ESCI</String>
+      <String key="Button:Retry">RIPROVA</String>
+      <String key="Button:Continue">Continua</String>
+
+
+    <!--Error + Warning Messages-->
+    <String key="Err:Title">Spiacenti. Si è verificato un problema</String>
+    <String key="Err:FailedTitle">Installazione di %BrandName% Capture non riuscita</String>
+    <String key="Err:Generic">Non è stato possibile installare %BrandName% Capture. Per ulteriori informazioni, visita la pagina del Supporto.</String>
+    <String key="Err:Failed">L'hardware del PC non soddisfa i requisiti hardware grafici minimi, contatta l'assistenza per ulteriori informazioni.</String>
+    <String key="Err:Win7Res">Impossibile installare il software correttamente, per maggiori informazioni contattare l’assistenza.</String>
+    <String key="Err:OSCHECK">Si è verificato un problema durante un tentativo di download di una dll del codificatore.  Per ulteriori informazioni, visita la pagina del Supporto</String>
+    <String key="Err:Singleton">È in esecuzione un'altra istanza del programma di installazione di %BrandName% Capture. Completare l'altra installazione prima di eseguire questo programma di installazione.</String>
+    <String key="Err:OS">%BrandName% Capture supporta solo Windows 10 a 64 bit o superiore. Aggiorna Windows per utilizzare %BrandName% Capture su questo computer.</String>
+    <String key="Err:OSTitle">Versione incompatibile di Windows.</String>
+    <String key="Err:Space">Impossibile installare %BrandName% Capture. Il disco di sistema non dispone di spazio sufficiente.</String>
+    <String key="Err:Version">Nel sistema è stata rilevata una versione più recente di %BrandName% Capture. Questa installazione non verrà eseguita.</String>
+    <String key="Err:Multiuser">Impossibile continuare, in quanto %BrandName% Capture è attualmente in esecuzione in un altro account utente in questo sistema. Riprovare dopo avere chiuso %BrandName% Capture negli altri account utente.</String>
+    <String key="Err:Admin">Impossibile installare %BrandName% Capture.  Per eseguire l'installazione del software è necessario disporre dei diritti di amministratore.</String>
+    <String key="Button:Okay">OK</String>
+    <String key="Err:NoInternetConnection">Il computer deve essere connesso a Internet. Verifica la connessione e riprova.</String>
+
+    <!--Error + Warning Buttons-->
+    <!-- FileLocked -->
+    <String key="Warn:Title:FileLocked">Riavvio richiesto per completare l'installazione</String>
+    <String key="Warn:Body:FileLocked">È necessario riavviare il computer per completare l'installazione. Finché non verrà completata l'installazione non sarà possibile utilizzare %BrandName% Capture e potrebbe verificarsi una perdita della funzionalità del dispositivo.</String>
+    <String key="Warn:ButtonPrimary:FileLocked">RIAVVIA ORA</String>
+    <String key="Warn:ButtonSecondary:FileLocked">RIAVVIA IN SEGUITO</String>
+      <!-- RestartRequired -->
+      <String key="Warn:Title:RestartRequired">Riavvio richiesto</String>
+      <String key="Warn:Body:RestartRequired">Il riavvio è richiesto per continuare con l'installazione di %BrandName% Capture.</String>
+      <String key="Warn:ButtonPrimary:RestartRequired">ESCI</String>
+      <String key="Warn:ButtonSecondary:RestartRequired">RIAVVIA</String>
+  </Strings>
+</StringDictionary>

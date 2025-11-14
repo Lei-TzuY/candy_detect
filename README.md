@@ -1,53 +1,43 @@
 # Candy 影像偵測專案
 
-本專案以 OpenCV + YOLOv4-tiny 執行雙攝影機的即時瑕疵偵測，並透過 HTTP 介面控制繼電器（Relay）。
+使用 OpenCV 與 YOLOv4-tiny 進行雙攝影機即時瑕疵偵測，並透過 HTTP 介面控制繼電器。
 
-## 核心架構
-
-本專案採用一個可設定、可複用的偵測腳本，架構清晰且易於擴展：
-
--   **`run_detector.py`**: 核心偵測程式。它會根據命令列參數讀取對應的攝影機設定，並執行偵測任務。
--   **`config.ini`**: 唯一的設定檔。所有路徑、偵測參數、攝影機編號和繼電器網址都在此設定，實現了程式碼與設定的分離。
--   **`run_all.bat`**: Windows 批次檔，用於方便地同時啟動兩個攝影機的偵測程序。
--   **`requirements.txt`**: 專案所需的 Python 函式庫。
+## 專案結構重點
+- `run_detector.py`：主要偵測腳本，支援一或多個攝影機，畫面會整合到同一視窗。
+- `config.ini`：設定檔，包含模型路徑、偵測參數、各攝影機與顯示設定。
+- `run_all.bat`：Windows 批次檔，於單一命令視窗啟動兩路攝影機偵測。
+- `requirements.txt`：安裝所需 Python 套件清單。
+- `Yolo/`、`訓練集資料/` 等大型目錄已在 `.gitignore` 排除，避免誤傳到 GitHub。
 
 ## 快速開始
-
-1.  **安裝環境**
-    -   安裝 Python (建議 3.8 或以上版本)。
-    -   安裝 Git for Windows (若需上傳至 GitHub)。
-    -   (可選) 如需 GPU 加速，請確保已安裝對應的 NVIDIA 驅動、CUDA 及 cuDNN。
-
-2.  **安裝函式庫**
-    在專案根目錄下開啟命令提示字元，執行以下指令：
-    ```bash
-    pip install -r requirements.txt
-    ```
-
-3.  **檢查設定**
-    開啟 `config.ini` 檔案，根據您的實際環境修改以下設定：
-    -   `[Paths]`: 確認 YOLO 模型相關檔案的路徑正確 (目前為相對路徑，通常不需修改)。
-    -   `[Camera1]` / `[Camera2]`:
-        -   `camera_index`: 攝影機的實體編號 (通常為 0, 1, 2...)。
-        -   `relay_url`: 對應的繼電器觸發網址。
-
-4.  **執行程式**
-    直接雙擊 `run_all.bat` 即可啟動兩個偵測視窗。
+1. **安裝環境**  
+   安裝 Python 3.11、Git for Windows（若需要上傳版本控管）。如需 GPU 加速請先安裝 CUDA/cuDNN 對應版本。
+2. **安裝套件**  
+   在專案路徑執行 `pip install -r requirements.txt`。
+3. **檢查設定**  
+   編輯 `config.ini`，依現場環境調整：
+   - `[Paths]`：模型權重、cfg、類別檔路徑。
+   - `[Detection]`：置信度、NMS 門檻、輸入尺寸。
+   - `[Camera1]` / `[Camera2]`：攝影機索引、畫面大小、繼電器 API、ROI 線位置。
+   - `[Display]`：`target_height` 控制拼接畫面高度，`max_width` 限制視窗最大寬度（0 代表自動使用螢幕寬度）。
+4. **執行偵測**  
+   - 直接雙擊 `run_all.bat`（或執行 `python run_detector.py Camera1 Camera2`）即可在單一 OpenCV 視窗中同時監看兩路攝影機，按 `q` 結束。
+   - 若只想啟動單一攝影機，可執行 `python run_detector.py Camera1`。
 
 ## 上傳到 GitHub
+1. 在 GitHub 建立空的 repository。
+2. 於專案資料夾內執行：
+   ```bash
+   git init
+   git add .
+   git commit -m "Initial commit"
+   git branch -M main
+   git remote add origin <repo-url>
+   git push -u origin main
+   ```
+3. 大型資料集與模型權重已由 `.gitignore` 排除；若需分享權重，建議改用 Git LFS 或發佈頁面。
 
-1.  在 GitHub 建立一個新的 repository。
-2.  在專案根目錄下執行 Git 指令：
-    ```bash
-    git init
-    git add .
-    git commit -m "Initial commit"
-    git branch -M main
-    git remote add origin <你的 Repository URL>
-    git push -u origin main
-    ```
-
-## 注意事項
-
--   `.gitignore` 檔案已設定好，會自動忽略大型檔案 (如 `Yolo/`, `訓練集資料/`) 和本機設定。
--   若需要分享模型權重檔 (`.weights`)，建議使用 Git LFS 或在 GitHub Release 頁面提供下載連結。
+## 其他注意事項
+- 灰階 YOLO 模型僅接受單通道輸入，推論端已自動將畫面轉灰階並共用同一個模型。
+- 觸發繼電器時使用 `requests`，若需更嚴謹的錯誤處理，可在 `trigger_relay` 中加入重試或更完整的日誌。
+- 若需要更高的彈性（例如新增 Camera3），只要在 `config.ini` 增加對應區塊並在啟動指令加入區塊名稱即可。

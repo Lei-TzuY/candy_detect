@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<StringDictionary version="1.2">
+  <Strings>
+    <String key="Buttons:MinimizeToolTip">Minimieren</String>
+    <String key="Buttons:CloseToolTip">Schließen</String>
+
+    <!--First Page-->
+    <String key="WindowName">%BrandName% Capture Deinstallationsprogramm</String>
+    <String key="UnInstall11">%BrandName% Capture</String>
+    <String key="ApplicationName">%BrandName% Capture Deinstallationsprogramm</String>
+    <String key="Welcome">%BRANDNAME% Capture</String>
+    <String key="LogitechOptions">%BrandName% Capture</String>
+    <String key="Install">Deinstallation von %BRANDNAME% Capture</String>
+    <String key="Disclaimer:Intro">Indem Sie auf „Installieren“ klicken, akzeptieren Sie die Bedingungen im</String>
+    <String key="Disclaimer:EULA">Endbenutzer-Lizenzvertrag</String>
+
+    <!--Analytics-->
+    <String key="Analytics:HelpUsTitle">HELFEN SIE UNS BEIM VERBESSERN UNSERER PRODUKTE</String>
+    <String key="Analytics:HelpUsDescription">Helfen Sie bei der Verbesserung der Produkte und Dienstleistungen von %BrandName%, indem Sie automatisch Fehlerdiagnosen und Nutzungsdaten senden lassen.</String>
+    <String key="Analytics:Allow">DEINSTALLIEREN</String>
+    <String key="Analytics:Disallow">BEENDEN</String>
+    <String key="Analytics:ChangeInsideApp">Diese Einstellung lässt sich ändern über die Schaltfläche „Mehr“ in %BrandName% Capture</String>
+    <String key="Analytics:LearnMore">Mehr zum Thema „%BrandName% –</String>
+    <String key="Analytics:PrivacyPolicy"> Datenschutzrichtlinien“ erfahren</String>
+    <String key="Analytics:WelcomeEULA"> Endbenutzer-Lizenzvertrag</String>
+      <String key="Analytics:UnInstall2">%BrandName% Capture wird von Ihrem System entfernt. Jegliche von Ihnen angepassten Einstellungen werden auf ihre Standardwerte zurückgesetzt.</String>
+      <String key="Analytics:UnInstall3">DEINSTALLIEREN</String>
+      <String key="Analytics:UnInstall4">BEENDEN</String>
+
+    <!--CloseApps Page-->
+    <String key="CloseApps:Title">Die Deinstallation kann nicht fortgesetzt werden</String>
+    <String key="CloseApps:Message">Ihre Logi Capture Kamera wird offenbar gerade verwendet. Schließen Sie alle Anwendungen, die möglicherweise auf die Kamera zugreifen, und versuchen Sie es erneut.</String>
+    <String key="CloseApps:Message2">Es wird geprüft, ob die Logi Capture Kamera gerade verwendet wird …</String>
+    <String key="Button:Retry">ERNEUT VERSUCHEN</String>
+
+    <!--Installing Page-->
+    <String key="Installing">Deinstallation läuft</String>
+    <String key="Installing:2">INSTALLATION LÄUFT</String>
+    <String key="AppDescription">%BrandName% Capture ermöglicht das Anpassen und Verwenden von %BrandName% Geräten.</String>
+    <String key="AppDescription:2">Bitte haben Sie etwas Geduld, dieser Vorgang kann einige Minuten lang dauern.</String>
+      <String key="UnInstalling3">Deinstallation läuft</String>
+
+    <!--Install Completed Page-->
+    <String key="Installed">IST INSTALLIERT</String>
+    <String key="MoreInformation">Weitere Informationen finden Sie unter</String>
+    <String key="Continue">WEITER</String>
+    <String key="OpenApp">%BRANDNAME% CAPTURE STARTEN</String>
+      <String key="UnInstallComplete">Deinstallation abgeschlossen</String>
+      <String key="UnInstallComplete2">%BrandName% Capture wird von Ihrem System entfernt.</String>
+      <String key="UnInstallComplete3">SCHLIESSEN</String>
+      <String key="UnInstallLockedFiles">Wir empfehlen einen Neustart des Systems zum Abschluss der Deinstallation.</String>
+      <String key="Reboot">NEUSTART</String>
+
+
+      <!--Error Page-->
+    <String key="Error:InstallationFailed">%BRANDNAME% CAPTURE /n INSTALLATION FEHLGESCHLAGEN</String>
+    <String key="Button:Quit">INSTALLATION ABBRECHEN</String>
+    <String key="Button:Continue">Weiter</String>
+
+
+    <!--Error + Warning Messages-->
+    <String key="Err:Title">HOPPLA! ES IST EIN PROBLEM AUFGETRETEN</String>
+    <String key="Err:FailedTitle">%BRANDNAME% CAPTURE /n INSTALLATION FEHLGESCHLAGEN</String>
+    <String key="Err:Failed">Fehler beim Installieren von %BrandName% Capture. Weitere Informationen finden Sie auf der Support-Seite.</String>
+    <String key="Err:OSCHECK">Diese Betriebssystem-Version wird nicht unterstützt\n Weitere Informationen finden Sie auf der Support-Seite.</String>
+    <String key="Err:Singleton">Ein andere Instanz des Installationsprogramms für %BrandName% Capture wird ausgeführt. Schließen Sie die andere Installation ab, bevor Sie dieses Installationsprogramm ausführen.</String>
+    <String key="Err:OS">%BrandName% Capture kann nicht installiert werden. Für diese Installation ist Windows 7 oder höher erforderlich.</String>
+    <String key="Err:Space">%BrandName% Capture kann nicht installiert werden. Die Festplatte Ihres Systems verfügt nicht über genügend freien Speicherplatz.</String>
+    <String key="Err:Version">Eine neuere Version von %BrandName% Capture wurde auf Ihrem System erkannt. Diese Installation wird nicht fortgesetzt.</String>
+    <String key="Err:Multiuser">Der Vorgang kann nicht fortgesetzt werden, weil %BrandName% Capture auf diesem System bereits in einem anderen Benutzerkonto ausgeführt wird. Versuchen Sie es noch einmal, sobald %BrandName% Capture in allen anderen Benutzerkonten geschlossen wurde.</String>
+    <String key="Err:Admin">%BrandName% Capture kann nicht installiert werden.  Für die Installation dieser Software sind Administratorrechte erforderlich.</String>
+    <String key="Button:Okay">OK</String>
+
+    <!--Error + Warning Buttons-->
+    <!-- FileLocked -->
+    <String key="Warn:Title:FileLocked">ZUM ABSCHLIESSEN DER INSTALLATION IST EIN NEUSTART ERFORDERLICH</String>
+    <String key="Warn:Body:FileLocked">Ihr Computer muss neu gestartet werden, um den Installationsvorgang abzuschließen. %BrandName% Capture kann nicht ausgeführt werden und die Funktionalität des Geräts ist möglicherweise auch eingeschränkt, bis die Installation abgeschlossen ist.</String>
+    <String key="Warn:ButtonPrimary:FileLocked">JETZT NEU STARTEN</String>
+    <String key="Warn:ButtonSecondary:FileLocked">SPÄTER NEU STARTEN</String>
+  </Strings>
+</StringDictionary>

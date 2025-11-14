@@ -1,0 +1,151 @@
+<html>
+  <head>
+    <title>No Source</title>
+    <link rel="stylesheet" href="brownpro.css" />
+    <style type="text/css">
+      * {
+        font-family: 'BrownPro';
+      }
+
+      body {
+        background: #fbfbfb;
+        overflow: hidden;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        font-size: 32px;
+        margin: 0;
+        padding: 4%;
+        box-sizing: border-box;
+      }
+
+      #main {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+      }
+
+      h1 {
+        color: #222425;
+        font-weight: bold;
+        font-size: 7em;
+        margin: 0;
+      }
+
+      p {
+        font-size: 2em;
+        color: #222425;
+        font-weight: 300;
+        margin: 0;
+        margin-top: 3em;
+      }
+
+      body.dark {
+        background: #262829;
+      }
+
+      .dark h1 {
+        color: #c3c6c8;
+      }
+
+      .dark p {
+        color: #c3c6c8;
+      }
+
+      span {
+        font-size: 1.8em;
+        color: #814efa;
+      }
+
+      a {
+        color: #814efa;
+        text-decoration: none;
+      }
+
+      .hidden {
+        display: none;
+      }
+    </style>
+  </head>
+
+  <body>
+    <section id="main" class="hidden">
+      <h1>$no_source</h1>
+      <p>$no_source_details</p>
+    </section>
+    <script type="text/javascript">
+      // disable text highlight
+      document.onselectstart = function(event) {
+        let nodeName = event.target.nodeName;
+        if (
+          nodeName === 'INPUT' ||
+          nodeName === 'TEXTAREA' ||
+          event.target.contentEditable === true
+        ) {
+          return true;
+        } else {
+          return false;
+        }
+      };
+
+      const resize = () => {
+        var ref = Math.min(innerHeight, innerWidth);
+
+        document.body.style.fontSize = Math.round(ref / 50) + 'px';
+      };
+      resize();
+      window.addEventListener('resize', resize);
+
+      const callbacks = [];
+      window.OnAsyncCallback = (asyncId, data) => {
+        if (callbacks[asyncId]) {
+          callbacks[asyncId](data);
+          delete callbacks[asyncId];
+        }
+      };
+      window.OnAsyncCallError = (asyncId, data) => {
+        console.error('Async Call Error', asyncId, data);
+      };
+      const asyncId = external.CallHostFunc('GetNoSourceLang');
+      callbacks[asyncId] = result => {
+        const main = document.getElementById('main');
+        let content = main.innerHTML;
+        let lang = JSON.parse(result);
+
+        Object.keys(lang).map(key => {
+          content = content.replace(`$${key}`, lang[key]);
+        });
+
+        main.innerHTML = content;
+        main.className = '';
+      };
+
+      const body = document.querySelector('body');
+      const toggleTheme = () => {
+        if (localStorage.theme && localStorage.theme === 'dark') {
+          body.classList.add('dark');
+        } else {
+          body.classList.remove('dark');
+        }
+      };
+
+      const checkIfTheme = evt => {
+        if (evt.key === 'theme') {
+          toggleTheme();
+        }
+      };
+
+      window.addEventListener('storage', checkIfTheme);
+      toggleTheme();
+
+      window.SetVolume = function() {};
+      window.OnSceneLoad = function() {};
+    </script>
+  </body>
+</html>

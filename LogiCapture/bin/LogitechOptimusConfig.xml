@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<configuration>
+ 	<add file="LogiCapture.exe" profile="Logi Capture" gpu="1" forced="true" />
+ 	<add file="LogiCapture.bp.exe" profile="Logi Capture" gpu="1" forced="true" />
+ 	<add file="VHMultiWriterExt2.exe" profile="Logi Capture Utils" gpu="0" forced="true" />
+ 	<add file="Logi.sc.exe" profile="Logi Capture Utils" gpu="0" forced="true" />
+</configuration>
