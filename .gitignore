@@ -1,0 +1,49 @@
+# Python cache
+__pycache__/
+*.py[cod]
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Editors/IDE
+.vscode/
+.idea/
+
+# Logs
+*.log
+app/logs/
+
+# Large/local datasets and artifacts (keep out of Git)
+訓練集資料/**
+雜項/**
+Yolo/**
+
+# Local runtimes and binaries
+app/jdk-17.0.6/**
+*.exe
+*.dll
+*.lib
+*.so
+*.dylib
+*.jar
+
+# Media and models
+*.mkv
+*.mp4
+*.avi
+*.mov
+*.weights
+*.onnx
+*.pt
+*.pb
+*.engine
+
+# Archives
+*.zip
+*.7z
+*.rar
+*.tar
+*.gz
+
