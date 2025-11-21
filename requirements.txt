@@ -1,3 +1,5 @@
 numpy
 opencv-python
 requests
+flask
+flask-cors

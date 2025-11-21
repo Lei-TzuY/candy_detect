@@ -17,7 +17,7 @@ ECHO.
 
 REM Start relay control service in a separate window
 ECHO Starting relay control service...
-start "Relay Service" cmd /k "cd /d \"%SCRIPT_DIR%app\" ^&^& jdk-17.0.6\bin\java.exe -jar modbus-gateway.jar"
+start "Relay Service" cmd /k "cd /d "%SCRIPT_DIR%app" ^&^& call run.bat"
 
 set "RETRIES=12"
 set "WAIT_SECONDS=1"

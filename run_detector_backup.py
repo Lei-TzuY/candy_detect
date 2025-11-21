@@ -16,9 +16,6 @@ import argparse
 import requests
 import math
 import numpy as np
-import os
-import ctypes
-import configparser
 from pathlib import Path
 
 from candy_detector.config import ConfigManager
@@ -35,18 +32,34 @@ from candy_detector.constants import (
     CLASS_ABNORMAL,
 )
 from candy_detector.logger import get_logger, setup_logger, APP_LOG_FILE
-from candy_detector.optimization import (
-    MultiScaleDetector,
-    ROIProcessor,
-    KalmanTracker,
-    AdaptiveTracker,
-    DynamicThresholdAdjuster,
-    PerformanceMonitor,
-)
 
 # 設置日誌
 setup_logger("candy_detector", APP_LOG_FILE)
 logger = get_logger("candy_detector.detector")
+
+
+class CameraContext:
+    name: str
+    index: int
+    frame_width: int
+    frame_height: int
+    relay_url: str
+    line_x1: int
+    line_x2: int
+    cap: cv2.VideoCapture
+    tracking_objects: dict = field(default_factory=dict)
+    track_id: int = 1
+    total_num: int = 0
+    normal_num: int = 0
+    abnormal_num: int = 0
+    focus_min: int = 0
+    focus_max: int = 255
+    relay_delay_ms: int = 0
+    frame_index: int = 0
+
+    def release(self) -> None:
+        if self.cap and self.cap.isOpened():
+            self.cap.release()
 
 
 def setup_config(config_file: str = 'config.ini') -> configparser.ConfigParser:
@@ -233,15 +246,6 @@ def create_camera_context(config: configparser.ConfigParser, section: str):
     focus_min = cam_config.getint('focus_min', fallback=0)
     focus_max = cam_config.getint('focus_max', fallback=255)
     relay_delay_ms = cam_config.getint('relay_delay_ms', fallback=0)
-    
-    # 優化相關參數
-    use_roi = cam_config.getint('use_roi', fallback=1)
-    roi_x1 = cam_config.getint('roi_x1', fallback=0)
-    roi_x2 = cam_config.getint('roi_x2', fallback=frame_width)
-    roi_y1 = cam_config.getint('roi_y1', fallback=0)
-    roi_y2 = cam_config.getint('roi_y2', fallback=frame_height)
-    kalman_process_noise = cam_config.getfloat('kalman_process_noise', fallback=0.1)
-    kalman_measure_noise = cam_config.getfloat('kalman_measure_noise', fallback=0.5)
 
     cap = cv2.VideoCapture(cam_index, cv2.CAP_DSHOW)
     cap.set(cv2.CAP_PROP_FRAME_WIDTH, frame_width)
@@ -255,18 +259,8 @@ def create_camera_context(config: configparser.ConfigParser, section: str):
     if use_startup_af:
         initialize_focus(cap, cam_name, frames=af_frames, delay_sec=af_delay_ms / 1000.0)
 
-    # 初始化優化組件
-    roi_processor = None
-    if use_roi:
-        roi_processor = ROIProcessor(frame_width, frame_height, roi_x1, roi_x2, roi_y1, roi_y2)
-    
-    # 讀取全局優化設置
-    detection_config = config['Detection']
-    use_kalman = detection_config.getint('use_kalman_filter', fallback=1)
-    use_adaptive = detection_config.getint('use_adaptive_tracking', fallback=1)
-
     print(f"啟動攝影機 {cam_name} (索引: {cam_index})")
-    ctx = CameraContext(
+    return CameraContext(
         name=cam_name,
         index=cam_index,
         frame_width=frame_width,
@@ -278,13 +272,7 @@ def create_camera_context(config: configparser.ConfigParser, section: str):
         focus_min=focus_min,
         focus_max=focus_max,
         relay_delay_ms=relay_delay_ms,
-        use_roi=use_roi and roi_processor is not None,
-        roi_processor=roi_processor,
-        use_kalman=use_kalman == 1,
-        use_adaptive=use_adaptive == 1,
-        adaptive_tracker=AdaptiveTracker() if use_adaptive == 1 else None,
     )
-    return ctx
 
 
 def process_camera_frame(
@@ -295,7 +283,6 @@ def process_camera_frame(
     conf_threshold: float,
     nms_threshold: float,
     elapsed_time: float,
-    multi_scale_detector=None,
 ) -> np.ndarray | None:
     cam_ctx.frame_index += 1
     ret, frame = cam_ctx.cap.read()
@@ -303,64 +290,23 @@ def process_camera_frame(
         print(f"警告: 無法向 {cam_ctx.name} 取得畫面，略過該幀。")
         return None
 
-    # 提取 ROI（如果啟用）
-    detection_frame = frame
-    if cam_ctx.use_roi and cam_ctx.roi_processor:
-        detection_frame = cam_ctx.roi_processor.extract_roi(frame)
-    
-    # 執行檢測
-    if multi_scale_detector:
-        # 使用多尺度檢測
-        detections_raw = multi_scale_detector.detect_multi_scale(detection_frame, model, conf_threshold, nms_threshold)
-        detections = []
-        for det in detections_raw:
-            classid = det['classid']
-            score = det['score']
-            cx, cy = det['center']
-            
-            # 如果使用 ROI，轉換座標
-            if cam_ctx.use_roi and cam_ctx.roi_processor:
-                cx, cy = cam_ctx.roi_processor.convert_roi_to_frame_coords(cx, cy)
-            
-            label = class_names[classid]
-            detections.append({'center': (cx, cy), 'label': label, 'score': score, 'bbox': det['bbox']})
-    else:
-        # 標準檢測
-        gray_frame = cv2.cvtColor(detection_frame, cv2.COLOR_BGR2GRAY)
-        classes, scores, boxes = model.detect(gray_frame, conf_threshold, nms_threshold)
+    gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    classes, scores, boxes = model.detect(gray_frame, conf_threshold, nms_threshold)
 
-        detections = []
-        for (classid, score, box) in zip(classes, scores, boxes):
-            classid = int(classid)
-            x, y, w, h = box
-            cx, cy = int(x + w / 2), int(y + h / 2)
-            
-            # 如果使用 ROI，轉換座標
-            if cam_ctx.use_roi and cam_ctx.roi_processor:
-                cx, cy = cam_ctx.roi_processor.convert_roi_to_frame_coords(cx, cy)
-            
-            label = class_names[classid]
-            detections.append({'center': (cx, cy), 'label': label, 'score': score, 'bbox': box})
-    
-    # 繪製偵測框
-    for det in detections:
-        cx, cy = det['center']
-        label = det['label']
-        score = det['score']
-        classid = class_names.index(label)
+    detections = []
+    for (classid, score, box) in zip(classes, scores, boxes):
+        classid = int(classid)
+        x, y, w, h = box
+        cx, cy = int(x + w / 2), int(y + h / 2)
+        label = class_names[classid]
+        detections.append({'center': (cx, cy), 'label': label})
         color = colors[classid % len(colors)]
         text_label = f"{label}: {score:.2f}"
-        
-        # 繪製檢測框
-        x, y, w, h = det['bbox']
-        if cam_ctx.use_roi and cam_ctx.roi_processor:
-            x, y = cam_ctx.roi_processor.convert_roi_to_frame_coords(x, y)
-        
-        cv2.rectangle(frame, (x, y), (x + w, y + h), color, 2)
+        cv2.rectangle(frame, box, color, 2)
         cv2.putText(
             frame,
             text_label,
-            (x, max(20, y - 10)),
+            (box[0], max(20, box[1] - 10)),
             cv2.FONT_HERSHEY_SIMPLEX,
             0.7,
             color,
@@ -370,7 +316,7 @@ def process_camera_frame(
     remaining = detections[:]
     for track in cam_ctx.tracking_objects.values():
         best_det = None
-        best_dist = TRACK_DISTANCE_THRESHOLD_PX
+        best_dist = TRACK_DISTANCE_PX
         for det in remaining:
             distance = math.hypot(track.center[0] - det['center'][0], track.center[1] - det['center'][1])
             if distance < best_dist:
@@ -464,19 +410,8 @@ def main(camera_sections: list[str]) -> None:
     display_height = config.getint('Display', 'target_height', fallback=DEFAULT_DISPLAY_HEIGHT)
     max_display_width = config.getint('Display', 'max_width', fallback=0)
 
-    # 優化設置
-    use_multi_scale = config.getint('Detection', 'use_multi_scale', fallback=0) == 1
-    multi_scale_str = config.get('Detection', 'multi_scale_factors', fallback='0.75,1.0,1.25')
-    multi_scale_factors = [float(x.strip()) for x in multi_scale_str.split(',')]
-    
     model, class_names = load_yolo_model(config)
     colors = [(0, 255, 0), (0, 0, 255), (255, 0, 0), (255, 255, 0)]
-    
-    # 初始化多尺度檢測器
-    multi_scale_detector = MultiScaleDetector(multi_scale_factors) if use_multi_scale else None
-    
-    # 初始化性能監控
-    perf_monitor = PerformanceMonitor(window_size=30)
 
     camera_contexts = []
     for section in camera_sections:
@@ -498,10 +433,8 @@ def main(camera_sections: list[str]) -> None:
 
     try:
         while True:
-            frame_start_time = time.time()
-            elapsed_time = frame_start_time - start_time
+            elapsed_time = time.time() - start_time
             processed_frames = []
-            
             for cam_ctx in camera_contexts:
                 frame = process_camera_frame(
                     cam_ctx,
@@ -511,7 +444,6 @@ def main(camera_sections: list[str]) -> None:
                     conf_threshold,
                     nms_threshold,
                     elapsed_time,
-                    multi_scale_detector=multi_scale_detector,
                 )
                 if frame is not None:
                     processed_frames.append(frame)
