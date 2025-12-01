@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>糖果瑕疵偵測系統</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <!-- 頂部導航 -->
+        <header class="header">
+            <h1>🍬 糖果瑕疵偵測系統</h1>
+            <nav class="nav-tabs">
+                <button class="nav-btn active" onclick="showTab('dashboard')">儀表板</button>
+                <button class="nav-btn" onclick="showTab('history')">歷史記錄</button>
+                <button class="nav-btn" onclick="showTab('settings')">系統設定</button>
+            </nav>
+        </header>
+
+        <!-- 儀表板頁面 -->
+        <div id="dashboard" class="tab-content active">
+            <!-- 即時統計卡片 -->
+            <div class="stats-container" id="statsContainer">
+                <!-- 動態產生統計卡片 -->
+            </div>
+
+            <!-- 攝影機畫面 -->
+            <div class="video-container" id="videoContainer">
+                <!-- 動態產生攝影機畫面 -->
+            </div>
+
+            <!-- 即時圖表 -->
+            <div class="charts-container">
+                <div class="chart-card">
+                    <h3>瑕疵率趨勢</h3>
+                    <canvas id="defectRateChart"></canvas>
+                </div>
+                <div class="chart-card">
+                    <h3>產品分布</h3>
+                    <canvas id="productPieChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- 歷史記錄頁面 -->
+        <div id="history" class="tab-content">
+            <div class="history-controls">
+                <label>
+                    時間範圍：
+                    <select id="historyHours" onchange="loadHistory()">
+                        <option value="1">過去 1 小時</option>
+                        <option value="6">過去 6 小時</option>
+                        <option value="24" selected>過去 24 小時</option>
+                        <option value="168">過去 7 天</option>
+                    </select>
+                </label>
+                <label>
+                    攝影機：
+                    <select id="historyCamera" onchange="loadHistory()">
+                        <option value="">全部</option>
+                    </select>
+                </label>
+                <button onclick="exportHistory()" class="btn-export">匯出 CSV</button>
+            </div>
+
+            <div class="history-table-container">
+                <table class="history-table" id="historyTable">
+                    <thead>
+                        <tr>
+                            <th>時間</th>
+                            <th>攝影機</th>
+                            <th>總數</th>
+                            <th>正常品</th>
+                            <th>瑕疵品</th>
+                            <th>瑕疵率</th>
+                        </tr>
+                    </thead>
+                    <tbody id="historyTableBody">
+                        <!-- 動態載入 -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 系統設定頁面 -->
+        <div id="settings" class="tab-content">
+            <div class="settings-container">
+                <h2>偵測參數設定</h2>
+                <div class="settings-group">
+                    <label>
+                        信心度閾值 (Confidence Threshold)：
+                        <input type="number" id="confThreshold" step="0.05" min="0" max="1" value="0.2">
+                    </label>
+                </div>
+                <div class="settings-group">
+                    <label>
+                        NMS 閾值 (NMS Threshold)：
+                        <input type="number" id="nmsThreshold" step="0.05" min="0" max="1" value="0.4">
+                    </label>
+                </div>
+
+                <h2>攝影機設定</h2>
+                <div id="cameraSettings">
+                    <!-- 動態載入攝影機設定 -->
+                </div>
+
+                <button onclick="saveSettings()" class="btn-save">儲存設定</button>
+                <div id="settingsMessage" class="message"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

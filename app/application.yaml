@@ -1,0 +1,14 @@
+settings:
+  slave:
+    host: 192.168.1.20
+    port: 502
+    slave-id: 1
+    
+  replays:
+    - name: Relay1
+      address: 1033
+      quantity: 1
+    
+    - name: Relay2
+      address: 1043
+      quantity: 1
