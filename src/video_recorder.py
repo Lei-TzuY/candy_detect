@@ -9,6 +9,9 @@ import threading
 from datetime import datetime
 from pathlib import Path
 
+# 專案根目錄
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+
 # 全域錄影器管理
 _recorders = {}
 _lock = threading.Lock()
@@ -17,9 +20,9 @@ _lock = threading.Lock()
 class VideoRecorder:
     """視頻錄影器 - 支援共享攝影機模式"""
 
-    def __init__(self, camera_index=0, output_dir="recordings"):
+    def __init__(self, camera_index=0, output_dir=None):
         self.camera_index = camera_index
-        self.output_dir = Path(output_dir)
+        self.output_dir = Path(output_dir) if output_dir else PROJECT_ROOT / "recordings"
         self.output_dir.mkdir(exist_ok=True)
 
         # 共享攝影機模式

@@ -43,11 +43,11 @@ if exist ".venv\Scripts\activate.bat" (
     exit /b 1
 )
 
-if exist "web_app.py" (
+if exist "src\web_app.py" (
     echo Starting web_app.py...
-    python web_app.py
+    python src\web_app.py
 ) else (
-    echo [ERROR] web_app.py not found!
+    echo [ERROR] src\web_app.py not found!
     pause
     exit /b 1
 )

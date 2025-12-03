@@ -17,6 +17,11 @@ from pathlib import Path
 import numpy as np
 import subprocess
 import os
+import sys
+
+# 將專案根目錄加入 Python 路徑
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(PROJECT_ROOT))
 
 from candy_detector.config import ConfigManager
 from candy_detector.models import CameraContext, TrackState
@@ -28,12 +33,16 @@ from candy_detector.constants import (
     CLASS_ABNORMAL,
 )
 from candy_detector.logger import get_logger, setup_logger, APP_LOG_FILE
-from video_recorder import VideoRecorder, get_recorder, cleanup_all as cleanup_recorders
-from run_detector import trigger_relay
-import yolov8_trainer as trainer
+from src.video_recorder import VideoRecorder, get_recorder, cleanup_all as cleanup_recorders
+from src.run_detector import trigger_relay
+import src.yolov8_trainer as trainer
 
-# 初始化 Flask
-app = Flask(__name__)
+# 初始化 Flask（指定模板和靜態檔案路徑）
+app = Flask(
+    __name__,
+    template_folder=str(PROJECT_ROOT / 'templates'),
+    static_folder=str(PROJECT_ROOT / 'static')
+)
 CORS(app)
 
 # 禁用靜態檔案快取（開發時使用）
@@ -57,7 +66,7 @@ camera_contexts = []
 model = None
 class_names = []
 config_manager = None
-db_path = Path(__file__).parent / "detection_data.db"
+db_path = PROJECT_ROOT / "detection_data.db"
 lock = threading.Lock()
 is_running = False
 
@@ -850,7 +859,7 @@ def change_model():
 def list_recordings():
     """列出所有錄影檔案"""
     try:
-        recordings_dir = Path(__file__).parent / "recordings"
+        recordings_dir = PROJECT_ROOT / "recordings"
         recordings_dir.mkdir(exist_ok=True)
         
         recordings = []
@@ -885,7 +894,7 @@ def list_recordings():
 def delete_recording(filename):
     """刪除錄影檔案"""
     try:
-        recordings_dir = Path(__file__).parent / "recordings"
+        recordings_dir = PROJECT_ROOT / "recordings"
         file_path = recordings_dir / filename
         
         # 安全檢查：確保檔案在 recordings 目錄內
@@ -905,7 +914,7 @@ def delete_recording(filename):
 @app.route('/recordings/<filename>')
 def serve_recording(filename):
     """提供錄影檔案下載"""
-    recordings_dir = Path(__file__).parent / "recordings"
+    recordings_dir = PROJECT_ROOT / "recordings"
     return send_from_directory(recordings_dir, filename, as_attachment=True)
 
 
