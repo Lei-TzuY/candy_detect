@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YOLOv8 訓練與測試</title>
+    <link rel="icon" href="{{ url_for('static', filename='favicon.svg') }}" type="image/svg+xml">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Segoe UI', 'Microsoft JhengHei', sans-serif;
+            background: #0f172a;
+            color: #e5e7eb;
+            padding: 20px;
+        }
+        .container { max-width: 1400px; margin: 0 auto; }
+        h1 { text-align: center; margin-bottom: 20px; color: #38bdf8; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .card {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            padding: 16px;
+        }
+        .card h2 { margin-bottom: 10px; color: #67e8f9; font-size: 18px; }
+        .form-group { margin-bottom: 12px; }
+        .form-group label { display: block; margin-bottom: 6px; color: #cbd5e1; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        input, select {
+            width: 100%; padding: 10px; border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.15);
+            background: rgba(255,255,255,0.06); color: #e5e7eb;
+        }
+        input:focus, select:focus { outline: 1px solid #38bdf8; }
+        .btn {
+            display: inline-flex; align-items: center; justify-content: center;
+            padding: 10px 14px; border: none; border-radius: 8px;
+            cursor: pointer; font-weight: 700;
+        }
+        .btn-primary { background: #0ea5e9; color: #fff; }
+        .btn-secondary { background: #475569; color: #fff; }
+        .btn-success { background: #10b981; color: #fff; }
+        .btn-danger { background: #ef4444; color: #fff; }
+        .btn-sm { padding: 6px 10px; font-size: 13px; }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .progress { width: 100%; height: 14px; background: rgba(255,255,255,0.1); border-radius: 8px; overflow: hidden; margin: 8px 0; }
+        .progress-bar { height: 100%; width: 0%; background: linear-gradient(90deg,#22d3ee,#10b981); text-align: center; font-size: 12px; color: #0f172a; font-weight: 700; }
+        .status-row { display: flex; gap: 10px; align-items: center; margin-bottom: 6px; }
+        .badge { padding: 4px 10px; border-radius: 20px; font-weight: 700; font-size: 12px; background: #475569; }
+        .badge.training { background: #0ea5e9; }
+        .badge.completed { background: #10b981; }
+        .badge.error { background: #ef4444; }
+        .metrics { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; }
+        .metric { background: rgba(255,255,255,0.06); padding: 10px; border-radius: 8px; text-align: center; }
+        .metric .value { font-size: 20px; font-weight: 800; color: #38bdf8; }
+        .metric .label { color: #cbd5e1; font-size: 12px; }
+        .log-box { background: rgba(0,0,0,0.3); border-radius: 8px; padding: 10px; max-height: 240px; overflow-y: auto; font-family: Consolas, monospace; font-size: 13px; }
+        .log-entry { padding: 4px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .stat-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; }
+        .stat { background: rgba(255,255,255,0.06); border-radius: 8px; padding: 8px; text-align: center; }
+        .stat .val { font-size: 18px; font-weight: 800; color: #10b981; }
+        .model-item { background: rgba(255,255,255,0.06); border-radius: 8px; padding: 10px; margin-bottom: 8px; }
+        .model-item .name { font-weight: 700; color: #38bdf8; }
+        .test-status { margin: 8px 0; padding: 8px 10px; border-radius: 8px; background: rgba(255,255,255,0.05); color: #cbd5e1; }
+        .test-status.success { color: #10b981; }
+        .test-status.error { color: #ef4444; }
+        .det-row { display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.08); padding: 6px 0; }
+        .det-row:last-child { border-bottom: none; }
+        @media(max-width: 900px){ .grid{grid-template-columns:1fr;} .form-row{grid-template-columns:1fr;} }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>YOLOv8 訓練與模型測試</h1>
+        <div class="grid">
+            <div>
+                <div class="card" style="margin-bottom:12px;">
+                    <h2>資料準備</h2>
+                    <div class="form-group">
+                        <label>資料來源目錄 (需包含 normal/ abnormal/ 子資料夾)</label>
+                        <input type="text" id="data-dir" value="datasets/raw">
+                    </div>
+                    <div class="form-group">
+                        <label>輸出目錄</label>
+                        <input type="text" id="output-dir" value="datasets/candy">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>訓練比例</label>
+                            <input type="number" id="train-ratio" value="0.8" min="0.5" max="0.95" step="0.05">
+                        </div>
+                    </div>
+                    <button class="btn btn-secondary" id="btn-prepare" onclick="prepareDataset()">準備資料</button>
+                    <div id="dataset-stats" class="stat-grid" style="display:none; margin-top:10px;">
+                        <div class="stat"><div class="val" id="stat-total">0</div><div>總數</div></div>
+                        <div class="stat"><div class="val" id="stat-train">0</div><div>訓練</div></div>
+                        <div class="stat"><div class="val" id="stat-val">0</div><div>驗證</div></div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>訓練設定</h2>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>模型</label>
+                            <select id="model-type">
+                                <option value="yolov8n">YOLOv8n</option>
+                                <option value="yolov8s">YOLOv8s</option>
+                                <option value="yolov8m" selected>YOLOv8m</option>
+                                <option value="yolov8l">YOLOv8l</option>
+                                <option value="yolov8x">YOLOv8x</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>訓練裝置</label>
+                            <select id="device"><option value="cpu">CPU</option></select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Epochs</label>
+                            <input type="number" id="epochs" value="100" min="1" max="1000">
+                        </div>
+                        <div class="form-group">
+                            <label>Batch Size</label>
+                            <input type="number" id="batch-size" value="16" min="1" max="128">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>影像大小</label>
+                            <select id="img-size">
+                                <option value="320">320</option>
+                                <option value="416">416</option>
+                                <option value="512">512</option>
+                                <option value="640" selected>640</option>
+                                <option value="800">800</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>訓練名稱</label>
+                            <input type="text" id="train-name" value="candy_detect">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>data.yaml 路徑</label>
+                        <input type="text" id="data-yaml" value="datasets/candy/data.yaml">
+                    </div>
+                    <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                        <button class="btn btn-success" id="btn-start" onclick="startTraining()">開始訓練</button>
+                        <button class="btn btn-danger" id="btn-stop" onclick="stopTraining()" disabled>停止訓練</button>
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <div class="card" style="margin-bottom:12px;">
+                    <h2>訓練狀態</h2>
+                    <div class="status-row">
+                        <span class="badge" id="status-badge">idle</span>
+                        <span id="status-message" style="color:#cbd5e1;">尚未開始</span>
+                    </div>
+                    <div class="progress"><div class="progress-bar" id="progress-bar">0%</div></div>
+                    <div class="form-row" style="margin-bottom:8px;">
+                        <div>Epoch: <span id="current-epoch">0</span> / <span id="total-epochs">0</span></div>
+                        <div>經過時間: <span id="elapsed-time">00:00:00</span></div>
+                    </div>
+                    <div class="metrics">
+                        <div class="metric"><div class="value" id="metric-loss">--</div><div class="label">Loss</div></div>
+                        <div class="metric"><div class="value" id="metric-map50">--</div><div class="label">mAP50</div></div>
+                        <div class="metric"><div class="value" id="metric-map95">--</div><div class="label">mAP50-95</div></div>
+                    </div>
+                </div>
+
+                <div class="card" style="margin-bottom:12px;">
+                    <h2>訓練日誌</h2>
+                    <div class="log-box" id="log-container">
+                        <div class="log-entry" style="color:#94a3b8;">等待訓練開始...</div>
+                    </div>
+                </div>
+
+                <div class="card" style="margin-bottom:12px;">
+                    <h2>已訓練模型</h2>
+                    <button class="btn btn-secondary btn-sm" onclick="loadModels()" style="margin-bottom:6px;">重新整理</button>
+                    <div id="model-list"></div>
+                </div>
+
+                <div class="card" style="margin-bottom:12px;">
+                    <h2>模型測試</h2>
+                    <div class="form-group">
+                        <label>模型路徑 (.pt)</label>
+                        <input type="text" id="test-model-path" placeholder="填入 best.pt 路徑">
+                        <button class="btn btn-secondary btn-sm" style="margin-top:6px;" onclick="fillLatestModel()">填入最新 best.pt</button>
+                    </div>
+                    <div class="form-group">
+                        <label>測試圖片</label>
+                        <input type="file" id="test-image" accept="image/*">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>信心閾值</label>
+                            <input type="number" id="test-conf" value="0.25" min="0" max="1" step="0.05">
+                        </div>
+                        <div class="form-group" style="display:flex; align-items:flex-end;">
+                            <button class="btn btn-primary" onclick="testModel()">開始測試</button>
+                        </div>
+                    </div>
+                    <div id="test-status" class="test-status">尚未測試</div>
+                    <div class="test-preview">
+                        <img id="test-result-img" style="max-width:100%; border-radius:8px; display:block;">
+                    </div>
+                    <div id="test-result-list"></div>
+                </div>
+
+                <div class="card">
+                    <h2>模型準確度 (驗證集)</h2>
+                    <div class="form-group">
+                        <label>模型路徑 (.pt)</label>
+                        <input type="text" id="eval-model-path" placeholder="填入 best.pt 路徑">
+                        <button class="btn btn-secondary btn-sm" style="margin-top:6px;" onclick="fillLatestForEval()">填入最新 best.pt</button>
+                    </div>
+                    <div class="form-group">
+                        <label>data.yaml 路徑</label>
+                        <input type="text" id="eval-data-yaml" value="datasets/candy/data.yaml">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>裝置</label>
+                            <select id="eval-device"><option value="cpu">CPU</option></select>
+                        </div>
+                        <div class="form-group">
+                            <label>信心閾值</label>
+                            <input type="number" id="eval-conf" value="0.25" min="0" max="1" step="0.05">
+                        </div>
+                        <div class="form-group">
+                            <label>IoU 閾值</label>
+                            <input type="number" id="eval-iou" value="0.6" min="0" max="1" step="0.05">
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" onclick="evaluateModel()">開始計算準確度</button>
+                    <div id="eval-status" class="test-status">尚未計算</div>
+                    <div id="eval-metrics" class="stat-grid" style="display:none; margin-top:8px;">
+                        <div class="stat"><div class="val" id="eval-map50">--</div><div>mAP50</div></div>
+                        <div class="stat"><div class="val" id="eval-map95">--</div><div>mAP50-95</div></div>
+                        <div class="stat"><div class="val" id="eval-precision">--</div><div>Precision</div></div>
+                        <div class="stat"><div class="val" id="eval-recall">--</div><div>Recall</div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let statusTimer = null;
+        let latestModelPath = '';
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadDevices();
+            loadModels();
+            updateStatus();
+            statusTimer = setInterval(updateStatus, 2000);
+        });
+
+        async function loadDevices() {
+            try {
+                const res = await fetch('/api/training/devices');
+                const devices = await res.json();
+                const trainSel = document.getElementById('device');
+                const evalSel = document.getElementById('eval-device');
+                trainSel.innerHTML = ''; evalSel.innerHTML = '';
+                devices.forEach(d => {
+                    const o1 = document.createElement('option');
+                    o1.value = d.id; o1.textContent = d.name; trainSel.appendChild(o1);
+                    const o2 = o1.cloneNode(true); evalSel.appendChild(o2);
+                });
+            } catch (e) { console.error('載入裝置失敗', e); }
+        }
+
+        async function prepareDataset() {
+            const btn = document.getElementById('btn-prepare');
+            btn.disabled = true; btn.textContent = '準備中...';
+            try {
+                const payload = {
+                    data_dir: document.getElementById('data-dir').value,
+                    output_dir: document.getElementById('output-dir').value,
+                    train_ratio: parseFloat(document.getElementById('train-ratio').value || '0.8')
+                };
+                const res = await fetch('/api/training/prepare-dataset', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const result = await res.json();
+                if (!result.success) throw new Error(result.error || '準備資料失敗');
+                const stats = result.stats || {};
+                document.getElementById('stat-total').textContent = stats.total || 0;
+                document.getElementById('stat-train').textContent = stats.train || 0;
+                document.getElementById('stat-val').textContent = stats.val || 0;
+                document.getElementById('dataset-stats').style.display = 'grid';
+                if (result.data_yaml) document.getElementById('data-yaml').value = result.data_yaml;
+            } catch (e) { alert(e.message); }
+            finally { btn.disabled = false; btn.textContent = '準備資料'; }
+        }
+
+        async function startTraining() {
+            const payload = {
+                model: document.getElementById('model-type').value,
+                device: document.getElementById('device').value,
+                epochs: parseInt(document.getElementById('epochs').value || '0'),
+                batch_size: parseInt(document.getElementById('batch-size').value || '0'),
+                img_size: parseInt(document.getElementById('img-size').value || '640'),
+                name: document.getElementById('train-name').value,
+                data_yaml: document.getElementById('data-yaml').value
+            };
+            document.getElementById('btn-start').disabled = true;
+            try {
+                const res = await fetch('/api/training/start', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const result = await res.json();
+                if (!result.success) throw new Error(result.error || '啟動訓練失敗');
+                document.getElementById('btn-stop').disabled = false;
+            } catch (e) {
+                alert(e.message);
+                document.getElementById('btn-start').disabled = false;
+            }
+        }
+
+        async function stopTraining() {
+            try { await fetch('/api/training/stop', { method: 'POST' }); }
+            catch (e) { console.error(e); }
+            document.getElementById('btn-stop').disabled = true;
+            document.getElementById('btn-start').disabled = false;
+        }
+
+        async function updateStatus() {
+            try {
+                const res = await fetch('/api/training/status');
+                const s = await res.json();
+                const badge = document.getElementById('status-badge');
+                badge.textContent = s.status || 'idle';
+                badge.className = 'badge ' + (s.status || 'idle');
+                document.getElementById('status-message').textContent = s.message || '';
+                const progress = s.progress || 0;
+                const bar = document.getElementById('progress-bar');
+                bar.style.width = progress + '%'; bar.textContent = progress + '%';
+                document.getElementById('current-epoch').textContent = s.current_epoch || 0;
+                document.getElementById('total-epochs').textContent = s.total_epochs || 0;
+                if (s.loss) document.getElementById('metric-loss').textContent = s.loss.toFixed(4);
+                if (s.map50) document.getElementById('metric-map50').textContent = (s.map50 * 100).toFixed(1) + '%';
+                if (s.map50_95) document.getElementById('metric-map95').textContent = (s.map50_95 * 100).toFixed(1) + '%';
+                if (s.start_time) {
+                    const elapsed = Math.max(0, (Date.now()/1000) - s.start_time);
+                    document.getElementById('elapsed-time').textContent = formatTime(elapsed);
+                }
+                document.getElementById('btn-start').disabled = s.is_training;
+                document.getElementById('btn-stop').disabled = !s.is_training;
+                if (s.log && s.log.length) {
+                    const box = document.getElementById('log-container');
+                    box.innerHTML = s.log.map(x => `<div class="log-entry">${x}</div>`).join('');
+                    box.scrollTop = box.scrollHeight;
+                }
+                if (s.status === 'completed') loadModels();
+            } catch (e) { console.error('更新狀態失敗', e); }
+        }
+
+        function formatTime(sec) {
+            const h = Math.floor(sec / 3600).toString().padStart(2,'0');
+            const m = Math.floor((sec % 3600) / 60).toString().padStart(2,'0');
+            const s = Math.floor(sec % 60).toString().padStart(2,'0');
+            return `${h}:${m}:${s}`;
+        }
+
+        async function loadModels() {
+            try {
+                const res = await fetch('/api/training/models');
+                const models = await res.json();
+                const box = document.getElementById('model-list');
+                if (!models || models.length === 0) {
+                    box.innerHTML = '<p style="color:#94a3b8;">尚無訓練模型</p>';
+                    return;
+                }
+                const latest = models.find(m => m.best_pt) || models[0];
+                latestModelPath = latest.best_pt || latest.last_pt || latest.path || '';
+                box.innerHTML = models.map(m => `
+                    <div class="model-item">
+                        <div class="name">${m.name}</div>
+                        <div style="color:#cbd5e1; font-size:13px;">
+                            建立時間: ${m.created || ''}<br>
+                            ${m.epochs ? `Epochs: ${m.epochs}` : ''} ${m.map50 ? ` | mAP50: ${(m.map50*100).toFixed(1)}%` : ''}
+                        </div>
+                        <div style="display:flex; gap:8px; margin-top:6px; flex-wrap:wrap;">
+                            ${m.best_pt ? `<button class="btn btn-primary btn-sm" onclick="copyPath('${m.best_pt.replace(/\\\\/g,'\\\\\\\\')}')">複製 best.pt</button>` : ''}
+                            <button class="btn btn-secondary btn-sm" onclick="openFolder('${m.path.replace(/\\\\/g,'\\\\\\\\')}')">開啟資料夾</button>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (e) { console.error('載入模型失敗', e); }
+        }
+
+        function copyPath(p) { navigator.clipboard.writeText(p).then(() => alert('已複製: ' + p)); }
+
+        async function openFolder(path) {
+            try {
+                await fetch('/api/training/open-folder', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ path })
+                });
+            } catch (e) { console.error('開啟資料夾失敗', e); }
+        }
+
+        async function testModel() {
+            const modelPath = document.getElementById('test-model-path').value.trim();
+            const fileInput = document.getElementById('test-image');
+            const conf = parseFloat(document.getElementById('test-conf').value || '0.25');
+            const status = document.getElementById('test-status');
+            const img = document.getElementById('test-result-img');
+            const list = document.getElementById('test-result-list');
+            if (!modelPath) { alert('請輸入模型路徑'); return; }
+            if (!fileInput.files.length) { alert('請選擇測試圖片'); return; }
+            const form = new FormData();
+            form.append('model_path', modelPath);
+            form.append('conf', isNaN(conf)?0.25:conf);
+            form.append('image', fileInput.files[0]);
+            status.textContent = '測試中...'; status.className = 'test-status';
+            img.src = ''; list.innerHTML = '';
+            try {
+                const res = await fetch('/api/training/test-model', { method:'POST', body: form });
+                const result = await res.json();
+                if (!res.ok || !result.success) throw new Error(result.error || '測試失敗');
+                status.textContent = `測試成功，偵測 ${result.num_detections} 筆`;
+                status.className = 'test-status success';
+                img.src = result.output_image + '?t=' + Date.now();
+                if (result.detections && result.detections.length) {
+                    list.innerHTML = result.detections.map(d => `<div class="det-row"><div>${d.class_name}</div><div>${(d.confidence*100).toFixed(1)}%</div></div>`).join('');
+                } else {
+                    list.innerHTML = '<div class="det-row">無偵測結果</div>';
+                }
+            } catch (e) {
+                status.textContent = '測試失敗：' + e.message;
+                status.className = 'test-status error';
+            }
+        }
+
+        async function evaluateModel() {
+            const modelPath = document.getElementById('eval-model-path').value.trim();
+            const dataYaml = document.getElementById('eval-data-yaml').value.trim();
+            const device = document.getElementById('eval-device').value;
+            const conf = parseFloat(document.getElementById('eval-conf').value || '0.25');
+            const iou = parseFloat(document.getElementById('eval-iou').value || '0.6');
+            const status = document.getElementById('eval-status');
+            const box = document.getElementById('eval-metrics');
+            if (!modelPath || !dataYaml) { alert('請填入模型路徑與 data.yaml'); return; }
+            status.textContent = '計算中...'; status.className = 'test-status';
+            box.style.display = 'none';
+            try {
+                const res = await fetch('/api/training/evaluate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ model_path: modelPath, data_yaml: dataYaml, device, conf, iou })
+                });
+                const result = await res.json();
+                if (!res.ok || !result.success) throw new Error(result.error || '評估失敗');
+                const m = result.metrics || {};
+                document.getElementById('eval-map50').textContent = (m.map50 || 0).toFixed(3);
+                document.getElementById('eval-map95').textContent = (m.map50_95 || 0).toFixed(3);
+                document.getElementById('eval-precision').textContent = (m.precision || 0).toFixed(3);
+                document.getElementById('eval-recall').textContent = (m.recall || 0).toFixed(3);
+                box.style.display = 'grid';
+                status.textContent = '計算完成'; status.className = 'test-status success';
+            } catch (e) {
+                status.textContent = '計算失敗：' + e.message;
+                status.className = 'test-status error';
+            }
+        }
+
+        function fillLatestModel() {
+            if (latestModelPath) document.getElementById('test-model-path').value = latestModelPath;
+            else alert('尚未找到模型');
+        }
+        function fillLatestForEval() {
+            if (latestModelPath) document.getElementById('eval-model-path').value = latestModelPath;
+            else alert('尚未找到模型');
+        }
+    </script>
+</body>
+</html>

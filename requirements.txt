@@ -3,3 +3,6 @@ opencv-python
 requests
 flask
 flask-cors
+pyyaml
+keyboard
+ultralytics

@@ -1,0 +1,6 @@
+names:
+  0: normal
+  1: abnormal
+path: C:\Users\st313\Desktop\candy\datasets\candy
+train: images/train
+val: images/val

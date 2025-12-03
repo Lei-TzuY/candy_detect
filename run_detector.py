@@ -233,6 +233,7 @@ def create_camera_context(config: configparser.ConfigParser, section: str):
     focus_min = cam_config.getint('focus_min', fallback=0)
     focus_max = cam_config.getint('focus_max', fallback=255)
     relay_delay_ms = cam_config.getint('relay_delay_ms', fallback=0)
+    default_focus = cam_config.getint('default_focus', fallback=-1)
     
     # 優化相關參數
     use_roi = cam_config.getint('use_roi', fallback=1)
@@ -252,8 +253,16 @@ def create_camera_context(config: configparser.ConfigParser, section: str):
         cap.release()
         return None
 
+    # 設定初始焦距
     if use_startup_af:
         initialize_focus(cap, cam_name, frames=af_frames, delay_sec=af_delay_ms / 1000.0)
+    elif default_focus >= 0:
+        try:
+            cap.set(cv2.CAP_PROP_AUTOFOCUS, 0)
+            cap.set(cv2.CAP_PROP_FOCUS, default_focus)
+            logger.info(f"{cam_name}: 已將初始焦距設為預設值 {default_focus}")
+        except Exception as e:
+            logger.warning(f"為 {cam_name} 設定預設焦距失敗: {e}")
 
     # 初始化優化組件
     roi_processor = None
@@ -295,6 +304,7 @@ def process_camera_frame(
     conf_threshold: float,
     nms_threshold: float,
     elapsed_time: float,
+    draw_annotations: bool = True,
     multi_scale_detector=None,
 ) -> np.ndarray | None:
     cam_ctx.frame_index += 1
@@ -342,30 +352,31 @@ def process_camera_frame(
             label = class_names[classid]
             detections.append({'center': (cx, cy), 'label': label, 'score': score, 'bbox': box})
     
-    # 繪製偵測框
-    for det in detections:
-        cx, cy = det['center']
-        label = det['label']
-        score = det['score']
-        classid = class_names.index(label)
-        color = colors[classid % len(colors)]
-        text_label = f"{label}: {score:.2f}"
-        
-        # 繪製檢測框
-        x, y, w, h = det['bbox']
-        if cam_ctx.use_roi and cam_ctx.roi_processor:
-            x, y = cam_ctx.roi_processor.convert_roi_to_frame_coords(x, y)
-        
-        cv2.rectangle(frame, (x, y), (x + w, y + h), color, 2)
-        cv2.putText(
-            frame,
-            text_label,
-            (x, max(20, y - 10)),
-            cv2.FONT_HERSHEY_SIMPLEX,
-            0.7,
-            color,
-            2,
-        )
+    # ??s??????
+    if draw_annotations:
+        for det in detections:
+            cx, cy = det['center']
+            label = det['label']
+            score = det['score']
+            classid = class_names.index(label)
+            color = colors[classid % len(colors)]
+            text_label = f"{label}: {score:.2f}"
+            
+            # ??s?????
+            x, y, w, h = det['bbox']
+            if cam_ctx.use_roi and cam_ctx.roi_processor:
+                x, y = cam_ctx.roi_processor.convert_roi_to_frame_coords(x, y)
+            
+            cv2.rectangle(frame, (x, y), (x + w, y + h), color, 2)
+            cv2.putText(
+                frame,
+                text_label,
+                (x, max(20, y - 10)),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                0.7,
+                color,
+                2,
+            )
 
     remaining = detections[:]
     for track in cam_ctx.tracking_objects.values():
@@ -432,18 +443,19 @@ def process_camera_frame(
     for track_id in to_remove:
         cam_ctx.tracking_objects.pop(track_id, None)
 
-    for object_id, track in cam_ctx.tracking_objects.items():
-        pt = track.center
-        cv2.circle(frame, pt, 5, (0, 0, 255), -1)
-        cv2.putText(
-            frame,
-            str(object_id),
-            (pt[0], pt[1] - 7),
-            cv2.FONT_HERSHEY_SIMPLEX,
-            0.5,
-            (0, 0, 255),
-            2,
-        )
+    if draw_annotations:
+        for object_id, track in cam_ctx.tracking_objects.items():
+            pt = track.center
+            cv2.circle(frame, pt, 5, (0, 0, 255), -1)
+            cv2.putText(
+                frame,
+                str(object_id),
+                (pt[0], pt[1] - 7),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                0.5,
+                (0, 0, 255),
+                2,
+            )
 
     cv2.line(frame, (cam_ctx.line_x1, 0), (cam_ctx.line_x1, cam_ctx.frame_height), (200, 100, 0), 2)
     cv2.line(frame, (cam_ctx.line_x2, 0), (cam_ctx.line_x2, cam_ctx.frame_height), (200, 100, 0), 2)

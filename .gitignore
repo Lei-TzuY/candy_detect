@@ -60,3 +60,22 @@ LogiCapture/
 # Results folder (local detection results)
 results/
 
+# Old/backup code
+candy_old/
+
+# Recordings
+recordings/
+
+# Test files
+gcam.py
+gcpt1.py
+gcpt2.py
+test_trackbar.py
+
+# Backup and sample files
+run_detector_backup.py
+sample_recorder.py
+
+# Temporary notes
+web_app_api_addition.txt
+pip_ultralytics.log
