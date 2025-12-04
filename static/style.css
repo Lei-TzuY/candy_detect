@@ -5,10 +5,80 @@
     box-sizing: border-box;
 }
 
+:root {
+    --bg: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --text-color: #333;
+    --muted-color: #666;
+    --muted-strong: #888;
+    --primary: #667eea;
+    --primary-strong: #5568d3;
+    --accent: #ff6b6b;
+    --card-bg: #ffffff;
+    --card-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    --surface-bg: #f9f9f9;
+    --nav-bg: #f0f0f0;
+    --nav-hover: #e0e0e0;
+    --nav-active-bg: #667eea;
+    --nav-active-text: #ffffff;
+    --table-hover: #f9f9f9;
+    --table-border: #eeeeee;
+    --border-color: #dddddd;
+    --border-strong: #cccccc;
+    --hint-bg: rgba(102, 126, 234, 0.1);
+    --control-value-bg: #ffffff;
+    --ghost-bg: #f5f7ff;
+    --ghost-border: #d6dcff;
+    --ghost-text: #4b57d6;
+    --ghost-shadow: rgba(102, 126, 234, 0.25);
+    --panel-start: #f5f7fa;
+    --panel-end: #e4e8ec;
+    --info-bg: rgba(102, 126, 234, 0.1);
+    --info-text: #333;
+    --chart-grid: rgba(0, 0, 0, 0.1);
+    --input-bg: #ffffff;
+    --input-border: #dddddd;
+    --slider-track: linear-gradient(90deg, #ddd 0%, #667eea 100%);
+}
+
+body.dark-mode {
+    --bg: radial-gradient(circle at 20% 20%, #0f172a 0%, #0b1220 45%, #060912 100%);
+    --text-color: #e5e7eb;
+    --muted-color: #cbd5e1;
+    --muted-strong: #94a3b8;
+    --primary: #8b5cf6;
+    --primary-strong: #7c3aed;
+    --accent: #ff7b7b;
+    --card-bg: #0f172a;
+    --card-shadow: 0 6px 18px rgba(0, 0, 0, 0.5);
+    --surface-bg: #111827;
+    --nav-bg: #1f2937;
+    --nav-hover: #24314a;
+    --nav-active-bg: #8b5cf6;
+    --nav-active-text: #ffffff;
+    --table-hover: rgba(255, 255, 255, 0.04);
+    --table-border: rgba(255, 255, 255, 0.08);
+    --border-color: #273447;
+    --border-strong: #3b455a;
+    --hint-bg: rgba(139, 92, 246, 0.14);
+    --control-value-bg: #0b1220;
+    --ghost-bg: rgba(255, 255, 255, 0.05);
+    --ghost-border: rgba(255, 255, 255, 0.12);
+    --ghost-text: #e5e7eb;
+    --ghost-shadow: rgba(0, 0, 0, 0.35);
+    --panel-start: #1f2937;
+    --panel-end: #0f172a;
+    --info-bg: rgba(139, 92, 246, 0.18);
+    --info-text: #e5e7eb;
+    --chart-grid: rgba(255, 255, 255, 0.1);
+    --input-bg: #0b1220;
+    --input-border: #334155;
+    --slider-track: linear-gradient(90deg, #1f2937 0%, #8b5cf6 100%);
+}
+
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: #333;
+    background: var(--bg);
+    color: var(--text-color);
     min-height: 100vh;
 }
 
@@ -20,16 +90,16 @@ body {
 
 /* 頂部導航 */
 .header {
-    background: white;
+    background: var(--card-bg);
     border-radius: 10px;
     padding: 20px 30px;
     margin-bottom: 20px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--card-shadow);
 }
 
 .header h1 {
     font-size: 32px;
-    color: #667eea;
+    color: var(--primary);
     margin-bottom: 15px;
 }
 
@@ -41,7 +111,7 @@ body {
 .nav-btn {
     padding: 10px 20px;
     border: none;
-    background: #f0f0f0;
+    background: var(--nav-bg);
     border-radius: 5px;
     cursor: pointer;
     font-size: 16px;
@@ -49,12 +119,12 @@ body {
 }
 
 .nav-btn:hover {
-    background: #e0e0e0;
+    background: var(--nav-hover);
 }
 
 .nav-btn.active {
-    background: #667eea;
-    color: white;
+    background: var(--nav-active-bg);
+    color: var(--nav-active-text);
 }
 
 /* 錄影按鈕連結 */
@@ -105,10 +175,10 @@ body {
 }
 
 .stat-card {
-    background: white;
+    background: var(--card-bg);
     border-radius: 10px;
     padding: 25px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--card-shadow);
     transition: transform 0.3s;
 }
 
@@ -117,7 +187,7 @@ body {
 }
 
 .stat-card h3 {
-    color: #667eea;
+    color: var(--primary);
     font-size: 18px;
     margin-bottom: 15px;
 }
@@ -125,12 +195,12 @@ body {
 .stat-value {
     font-size: 36px;
     font-weight: bold;
-    color: #333;
+    color: var(--text-color);
     margin: 10px 0;
 }
 
 .stat-label {
-    color: #888;
+    color: var(--muted-strong);
     font-size: 14px;
     margin-top: 5px;
 }
@@ -143,14 +213,14 @@ body {
 }
 
 .stat-item {
-    background: #f9f9f9;
+    background: var(--surface-bg);
     padding: 10px;
     border-radius: 5px;
 }
 
 .stat-item-label {
     font-size: 12px;
-    color: #888;
+    color: var(--muted-strong);
 }
 
 .stat-item-value {
@@ -180,14 +250,14 @@ body {
 }
 
 .video-card {
-    background: white;
+    background: var(--card-bg);
     border-radius: 10px;
     padding: 20px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--card-shadow);
 }
 
 .video-card h3 {
-    color: #667eea;
+    color: var(--primary);
     margin-bottom: 15px;
     font-size: 20px;
 }
@@ -247,28 +317,28 @@ body {
 .camera-hint {
     min-height: 20px;
     font-size: 12px;
-    color: #666;
+    color: var(--muted-color);
     margin-top: 8px;
     padding: 4px 8px;
-    background: rgba(102, 126, 234, 0.1);
+    background: var(--hint-bg);
     border-radius: 4px;
 }
 
 .btn-ghost {
     padding: 8px 14px;
     border-radius: 6px;
-    border: 1px solid #d6dcff;
-    background: #f5f7ff;
-    color: #4b57d6;
+    border: 1px solid var(--ghost-border);
+    background: var(--ghost-bg);
+    color: var(--ghost-text);
     font-weight: 600;
     cursor: pointer;
     transition: all 0.2s ease;
 }
 
 .btn-ghost:hover {
-    border-color: #667eea;
-    color: #3340b8;
-    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.25);
+    border-color: var(--primary);
+    color: var(--primary-strong);
+    box-shadow: 0 2px 8px var(--ghost-shadow);
 }
 
 .btn-accent {
@@ -291,7 +361,7 @@ body {
 .action-hint {
     min-height: 18px;
     font-size: 13px;
-    color: #666;
+    color: var(--muted-color);
 }
 
 .action-hint.success {
@@ -310,28 +380,28 @@ body {
 }
 
 .chart-card {
-    background: white;
+    background: var(--card-bg);
     border-radius: 10px;
     padding: 25px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--card-shadow);
 }
 
 .chart-card h3 {
-    color: #667eea;
+    color: var(--primary);
     margin-bottom: 20px;
     font-size: 20px;
 }
 
 /* 歷史記錄 */
 .history-controls {
-    background: white;
+    background: var(--card-bg);
     border-radius: 10px;
     padding: 20px;
     margin-bottom: 20px;
     display: flex;
     gap: 20px;
     align-items: center;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--card-shadow);
 }
 
 .history-controls label {
@@ -343,9 +413,11 @@ body {
 
 .history-controls select {
     padding: 8px 12px;
-    border: 1px solid #ddd;
+    border: 1px solid var(--border-color);
     border-radius: 5px;
     font-size: 14px;
+    background: var(--input-bg);
+    color: var(--text-color);
 }
 
 .btn-export {
@@ -364,10 +436,10 @@ body {
 }
 
 .history-table-container {
-    background: white;
+    background: var(--card-bg);
     border-radius: 10px;
     padding: 20px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--card-shadow);
     overflow-x: auto;
 }
 
@@ -377,7 +449,7 @@ body {
 }
 
 .history-table th {
-    background: #667eea;
+    background: var(--primary);
     color: white;
     padding: 12px;
     text-align: left;
@@ -386,11 +458,11 @@ body {
 
 .history-table td {
     padding: 12px;
-    border-bottom: 1px solid #eee;
+    border-bottom: 1px solid var(--table-border);
 }
 
 .history-table tr:hover {
-    background: #f9f9f9;
+    background: var(--table-hover);
 }
 
 /* 分頁控制 */
@@ -399,16 +471,16 @@ body {
     justify-content: space-between;
     align-items: center;
     padding: 15px 20px;
-    background: white;
+    background: var(--card-bg);
     border-radius: 10px;
     margin-top: 15px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--card-shadow);
     flex-wrap: wrap;
     gap: 10px;
 }
 
 .pagination-info {
-    color: #666;
+    color: var(--muted-color);
     font-size: 14px;
 }
 
@@ -421,7 +493,7 @@ body {
 .pagination-buttons button {
     padding: 8px 16px;
     border: none;
-    background: #667eea;
+    background: var(--primary);
     color: white;
     border-radius: 5px;
     cursor: pointer;
@@ -430,12 +502,12 @@ body {
 }
 
 .pagination-buttons button:hover:not(:disabled) {
-    background: #5568d3;
+    background: var(--primary-strong);
     transform: translateY(-1px);
 }
 
 .pagination-buttons button:disabled {
-    background: #ccc;
+    background: var(--border-strong);
     cursor: not-allowed;
 }
 
@@ -449,14 +521,14 @@ body {
 
 /* 系統設定 */
 .settings-container {
-    background: white;
+    background: var(--card-bg);
     border-radius: 10px;
     padding: 30px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--card-shadow);
 }
 
 .settings-container h2 {
-    color: #667eea;
+    color: var(--primary);
     margin: 20px 0;
     font-size: 24px;
 }
@@ -467,7 +539,7 @@ body {
 
 /* 模型選擇 */
 .model-select-group {
-    background: linear-gradient(135deg, #f5f7fa 0%, #e4e8ec 100%);
+    background: linear-gradient(135deg, var(--panel-start) 0%, var(--panel-end) 100%);
     padding: 20px;
     border-radius: 10px;
     margin-bottom: 20px;
@@ -477,17 +549,18 @@ body {
     width: 100%;
     max-width: 500px;
     padding: 12px;
-    border: 2px solid #667eea;
+    border: 2px solid var(--primary);
     border-radius: 8px;
     font-size: 14px;
-    background: white;
+    background: var(--input-bg);
+    color: var(--text-color);
     margin-bottom: 10px;
 }
 
 .model-select:focus {
     outline: none;
-    border-color: #5568d3;
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+    border-color: var(--primary-strong);
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.25);
 }
 
 .btn-change-model {
@@ -517,11 +590,11 @@ body {
 .model-info {
     margin-top: 15px;
     padding: 10px 15px;
-    background: rgba(102, 126, 234, 0.1);
-    border-left: 4px solid #667eea;
+    background: var(--info-bg);
+    border-left: 4px solid var(--primary);
     border-radius: 0 8px 8px 0;
     font-size: 14px;
-    color: #333;
+    color: var(--info-text);
 }
 
 .settings-group {
@@ -539,14 +612,16 @@ body {
     width: 100%;
     max-width: 400px;
     padding: 10px;
-    border: 1px solid #ddd;
+    border: 1px solid var(--border-color);
     border-radius: 5px;
     font-size: 14px;
+    background: var(--input-bg);
+    color: var(--text-color);
 }
 
 .btn-save {
     padding: 12px 30px;
-    background: #667eea;
+    background: var(--primary);
     color: white;
     border: none;
     border-radius: 5px;
@@ -556,7 +631,7 @@ body {
 }
 
 .btn-save:hover {
-    background: #5568d3;
+    background: var(--primary-strong);
 }
 
 .message {
@@ -672,23 +747,25 @@ body {
     align-items: center;
     gap: 8px;
     padding: 8px 15px;
-    background: rgba(255, 255, 255, 0.1);
+    background: var(--hint-bg);
     border-radius: 8px;
     border: 1px solid rgba(102, 126, 234, 0.3);
 }
 
 .camera-selector label {
     font-size: 13px;
-    color: #666;
+    color: var(--muted-color);
     white-space: nowrap;
 }
 
 .camera-selector select {
     padding: 6px 12px;
-    border: 1px solid #ddd;
+    border: 1px solid var(--border-color);
     border-radius: 5px;
     font-size: 13px;
     min-width: 160px;
+    background: var(--input-bg);
+    color: var(--text-color);
 }
 
 .btn-add-camera {
@@ -747,7 +824,7 @@ body {
 .camera-control {
     margin: 15px 0;
     padding: 12px;
-    background: #f9f9f9;
+    background: var(--surface-bg);
     border-radius: 8px;
 }
 
@@ -760,7 +837,7 @@ body {
 
 .control-label {
     font-weight: 600;
-    color: #555;
+    color: var(--text-color);
     min-width: 150px;
     font-size: 14px;
 }
@@ -770,7 +847,7 @@ body {
     min-width: 200px;
     height: 6px;
     border-radius: 3px;
-    background: linear-gradient(90deg, #ddd 0%, #667eea 100%);
+    background: var(--slider-track);
     outline: none;
     -webkit-appearance: none;
     appearance: none;
@@ -782,14 +859,14 @@ body {
     width: 18px;
     height: 18px;
     border-radius: 50%;
-    background: #667eea;
+    background: var(--primary);
     cursor: pointer;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
     transition: all 0.2s;
 }
 
 .slider::-webkit-slider-thumb:hover {
-    background: #5568d3;
+    background: var(--primary-strong);
     transform: scale(1.2);
 }
 
@@ -797,7 +874,7 @@ body {
     width: 18px;
     height: 18px;
     border-radius: 50%;
-    background: #667eea;
+    background: var(--primary);
     cursor: pointer;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
     border: none;
@@ -805,7 +882,7 @@ body {
 }
 
 .slider::-moz-range-thumb:hover {
-    background: #5568d3;
+    background: var(--primary-strong);
     transform: scale(1.2);
 }
 
@@ -813,10 +890,10 @@ body {
     min-width: 60px;
     text-align: center;
     font-weight: bold;
-    color: #667eea;
+    color: var(--primary);
     font-size: 16px;
     padding: 4px 8px;
-    background: white;
+    background: var(--control-value-bg);
     border-radius: 5px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
@@ -830,8 +907,8 @@ body {
 
 .btn-font {
     padding: 5px 10px;
-    border: 1px solid #ddd;
-    background: #f0f0f0;
+    border: 1px solid var(--border-color);
+    background: var(--nav-bg);
     border-radius: 5px;
     cursor: pointer;
     font-size: 14px;
@@ -840,13 +917,13 @@ body {
 }
 
 .btn-font:hover {
-    background: #e0e0e0;
-    border-color: #ccc;
+    background: var(--nav-hover);
+    border-color: var(--border-strong);
 }
 
 /* System Actions in Settings */
 .system-actions {
-    border-top: 2px solid #eee;
+    border-top: 2px solid var(--table-border);
     padding-top: 20px;
 }
 
@@ -871,7 +948,7 @@ body {
 
 .settings-note {
     font-size: 13px;
-    color: #777;
+    color: var(--muted-color);
     margin-top: 15px;
 }
 

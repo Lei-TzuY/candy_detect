@@ -20,8 +20,8 @@ import os
 import sys
 
 # 將專案根目錄加入 Python 路徑
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(PROJECT_ROOT))
+_project_root = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(_project_root))
 
 from candy_detector.config import ConfigManager
 from candy_detector.models import CameraContext, TrackState
@@ -40,8 +40,8 @@ import src.yolov8_trainer as trainer
 # 初始化 Flask（指定模板和靜態檔案路徑）
 app = Flask(
     __name__,
-    template_folder=str(PROJECT_ROOT / 'templates'),
-    static_folder=str(PROJECT_ROOT / 'static')
+    template_folder=os.path.join(PROJECT_ROOT, 'templates'),
+    static_folder=os.path.join(PROJECT_ROOT, 'static')
 )
 CORS(app)
 
@@ -66,7 +66,7 @@ camera_contexts = []
 model = None
 class_names = []
 config_manager = None
-db_path = PROJECT_ROOT / "detection_data.db"
+db_path = Path(PROJECT_ROOT) / "detection_data.db"
 lock = threading.Lock()
 is_running = False
 
@@ -584,7 +584,14 @@ def manage_config():
 @app.route('/api/cameras')
 def get_cameras():
     """取得攝影機列表"""
-    cameras = [{'index': i, 'name': cam.name} for i, cam in enumerate(camera_contexts)]
+    cameras = [
+        {
+            'index': i, 
+            'name': cam.name,
+            'relay_paused': getattr(cam, 'relay_paused', False)
+        } 
+        for i, cam in enumerate(camera_contexts)
+    ]
     return jsonify(cameras)
 
 
@@ -734,6 +741,27 @@ def test_spray(camera_index):
     })
 
 
+@app.route('/api/cameras/<int:camera_index>/relay/pause', methods=['POST'])
+def toggle_relay_pause(camera_index):
+    """切換繼電器暫停狀態"""
+    try:
+        cam_ctx = camera_contexts[camera_index]
+    except IndexError:
+        return jsonify({'error': 'Invalid camera index'}), 404
+
+    # 切換狀態
+    current_state = getattr(cam_ctx, 'relay_paused', False)
+    cam_ctx.relay_paused = not current_state
+    
+    logger.info(f"{cam_ctx.name} 噴氣功能已{'暫停' if cam_ctx.relay_paused else '恢復'}")
+
+    return jsonify({
+        'success': True,
+        'camera': cam_ctx.name,
+        'paused': cam_ctx.relay_paused
+    })
+
+
 # ==================== 模型管理 API ====================
 
 @app.route('/api/models')
@@ -859,7 +887,7 @@ def change_model():
 def list_recordings():
     """列出所有錄影檔案"""
     try:
-        recordings_dir = PROJECT_ROOT / "recordings"
+        recordings_dir = Path(PROJECT_ROOT) / "recordings"
         recordings_dir.mkdir(exist_ok=True)
         
         recordings = []
@@ -894,27 +922,48 @@ def list_recordings():
 def delete_recording(filename):
     """刪除錄影檔案"""
     try:
-        recordings_dir = PROJECT_ROOT / "recordings"
+        recordings_dir = Path(PROJECT_ROOT) / "recordings"
         file_path = recordings_dir / filename
         
         # 安全檢查：確保檔案在 recordings 目錄內
         if not file_path.resolve().parent == recordings_dir.resolve():
             return jsonify({'error': '無效的檔案路徑'}), 400
         
-        if file_path.exists():
+        if not file_path.exists():
+            return jsonify({'error': '檔案不存在'}), 404
+        
+        # 檢查檔案是否正在被錄影器使用
+        from src.video_recorder import _recorders, _lock
+        with _lock:
+            for camera_index, recorder in _recorders.items():
+                if recorder.is_recording and recorder.current_filename:
+                    # 比對檔案名稱（可能包含路徑）
+                    if Path(recorder.current_filename).name == filename:
+                        return jsonify({
+                            'error': f'檔案正在錄影中（鏡頭 {camera_index}），請先停止錄影',
+                            'in_use': True,
+                            'camera_index': camera_index
+                        }), 409  # 409 Conflict
+        
+        # 嘗試刪除檔案
+        try:
             file_path.unlink()
             return jsonify({'success': True})
-        else:
-            return jsonify({'error': '檔案不存在'}), 404
+        except PermissionError:
+            return jsonify({
+                'error': '檔案正在使用中，請稍後再試或關閉正在使用該檔案的程式',
+                'in_use': True
+            }), 409
+            
     except Exception as e:
         logger.error(f"刪除錄影檔案失敗: {e}")
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'error': f'刪除失敗: {str(e)}'}), 500
 
 
 @app.route('/recordings/<filename>')
 def serve_recording(filename):
     """提供錄影檔案下載"""
-    recordings_dir = PROJECT_ROOT / "recordings"
+    recordings_dir = Path(PROJECT_ROOT) / "recordings"
     return send_from_directory(recordings_dir, filename, as_attachment=True)
 
 
@@ -934,11 +983,15 @@ def start_recording(camera_index):
     """開始錄影"""
     try:
         recorder = get_recorder(camera_index)
-        # 安全取得 filename，處理空 body 情況
+        # 安全取得 filename 和 codec，處理空 body 情況
         filename = None
+        codec = None
         if request.is_json and request.get_json(silent=True):
-            filename = request.get_json(silent=True).get('filename')
-        result = recorder.start_recording(filename)
+            data = request.get_json(silent=True)
+            filename = data.get('filename')
+            codec = data.get('codec')
+        
+        result = recorder.start_recording(filename, codec=codec)
         return jsonify(result)
     except Exception as e:
         logger.error(f"開始錄影失敗: {e}")
@@ -1227,6 +1280,28 @@ def restart_system():
     threading.Timer(1.0, shutdown_func).start()
     
     return jsonify({'success': True, 'message': '伺服器正在重啟...'})
+
+
+@app.route('/api/system/stop_blower', methods=['POST'])
+def stop_blower():
+    """關閉吹氣風扇"""
+    logger.info("接收到關閉吹氣指令...")
+
+    try:
+        # TODO: 在此處添加關閉吹氣的具體邏輯
+        # 例如，可以通過 GPIO、序列埠或 API 請求來控制硬體
+        # 以下為一個模擬範例，實際應替換為真實的控制代碼
+        logger.info("模擬：正在向硬體發送關閉風扇指令...")
+        # from some_hardware_library import blower
+        # blower.off()
+        time.sleep(1) # 模擬操作耗時
+        logger.info("模擬：硬體回報風扇已關閉")
+
+        return jsonify({'success': True, 'message': '已成功發送關閉吹氣指令。'})
+
+    except Exception as e:
+        logger.error(f"關閉吹氣失敗: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
 
 
 def start_detection():

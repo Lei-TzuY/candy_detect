@@ -424,21 +424,26 @@ def process_camera_frame(
 
         prev_x = track.prev_center[0]
         curr_x = track.center[0]
+        # 檢查是否真的穿越偵測線（前一幀在線的一側，當前幀在另一側）
         crossed = (prev_x < line_mid <= curr_x) or (prev_x > line_mid >= curr_x)
-        inside_zone = cam_ctx.line_x1 <= curr_x <= cam_ctx.line_x2
-
-        if not track.counted and (crossed or (inside_zone and track.age >= 2)):
+        
+        # 只有在真正穿越偵測線時才計數，移除靜止物體誤計數的問題
+        if not track.counted and crossed:
             track.counted = True
             cam_ctx.total_num += 1
             if track.seen_abnormal:
                 cam_ctx.abnormal_num += 1
                 if not track.triggered:
                     track.triggered = True
-                    threading.Thread(
-                        target=trigger_relay,
-                        args=(cam_ctx.relay_url, cam_ctx.relay_delay_ms),
-                        daemon=True,
-                    ).start()
+                    # 檢查是否暫停噴氣
+                    if not getattr(cam_ctx, 'relay_paused', False):
+                        threading.Thread(
+                            target=trigger_relay,
+                            args=(cam_ctx.relay_url, cam_ctx.relay_delay_ms),
+                            daemon=True,
+                        ).start()
+                    else:
+                        print(f"[{cam_ctx.name}] 檢測到異常但噴氣已暫停，略過觸發")
             else:
                 cam_ctx.normal_num += 1
 

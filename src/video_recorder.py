@@ -6,11 +6,13 @@
 import cv2
 import time
 import threading
+import json
 from datetime import datetime
 from pathlib import Path
 
 # 專案根目錄
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
+FOCUS_CONFIG_FILE = PROJECT_ROOT / "focus_settings.json"
 
 # 全域錄影器管理
 _recorders = {}
@@ -37,14 +39,52 @@ class VideoRecorder:
         self.start_time = None
         self.frame_count = 0
         
-        # 焦距設定
+        # 焦距設定 - 從檔案載入
         self.auto_focus = True
         self.focus_value = 0  # 0-255
+        self._load_focus_settings()
         
         # 錄影執行緒
         self.recording_thread = None
         self.preview_thread = None
         self._stop_event = threading.Event()
+
+    def _load_focus_settings(self):
+        """從檔案載入對焦設定"""
+        try:
+            if FOCUS_CONFIG_FILE.exists():
+                with open(FOCUS_CONFIG_FILE, 'r', encoding='utf-8') as f:
+                    settings = json.load(f)
+                    cam_settings = settings.get(str(self.camera_index), {})
+                    self.auto_focus = cam_settings.get('auto_focus', True)
+                    self.focus_value = cam_settings.get('focus_value', 0)
+                    print(f"攝影機 {self.camera_index}: 載入對焦設定 - auto: {self.auto_focus}, value: {self.focus_value}")
+        except Exception as e:
+            print(f"攝影機 {self.camera_index}: 載入對焦設定失敗: {e}")
+    
+    def _save_focus_settings(self):
+        """儲存對焦設定到檔案"""
+        try:
+            # 讀取現有設定
+            settings = {}
+            if FOCUS_CONFIG_FILE.exists():
+                with open(FOCUS_CONFIG_FILE, 'r', encoding='utf-8') as f:
+                    settings = json.load(f)
+            
+            # 更新此攝影機的設定
+            settings[str(self.camera_index)] = {
+                'auto_focus': self.auto_focus,
+                'focus_value': self.focus_value
+            }
+            
+            # 儲存
+            with open(FOCUS_CONFIG_FILE, 'w', encoding='utf-8') as f:
+                json.dump(settings, f, indent=2, ensure_ascii=False)
+            print(f"攝影機 {self.camera_index}: 對焦設定已儲存 - auto: {self.auto_focus}, value: {self.focus_value}")
+            return True
+        except Exception as e:
+            print(f"攝影機 {self.camera_index}: 儲存對焦設定失敗: {e}")
+            return False
 
     def set_shared_camera(self, cap):
         """設定共享攝影機（從 camera_contexts 傳入）"""
@@ -87,16 +127,40 @@ class VideoRecorder:
     def _apply_focus_to_cap(self, cap):
         """套用焦距設定到攝影機"""
         if cap is None:
-            return
+            return False
             
         try:
             if self.auto_focus:
-                cap.set(cv2.CAP_PROP_AUTOFOCUS, 1)
+                success = cap.set(cv2.CAP_PROP_AUTOFOCUS, 1)
+                print(f"攝影機 {self.camera_index}: 啟用自動對焦 - {'成功' if success else '失敗'}")
             else:
+                # 先關閉自動對焦
                 cap.set(cv2.CAP_PROP_AUTOFOCUS, 0)
-                cap.set(cv2.CAP_PROP_FOCUS, self.focus_value)
+                time.sleep(0.15)  # 增加延遲確保設定生效
+                
+                # 多次嘗試設定焦距值（有些攝影機需要多次設定）
+                max_attempts = 3
+                for attempt in range(max_attempts):
+                    success = cap.set(cv2.CAP_PROP_FOCUS, self.focus_value)
+                    time.sleep(0.1)
+                    
+                    # 驗證設定
+                    actual_focus = cap.get(cv2.CAP_PROP_FOCUS)
+                    diff = abs(actual_focus - self.focus_value)
+                    
+                    if diff <= 5:  # 容許 5 的誤差
+                        print(f"攝影機 {self.camera_index}: 手動對焦設定成功 - 目標: {self.focus_value}, 實際: {actual_focus}")
+                        return True
+                    elif attempt < max_attempts - 1:
+                        print(f"攝影機 {self.camera_index}: 對焦值不精確 (嘗試 {attempt+1}/{max_attempts}), 目標: {self.focus_value}, 實際: {actual_focus}, 重試...")
+                    else:
+                        print(f"攝影機 {self.camera_index}: 對焦值設定後仍有誤差 - 目標: {self.focus_value}, 實際: {actual_focus}")
+                        print(f"攝影機 {self.camera_index}: 注意：某些攝影機不支援精確的對焦控制，這是硬體限制")
+                
+            return True
         except Exception as e:
-            print(f"焦距設定失敗: {e}")
+            print(f"攝影機 {self.camera_index}: 焦距設定失敗: {e}")
+            return False
 
     def _create_error_frame(self, message="錯誤"):
         """建立錯誤提示畫面"""
@@ -114,22 +178,38 @@ class VideoRecorder:
     def set_focus(self, value=0, auto=False):
         """設定焦距"""
         self.auto_focus = auto
-        self.focus_value = max(0, min(255, value))
+        self.focus_value = max(0, min(255, int(value)))
         
         cap = self._get_cap()
+        if cap is None:
+            return {
+                'success': False,
+                'error': '攝影機未連接',
+                'auto_focus': self.auto_focus,
+                'focus_value': self.focus_value
+            }
+        
         self._apply_focus_to_cap(cap)
+        
+        # 儲存設定到檔案
+        self._save_focus_settings()
         
         return {
             'success': True,
             'auto_focus': self.auto_focus,
-            'focus_value': self.focus_value
+            'focus_value': self.focus_value,
+            'message': f"對焦已設定為 {self.focus_value} (自動對焦: {'開啟' if self.auto_focus else '關閉'})",
+            'saved': True
         }
 
     def get_focus(self):
-        """取得焦距設定"""
+        """取得焦距設定（返回儲存的設定值，不從攝影機讀取）"""
+        # 直接返回儲存的設定值，不要從攝影機讀取
+        # 因為攝影機可能未連接，或返回的值不準確
         return {
             'auto_focus': self.auto_focus,
-            'focus_value': self.focus_value
+            'focus_value': self.focus_value,
+            'success': True
         }
 
     def set_resolution(self, width, height):
@@ -173,7 +253,7 @@ class VideoRecorder:
         except Exception as e:
             return {'success': False, 'error': str(e)}
 
-    def start_recording(self, filename=None):
+    def start_recording(self, filename=None, codec=None):
         """開始錄影"""
         if self.is_recording:
             return {'success': False, 'error': '已在錄影中'}
@@ -184,6 +264,9 @@ class VideoRecorder:
             if not self.open_own_camera():
                 return {'success': False, 'error': '無法取得攝影機'}
             cap = self.own_cap
+        
+        # 套用儲存的對焦設定
+        self._apply_focus_to_cap(cap)
 
         # 產生檔名
         if filename is None:
@@ -198,12 +281,59 @@ class VideoRecorder:
         height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
         fps = 30
 
-        # 建立寫入器
-        fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-        self.writer = cv2.VideoWriter(str(filepath), fourcc, fps, (width, height))
+        # 定義編碼器列表
+        default_codecs = [
+            ('avc1', 'H.264 (avc1)'),
+            ('H264', 'H.264'),
+            ('XVID', 'XVID'),
+            ('MJPG', 'Motion JPEG'),
+            ('mp4v', 'MPEG-4')
+        ]
         
-        if not self.writer.isOpened():
-            return {'success': False, 'error': '無法建立錄影檔案'}
+        # 如果指定了編碼器，將其加入列表最前方優先嘗試
+        codec_list = []
+        if codec:
+            # 根據選擇的編碼器名稱對應到 FourCC
+            if codec == 'avc1':
+                codec_list.append(('avc1', 'H.264 (avc1)'))
+            elif codec == 'H264':
+                codec_list.append(('H264', 'H.264'))
+            elif codec == 'XVID':
+                codec_list.append(('XVID', 'XVID'))
+            elif codec == 'MJPG':
+                codec_list.append(('MJPG', 'Motion JPEG'))
+            elif codec == 'mp4v':
+                codec_list.append(('mp4v', 'MPEG-4'))
+        
+        # 加入預設列表作為備案 (排除已加入的)
+        for c, name in default_codecs:
+            if not codec_list or c != codec_list[0][0]:
+                codec_list.append((c, name))
+        
+        self.writer = None
+        used_codec = None
+        
+        for fourcc_code, codec_name in codec_list:
+            try:
+                fourcc = cv2.VideoWriter_fourcc(*fourcc_code)
+                test_writer = cv2.VideoWriter(str(filepath), fourcc, fps, (width, height))
+                
+                if test_writer.isOpened():
+                    self.writer = test_writer
+                    used_codec = codec_name
+                    print(f"錄影器: 成功使用 {codec_name} 編碼器")
+                    break
+                else:
+                    test_writer.release()
+            except Exception as e:
+                print(f"錄影器: {codec_name} 編碼器失敗: {e}")
+                continue
+        
+        if self.writer is None or not self.writer.isOpened():
+            return {
+                'success': False, 
+                'error': '無法建立錄影檔案 - 所有編碼器都失敗。請確認已安裝 OpenCV 和必要的編碼器。'
+            }
 
         self.is_recording = True
         self.start_time = time.time()
@@ -293,6 +423,11 @@ class VideoRecorder:
         
         # 先嘗試開啟攝影機
         cap = self._get_cap()
+        
+        # 套用儲存的對焦設定
+        if cap is not None:
+            self._apply_focus_to_cap(cap)
+        
         if cap is None:
             # 嘗試開啟獨立攝影機（使用不同的攝影機索引嘗試）
             for try_index in [self.camera_index, 0, 1, 2]:
@@ -329,12 +464,19 @@ class VideoRecorder:
                     cv2.putText(frame, text, (55, 38), cv2.FONT_HERSHEY_SIMPLEX, 
                                0.8, (0, 0, 255), 2)
                 
-                # 顯示焦距模式
+                # 顯示資訊覆蓋層
+                # 焦距模式
                 focus_text = f"AF" if self.auto_focus else f"MF:{self.focus_value}"
                 cv2.putText(frame, focus_text, (10, frame.shape[0] - 10), 
                            cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 2)
+                
+                # 解析度資訊
+                res_text = f"{frame.shape[1]}x{frame.shape[0]}"
+                cv2.putText(frame, res_text, (10, 30), 
+                           cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 2)
 
-                ret, buffer = cv2.imencode('.jpg', frame, [cv2.IMWRITE_JPEG_QUALITY, 80])
+                # 使用更高的 JPEG 品質以獲得更清晰的預覽
+                ret, buffer = cv2.imencode('.jpg', frame, [cv2.IMWRITE_JPEG_QUALITY, 95])
                 if ret:
                     yield (b'--frame\r\n'
                            b'Content-Type: image/jpeg\r\n\r\n' + buffer.tobytes() + b'\r\n')

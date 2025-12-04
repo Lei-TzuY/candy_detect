@@ -90,6 +90,7 @@ class CameraContext:
     use_kalman: bool = False
     adaptive_tracker: object = None
     use_adaptive: bool = False
+    relay_paused: bool = False
 
     def release(self) -> None:
         """釋放攝影機資源"""

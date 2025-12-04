@@ -79,3 +79,20 @@ sample_recorder.py
 # Temporary notes
 web_app_api_addition.txt
 pip_ultralytics.log
+
+# Temporary development files
+*.tmp
+toggle_relay_function.tmp
+insert_function.py
+fix_and_update_recorder.py
+extra_script.js
+extra_styles.css
+
+# Backup files
+*.backup
+script.js.backup
+script_fixed.js
+script_new.js
+
+# Focus settings (runtime generated)
+focus_settings.json

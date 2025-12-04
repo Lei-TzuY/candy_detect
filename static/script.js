@@ -38,7 +38,33 @@ document.addEventListener('DOMContentLoaded', function () {
     applyInitialZoom();
     initializePage();
     startAutoUpdate();
+    setupNavigation();
 });
+
+// 設置導航按鈕事件
+function setupNavigation() {
+    const tabDashboard = document.getElementById('tab-dashboard');
+    const tabHistory = document.getElementById('tab-history');
+    const tabSettings = document.getElementById('tab-settings');
+
+    if (tabDashboard) {
+        tabDashboard.addEventListener('click', function () {
+            showTab('dashboard', this);
+        });
+    }
+
+    if (tabHistory) {
+        tabHistory.addEventListener('click', function () {
+            showTab('history', this);
+        });
+    }
+
+    if (tabSettings) {
+        tabSettings.addEventListener('click', function () {
+            showTab('settings', this);
+        });
+    }
+}
 
 // 初始化頁面
 function initializePage() {
@@ -119,6 +145,9 @@ async function loadCameras() {
                     <button class="btn-action btn-test-spray" onclick="testSpray(${camera.index})" id="btn-spray-${camera.index}">
                         💨 測試噴氣
                     </button>
+                    <button class="btn-action btn-pause-relay" onclick="toggleRelayPause(${camera.index})" id="btn-pause-relay-${camera.index}">
+                        ⏸️ 暫停噴氣
+                    </button>
                 </div>
                 
                 <!-- 焦距控制滑軌 -->
@@ -153,6 +182,14 @@ async function loadCameras() {
                 <div class="camera-hint" id="hint-${camera.index}"></div>
             `;
             videoContainer.appendChild(videoCard);
+
+            // 恢復暫停噴氣按鈕的狀態
+            const relayBtn = document.getElementById(`btn-pause-relay-${camera.index}`);
+            if (relayBtn && camera.relay_paused) {
+                relayBtn.innerHTML = '▶️ 恢復噴氣';
+                relayBtn.classList.add('btn-danger');
+                relayBtn.classList.remove('btn-pause-relay');
+            }
         });
         console.log('loadCameras: All camera cards added to DOM');
 
@@ -945,6 +982,38 @@ async function testSpray(cameraIndex) {
     }
 }
 
+// 切換繼電器暫停狀態
+async function toggleRelayPause(cameraIndex) {
+    const btn = document.getElementById(`btn-pause-relay-${cameraIndex}`);
+    if (!btn) return;
+
+    try {
+        const response = await fetch(`/api/cameras/${cameraIndex}/relay/pause`, {
+            method: 'POST'
+        });
+        const result = await response.json();
+
+        if (result.success) {
+            const isPaused = result.paused;
+            if (isPaused) {
+                btn.innerHTML = '▶️ 恢復噴氣';
+                btn.classList.add('btn-danger');
+                btn.classList.remove('btn-pause-relay');
+            } else {
+                btn.innerHTML = '⏸️ 暫停噴氣';
+                btn.classList.add('btn-pause-relay');
+                btn.classList.remove('btn-danger');
+            }
+        } else {
+            console.error('切換暫停狀態失敗:', result.error);
+            alert('切換失敗');
+        }
+    } catch (error) {
+        console.error('API 錯誤:', error);
+        alert('操作失敗');
+    }
+}
+
 function restartApp() {
     if (confirm('您確定要重啟應用程式嗎？目前的連線將會中斷。')) {
         const settingsMessage = document.getElementById('settingsMessage');
@@ -974,17 +1043,17 @@ function restartApp() {
 async function detectCameras() {
     const btn = document.getElementById('btn-detect-cameras');
     const select = document.getElementById('available-cameras');
-    
+
     btn.disabled = true;
     btn.innerHTML = '🔄 偵測中...';
-    
+
     try {
         const response = await fetch('/api/cameras/detect');
         const result = await response.json();
-        
+
         // 更新下拉選單
         select.innerHTML = '<option value="">-- 選擇攝影機 --</option>';
-        
+
         if (result.available && result.available.length > 0) {
             result.available.forEach(cam => {
                 const option = document.createElement('option');
@@ -995,7 +1064,7 @@ async function detectCameras() {
                 }
                 select.appendChild(option);
             });
-            
+
             alert(`偵測到 ${result.available.length} 個攝影機`);
         } else {
             alert('未偵測到可用的攝影機');
@@ -1013,21 +1082,21 @@ async function detectCameras() {
 async function addSelectedCamera() {
     const select = document.getElementById('available-cameras');
     const cameraIndex = select.value;
-    
+
     if (!cameraIndex) {
         alert('請先選擇攝影機');
         return;
     }
-    
+
     try {
         const response = await fetch('/api/cameras/add', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ camera_index: parseInt(cameraIndex) })
         });
-        
+
         const result = await response.json();
-        
+
         if (result.success) {
             alert(`已新增攝影機 ${cameraIndex}`);
             // 重新載入攝影機畫面

@@ -24,6 +24,7 @@
                     </nav>
                 </div>
                 <div class="font-controls">
+                    <button class="btn-font" id="btn-theme-toggle" title="切換為夜間模式">🌙</button>
                     <button class="btn-font" onclick="changeZoom('decrease')" title="縮小字體">A-</button>
                     <button class="btn-font" onclick="changeZoom('reset')" title="重設字體">重設</button>
                     <button class="btn-font" onclick="changeZoom('increase')" title="放大字體">A+</button>
@@ -162,6 +163,42 @@
         </div>
     </div>
 
+    <script>
+        // 主題（日間/夜間）- 盡量在外部腳本前執行以避免 FOUC
+        (function() {
+            const THEME_KEY = 'theme';
+            function determinePreferredTheme() {
+                const saved = localStorage.getItem(THEME_KEY);
+                if (saved === 'light' || saved === 'dark') return saved;
+                const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+                return prefersDark ? 'dark' : 'light';
+            }
+            function applySavedTheme() {
+                const theme = determinePreferredTheme();
+                document.body.classList.toggle('dark-mode', theme === 'dark');
+                updateThemeToggleIcon();
+            }
+            function updateThemeToggleIcon() {
+                const btn = document.getElementById('btn-theme-toggle');
+                if (!btn) return;
+                const isDark = document.body.classList.contains('dark-mode');
+                btn.textContent = isDark ? '☀️' : '🌙';
+                btn.title = isDark ? '切換為日間模式' : '切換為夜間模式';
+            }
+            function toggleTheme() {
+                const isDark = document.body.classList.toggle('dark-mode');
+                localStorage.setItem(THEME_KEY, isDark ? 'dark' : 'light');
+                updateThemeToggleIcon();
+            }
+            document.addEventListener('DOMContentLoaded', function() {
+                applySavedTheme();
+                var themeBtn = document.getElementById('btn-theme-toggle');
+                if (themeBtn) {
+                    themeBtn.addEventListener('click', toggleTheme);
+                }
+            });
+        })();
+    </script>
     <script src="{{ url_for('static', filename='script.js') }}"></script>
     <script>
         // 分頁按鈕事件綁定 - 確保 DOM 載入完成後執行

@@ -13,8 +13,9 @@ echo Working directory: %CD%
 echo.
 
 echo [0/2] Closing old processes...
-taskkill /FI "WINDOWTITLE eq Relay*" /F >nul 2>&1
-taskkill /FI "WINDOWTITLE eq Candy*" /F >nul 2>&1
+REM 只關閉特定的 Java 和 Python 程序，避免誤殺 IDE
+taskkill /IM java.exe /F >nul 2>&1
+taskkill /IM python.exe /FI "WINDOWTITLE eq *web_app*" /F >nul 2>&1
 timeout /t 2 /nobreak >nul
 echo      Done
 echo.
@@ -22,8 +23,8 @@ echo.
 echo [1/2] Starting Relay Service...
 cd /d "%~dp0app"
 if exist "jdk-17.0.6\bin\java.exe" (
-    start "Relay Service" cmd /c "jdk-17.0.6\bin\java.exe -jar modbus-gateway.jar"
-    echo      Relay service started
+    start /B "" cmd /c "jdk-17.0.6\bin\java.exe -jar modbus-gateway.jar >nul 2>&1"
+    echo      Relay service started in background
 ) else (
     echo      [WARN] Java not found, skipping relay service
 )
