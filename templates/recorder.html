@@ -681,6 +681,7 @@
             <h1>🎥 雙鏡頭錄影系統</h1>
             <div class="nav-buttons">
                 <a href="/" class="nav-btn">🏠 返回首頁</a>
+                <a href="/annotate" class="nav-btn">🏷️ 標註模式</a>
                 <a href="/trainer" class="nav-btn">🤖 訓練模式</a>
             </div>
         </div>
@@ -845,6 +846,10 @@
             <button class="global-btn" id="btn-record-all" onclick="toggleAllRecording()">
                 ⏺️ 全部開始錄影
             </button>
+            <button class="global-btn" style="background: linear-gradient(135deg, #10b981, #059669);"
+                onclick="extractFramesNow()">
+                📸 擷取圖像
+            </button>
             <button class="global-btn" style="background: linear-gradient(135deg, #ef4444, #dc2626);"
                 onclick="forceStopAllRecording()">
                 🛑 強制停止所有錄影
@@ -894,17 +899,41 @@
                     <div class="focus-label">
                         <span>手動對焦</span>
                         <span>
-                            <button onclick="adjustFocus(0, -10)" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 2px 8px; border-radius: 4px; cursor: pointer; margin-right: 5px;">-10</button>
-                            <button onclick="adjustFocus(0, -1)" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 2px 8px; border-radius: 4px; cursor: pointer; margin-right: 5px;">-1</button>
+                            <button onclick="adjustFocus(0, -10)"
+                                style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 2px 8px; border-radius: 4px; cursor: pointer; margin-right: 5px;">-10</button>
+                            <button onclick="adjustFocus(0, -1)"
+                                style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 2px 8px; border-radius: 4px; cursor: pointer; margin-right: 5px;">-1</button>
                             <span id="focus-value-0">128</span>
-                            <button onclick="adjustFocus(0, 1)" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 2px 8px; border-radius: 4px; cursor: pointer; margin-left: 5px;">+1</button>
-                            <button onclick="adjustFocus(0, 10)" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 2px 8px; border-radius: 4px; cursor: pointer; margin-left: 5px;">+10</button>
+                            <button onclick="adjustFocus(0, 1)"
+                                style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 2px 8px; border-radius: 4px; cursor: pointer; margin-left: 5px;">+1</button>
+                            <button onclick="adjustFocus(0, 10)"
+                                style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 2px 8px; border-radius: 4px; cursor: pointer; margin-left: 5px;">+10</button>
                             <span id="focus-status-0"
                                 style="margin-left: 8px; font-size: 0.85rem; color: #10b981; opacity: 0;">✔ 已套用</span>
                         </span>
                     </div>
                     <input type="range" class="focus-slider" id="focus-0" min="0" max="255" value="128"
                         oninput="updateFocusDisplay(0, this.value)" onchange="setFocus(0, this.value)">
+                </div>
+                <!-- 曝光控制 -->
+                <div class="focus-control">
+                    <div class="focus-label">
+                        <span>📸 曝光 (快門速度)</span>
+                        <span>
+                            <button onclick="adjustExposure(0, -1)"
+                                style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 2px 8px; border-radius: 4px; cursor: pointer; margin-right: 5px;">-1</button>
+                            <span id="exposure-value-0">-7</span>
+                            <button onclick="adjustExposure(0, 1)"
+                                style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 2px 8px; border-radius: 4px; cursor: pointer; margin-left: 5px;">+1</button>
+                            <span id="exposure-status-0"
+                                style="margin-left: 8px; font-size: 0.85rem; color: #10b981; opacity: 0;">✔ 已套用</span>
+                        </span>
+                    </div>
+                    <input type="range" class="focus-slider" id="exposure-0" min="-13" max="-1" value="-7"
+                        oninput="updateExposureDisplay(0, this.value)" onchange="setExposure(0, this.value)">
+                    <div style="font-size: 0.8rem; color: rgba(255,255,255,0.6); margin-top: 4px;">
+                        💡 提示：值越小 = 快門越快 = 殘影越少（需更強光線）
+                    </div>
                 </div>
             </div>
 
@@ -945,11 +974,15 @@
                     <div class="focus-label">
                         <span>手動對焦</span>
                         <span>
-                            <button onclick="adjustFocus(1, -10)" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 2px 8px; border-radius: 4px; cursor: pointer; margin-right: 5px;">-10</button>
-                            <button onclick="adjustFocus(1, -1)" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 2px 8px; border-radius: 4px; cursor: pointer; margin-right: 5px;">-1</button>
+                            <button onclick="adjustFocus(1, -10)"
+                                style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 2px 8px; border-radius: 4px; cursor: pointer; margin-right: 5px;">-10</button>
+                            <button onclick="adjustFocus(1, -1)"
+                                style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 2px 8px; border-radius: 4px; cursor: pointer; margin-right: 5px;">-1</button>
                             <span id="focus-value-1">128</span>
-                            <button onclick="adjustFocus(1, 1)" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 2px 8px; border-radius: 4px; cursor: pointer; margin-left: 5px;">+1</button>
-                            <button onclick="adjustFocus(1, 10)" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 2px 8px; border-radius: 4px; cursor: pointer; margin-left: 5px;">+10</button>
+                            <button onclick="adjustFocus(1, 1)"
+                                style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 2px 8px; border-radius: 4px; cursor: pointer; margin-left: 5px;">+1</button>
+                            <button onclick="adjustFocus(1, 10)"
+                                style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 2px 8px; border-radius: 4px; cursor: pointer; margin-left: 5px;">+10</button>
                             <span id="focus-status-1"
                                 style="margin-left: 8px; font-size: 0.85rem; color: #10b981; opacity: 0;">✔ 已套用</span>
                         </span>
@@ -957,13 +990,47 @@
                     <input type="range" class="focus-slider" id="focus-1" min="0" max="255" value="128"
                         oninput="updateFocusDisplay(1, this.value)" onchange="setFocus(1, this.value)">
                 </div>
+                <!-- 曝光控制 -->
+                <div class="focus-control">
+                    <div class="focus-label">
+                        <span>📸 曝光 (快門速度)</span>
+                        <span>
+                            <button onclick="adjustExposure(1, -1)"
+                                style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 2px 8px; border-radius: 4px; cursor: pointer; margin-right: 5px;">-1</button>
+                            <span id="exposure-value-1">-7</span>
+                            <button onclick="adjustExposure(1, 1)"
+                                style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 2px 8px; border-radius: 4px; cursor: pointer; margin-left: 5px;">+1</button>
+                            <span id="exposure-status-1"
+                                style="margin-left: 8px; font-size: 0.85rem; color: #10b981; opacity: 0;">✔ 已套用</span>
+                        </span>
+                    </div>
+                    <input type="range" class="focus-slider" id="exposure-1" min="-13" max="-1" value="-7"
+                        oninput="updateExposureDisplay(1, this.value)" onchange="setExposure(1, this.value)">
+                    <div style="font-size: 0.8rem; color: rgba(255,255,255,0.6); margin-top: 4px;">
+                        💡 提示：值越小 = 快門越快 = 殘影越少（需更強光線）
+                    </div>
+                </div>
             </div>
         </div>
 
         <div class="recordings-section">
             <div class="recordings-header">
                 <h2>📁 錄影檔案</h2>
-                <button class="control-btn" onclick="loadRecordings()">🔄 重新整理</button>
+                <div style="display: flex; gap: 10px;">
+                    <button class="control-btn" id="select-all-recordings-btn" onclick="toggleSelectAllRecordings()"
+                        style="display: none;">
+                        ☐ 全選
+                    </button>
+                    <button class="control-btn" id="batch-extract-btn" onclick="batchExtractFrames()"
+                        style="display: none; background: linear-gradient(135deg, #0ea5e9, #0284c7);">
+                        📷 批量擷取圖像
+                    </button>
+                    <button class="control-btn" id="batch-delete-recordings-btn" onclick="batchDeleteRecordings()"
+                        style="display: none; background: rgba(239, 68, 68, 0.3);">
+                        🗑️ 刪除選中
+                    </button>
+                    <button class="control-btn" onclick="loadRecordings()">🔄 重新整理</button>
+                </div>
             </div>
             <div class="recordings-list" id="recordings-list">
                 <div style="text-align: center; color: rgba(255,255,255,0.5); padding: 20px;">
@@ -1577,43 +1644,103 @@
         // 更新對焦顯示（拖動時即時更新數值）
         function updateFocusDisplay(cameraIndex, value) {
             document.getElementById(`focus-value-${cameraIndex}`).textContent = value;
-        }
-        
-        // 微調對焦值
-        function adjustFocus(cameraIndex, delta) {
-            const slider = document.getElementById(`focus-${cameraIndex}`);
+            // 微調對焦值
+            function adjustFocus(cameraIndex, delta) {
+                const slider = document.getElementById(`focus-${cameraIndex}`);
+                const currentValue = parseInt(slider.value);
+                const newValue = Math.max(0, Math.min(255, currentValue + delta));
+
+                ider.value = newValue;
+                updateFocusDisplay(cameraIndex, newValue);
+                setFocus(cameraIndex, newValue);
+            }
+
+            // 設定對焦（釋放滑桿時套用）
+            function setFocus(cameraIndex, value) {
+                const statusEl = document.getElementById(`focus-status-${cameraIndex}`);
+
+                fetch(`/api/recorder/${cameraIndex}/focus`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        focus: parseInt(value),
+                        auto: false  // 手動調整時關閉自動對焦
+                    })
+                })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.success) {
+                            console.log(`鏡頭 ${cameraIndex} 對焦設定為: ${value}`, data.saved ? '(已儲存)' : '');
+                            // 顯示「已套用並儲存」提示
+                            statusEl.textContent = data.saved ? '✔ 已套用並儲存' : '✔ 已套用';
+                            statusEl.style.opacity = '1';
+                            setTimeout(() => {
+                                statusEl.style.opacity = '0';
+                            }, 2000);
+                        } else {
+                            console.error(`鏡頭 ${cameraIndex} 對焦設定失敗:`, data.error);
+                            statusEl.textContent = '❌ 設定失敗';
+                            statusEl.style.color = '#ef4444';
+                            statusEl.style.opacity = '1';
+                            setTimeout(() => {
+                                statusEl.style.opacity = '0';
+                                statusEl.textContent = '✔ 已套用';
+                                statusEl.style.color = '#10b981';
+                            }, 2000);
+                        }
+                    })
+                    .catch(err => {
+                        console.error(`鏡頭 ${cameraIndex} 對焦設定請求失敗:`, err);
+                        statusEl.textContent = '❌ 請求失敗';
+                        statusEl.style.color = '#ef4444';
+                        statusEl.style.opacity = '1';
+                        setTimeout(() => {
+                            statusEl.style.opacity = '0';
+                            statusEl.textContent = '✔ 已套用';
+                            statusEl.style.color = '#10b981';
+                        }, 2000);
+                    });
+            }
+
+            // === 曝光控制函數 ===
+            function updateExposureDisplay(cameraIndex, value) {
+                document.getElementById(`exposure-value-${cameraIndex}`).textContent = value;
+            }
+
+            // 微調曝   function adjustExposure(cameraIndex, delta) {
+            const slider = document.getElementById(`exposure-${cameraIndex}`);
             const currentValue = parseInt(slider.value);
-            const newValue = Math.max(0, Math.min(255, currentValue + delta));
-            
-            slider.value = newValue;
-            updateFocusDisplay(cameraIndex, newValue);
-            setFocus(cameraIndex, newValue);
+            const newValue = Math.max(-13, Math.min(-1, currentValue + delta));
+
+            slider.vale;
+            updateExposureDisplay(cameraIndex, newValue);
+            setExposure(cameraIndex, newValue);
         }
 
-        // 設定對焦（釋放滑桿時套用）
-        function setFocus(cameraIndex, value) {
-            const statusEl = document.getElementById(`focus-status-${cameraIndex}`);
+        // 設定曝光值（釋放滑桿時套用）
+        function setExposure(cameraIndex, value) {
+            const statusEl = document.getElementById(`exposure-status-${cameraIndex}`);
 
-            fetch(`/api/recorder/${cameraIndex}/focus`, {
+            fetch(`/api/recorder/${cameraIndex}/exposure`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    focus: parseInt(value),
-                    auto: false  // 手動調整時關閉自動對焦
+                    exposure: parseInt(value),
+                    auto: false,
+                    save: true  // 自動儲存
                 })
             })
                 .then(res => res.json())
                 .then(data => {
                     if (data.success) {
-                        console.log(`鏡頭 ${cameraIndex} 對焦設定為: ${value}`, data.saved ? '(已儲存)' : '');
-                        // 顯示「已套用並儲存」提示
+                        console.log(`鏡頭 ${cameraIndex} 曝光設定為: ${value}`, data.saved ? '(已儲存)' : '');
                         statusEl.textContent = data.saved ? '✔ 已套用並儲存' : '✔ 已套用';
                         statusEl.style.opacity = '1';
                         setTimeout(() => {
                             statusEl.style.opacity = '0';
                         }, 2000);
                     } else {
-                        console.error(`鏡頭 ${cameraIndex} 對焦設定失敗:`, data.error);
+                        console.error(`鏡頭 ${cameraIndex} 曝光設定失敗:`, data.error);
                         statusEl.textContent = '❌ 設定失敗';
                         statusEl.style.color = '#ef4444';
                         statusEl.style.opacity = '1';
@@ -1625,7 +1752,7 @@
                     }
                 })
                 .catch(err => {
-                    console.error(`鏡頭 ${cameraIndex} 對焦設定請求失敗:`, err);
+                    console.error(`鏡頭 ${cameraIndex} 曝光設定請求失敗:`, err);
                     statusEl.textContent = '❌ 請求失敗';
                     statusEl.style.color = '#ef4444';
                     statusEl.style.opacity = '1';
@@ -1661,8 +1788,8 @@
 
         // 檢查檔案是否正在錄影中
         function checkIfRecording(filename) {
-            // 從檔案名稱提取鏡頭編號（例如：recording_1_20251203_151453.mp4）
-            const match = filename.match(/recording_(\d+)_/);
+            // 從檔案名稱提取鏡頭編號（例如：0_20251203_151453.mp4）
+            const match = filename.match(/^(\d+)_/);
             if (match) {
                 const cameraIndex = parseInt(match[1]);
                 if (cameraState[cameraIndex]) {
@@ -1687,20 +1814,37 @@
                             const deleteDisabled = isRecording ? 'disabled style="opacity: 0.5; cursor: not-allowed;"' : '';
 
                             return `
-                                <div class="recording-item">
-                                    <div class="recording-info">
+                                <div class="recording-item" style="display: flex; align-items: center; gap: 12px;">
+                                    <input type="checkbox" 
+                                           class="recording-checkbox" 
+                                           data-filename="${r.name}"
+                                           ${isRecording ? 'disabled' : ''}
+                                           style="cursor: pointer; width: 18px; height: 18px; ${isRecording ? 'opacity: 0.3;' : ''}"
+                                           onchange="updateRecordingSelection()">
+                                    <div class="recording-info" style="flex: 1;">
                                         <div class="recording-name">${r.name}${recordingBadge}</div>
                                         <div class="recording-meta">${r.size} | ${r.date}</div>
                                     </div>
                                     <div class="recording-actions">
+                                        <button class="action-btn" id="btn-extract-${r.name}" onclick="extractVideoFrames('${r.name}')" style="background: linear-gradient(135deg, #0ea5e9, #0284c7);">📷 擷取圖像</button>
                                         <a href="/recordings/${r.name}" class="action-btn">⬇️ 下載</a>
                                         <button class="action-btn delete" ${deleteDisabled} onclick="deleteRecording('${r.name}')">🗑️ 刪除</button>
                                     </div>
                                 </div>
                             `;
                         }).join('');
+
+                        // 顯示全選、批次擷取和批次刪除按鈕
+                        document.getElementById('select-all-recordings-btn').style.display = 'block';
+                        document.getElementById('batch-extract-btn').style.display = 'block';
+                        document.getElementById('batch-delete-recordings-btn').style.display = 'block';
                     } else {
                         list.innerHTML = '<div style="text-align: center; color: rgba(255,255,255,0.5); padding: 20px;">目前沒有錄影檔案</div>';
+
+                        // 隱藏全選、批次擷取和批次刪除按鈕
+                        document.getElementById('select-all-recordings-btn').style.display = 'none';
+                        document.getElementById('batch-extract-btn').style.display = 'none';
+                        document.getElementById('batch-delete-recordings-btn').style.display = 'none';
                     }
                 })
                 .catch(err => {
@@ -1743,6 +1887,123 @@
                         }
                     });
             }
+        }
+
+        // 全選狀態
+        let allRecordingsSelected = false;
+
+        // 切換全選/反選
+        function toggleSelectAllRecordings() {
+            const checkboxes = document.querySelectorAll('.recording-checkbox:not(:disabled)');
+            const btn = document.getElementById('select-all-recordings-btn');
+
+            allRecordingsSelected = !allRecordingsSelected;
+
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = allRecordingsSelected;
+            });
+
+            btn.textContent = allRecordingsSelected ? '☑ 取消全選' : '☐ 全選';
+            updateRecordingSelection();
+        }
+
+        // 更新選擇狀態
+        function updateRecordingSelection() {
+            const checkboxes = document.querySelectorAll('.recording-checkbox:not(:disabled)');
+            const checkedBoxes = document.querySelectorAll('.recording-checkbox:checked');
+            const btn = document.getElementById('select-all-recordings-btn');
+            const batchDeleteBtn = document.getElementById('batch-delete-recordings-btn');
+            const batchExtractBtn = document.getElementById('batch-extract-btn');
+
+            // 更新全選按鈕文字
+            if (checkedBoxes.length === checkboxes.length && checkboxes.length > 0) {
+                btn.textContent = '☑ 取消全選';
+                allRecordingsSelected = true;
+            } else {
+                btn.textContent = '☐ 全選';
+                allRecordingsSelected = false;
+            }
+
+            // 更新批量操作按鈕文字
+            if (checkedBoxes.length > 0) {
+                batchExtractBtn.textContent = `📷 批量擷取圖像 (${checkedBoxes.length})`;
+                batchDeleteBtn.textContent = `🗑️ 刪除選中 (${checkedBoxes.length})`;
+            } else {
+                batchExtractBtn.textContent = '📷 批量擷取圖像';
+                batchDeleteBtn.textContent = '🗑️ 刪除選中';
+            }
+        }
+
+        // 批量刪除錄影
+        function batchDeleteRecordings() {
+            const checkedBoxes = document.querySelectorAll('.recording-checkbox:checked');
+
+            if (checkedBoxes.length === 0) {
+                alert('請先選擇要刪除的錄影檔案');
+                return;
+            }
+
+            const filenames = Array.from(checkedBoxes).map(cb => cb.dataset.filename);
+
+            if (!confirm(`確定要刪除 ${filenames.length} 個錄影檔案嗎？\n\n${filenames.slice(0, 5).join('\n')}${filenames.length > 5 ? '\n...' : ''}`)) {
+                return;
+            }
+
+            // 批次刪除
+            let successCount = 0;
+            let failCount = 0;
+
+            Promise.all(filenames.map(filename =>
+                fetch(`/api/recorder/recordings/${filename}`, { method: 'DELETE' })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.success) successCount++;
+                        else failCount++;
+                    })
+                    .catch(() => failCount++)
+            )).then(() => {
+                alert(`批量刪除完成！\n成功: ${successCount} 個\n失敗: ${failCount} 個`);
+                loadRecordings();
+            });
+        }
+
+        // 批量擷取圖像
+        function batchExtractFrames() {
+            const checkedBoxes = document.querySelectorAll('.recording-checkbox:checked');
+
+            if (checkedBoxes.length === 0) {
+                alert('請先選擇要擷取圖像的錄影檔案');
+                return;
+            }
+
+            const filenames = Array.from(checkedBoxes).map(cb => cb.dataset.filename);
+
+            if (!confirm(`確定要從 ${filenames.length} 個錄影檔案中擷取圖像嗎？\n\n${filenames.slice(0, 5).join('\n')}${filenames.length > 5 ? '\n...' : ''}\n\n這可能需要一些時間。`)) {
+                return;
+            }
+
+            // 批次擷取
+            let successCount = 0;
+            let failCount = 0;
+            let totalFrames = 0;
+
+            alert(`開始批量擷取，共 ${filenames.length} 個檔案...\n請稍候，處理完成後會顯示結果。`);
+
+            Promise.all(filenames.map(filename =>
+                fetch(`/api/recorder/extract-frames/${filename}`, { method: 'POST' })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.success) {
+                            successCount++;
+                            totalFrames += data.frames_extracted || 0;
+                        } else {
+                            failCount++;
+                        }
+                    })
+                    .catch(() => failCount++)
+            )).then(() => {
+                alert(`批量擷取完成！\n\n成功: ${successCount} 個檔案\n失敗: ${failCount} 個檔案\n共擷取: ${totalFrames} 張圖片`);
+            });
         }
 
         // 鍵盤快捷鍵
@@ -1799,6 +2060,51 @@
                     loadRecordings();
                 }
             }, 5000); // 每 5 秒刷新一次
+        }
+
+        // 擷取單個影片圖像
+        async function extractVideoFrames(filename) {
+            const interval = prompt('擷取間隔（每幾幀取一張）：', '30');
+            if (interval === null) return;
+
+            const maxFrames = prompt('最大擷取數量：', '100');
+            if (maxFrames === null) return;
+
+            const btn = document.getElementById(`btn-extract-${filename}`);
+            const originalText = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '⏳ 處理中...';
+
+            try {
+                const response = await fetch('/aecotract_frames', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        filename: filename,
+                        interval: parseInt(interval),
+                        max_frames: parseInt(maxFrames)
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    alert(`✅ 擷取完成！\n影片: ${data.video}\n共擷取: ${data.count} 張影像\n您可以到標註頁面查看這些影像。`);
+                } else {
+                    alert(`❌ 擷取失敗: ${data.error}`);
+                }
+            } catch (error) {
+                console.error('擷取請求失敗:', error);
+                alert(`❌ 請求失敗: ${error.message}`);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+            }
+        }
+
+        // 擷取圖像 (全域 - 已棄用或保留給舊功能)
+        async function extractFramesNow() {
+            // ... existing batch function if needed ...
         }
 
         // 初始化

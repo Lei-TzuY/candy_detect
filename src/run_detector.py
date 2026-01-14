@@ -66,19 +66,53 @@ def setup_config(config_file: str = 'config.ini') -> configparser.ConfigParser:
 
 def load_yolo_model(config: configparser.ConfigParser):
     """依設定檔路徑載入 YOLO 模型"""
-    weights_path = os.path.join(PROJECT_ROOT, config.get('Paths', 'weights'))
-    cfg_path = os.path.join(PROJECT_ROOT, config.get('Paths', 'cfg'))
-    classes_path = os.path.join(PROJECT_ROOT, config.get('Paths', 'classes'))
+    weights_path = os.path.normpath(os.path.join(PROJECT_ROOT, config.get('Paths', 'weights')))
+    cfg_path = os.path.normpath(os.path.join(PROJECT_ROOT, config.get('Paths', 'cfg')))
+    classes_path = os.path.normpath(os.path.join(PROJECT_ROOT, config.get('Paths', 'classes')))
 
     if not all(os.path.exists(p) for p in [weights_path, cfg_path, classes_path]):
         raise FileNotFoundError(
-            "模型權重或設定檔路徑不存在，請檢查 config.ini 設定"
+            f"模型權重或設定檔路徑不存在，請檢查 config.ini 設定\n"
+            f"weights: {weights_path} (exists: {os.path.exists(weights_path)})\n"
+            f"cfg: {cfg_path} (exists: {os.path.exists(cfg_path)})\n"
+            f"classes: {classes_path} (exists: {os.path.exists(classes_path)})"
         )
 
     with open(classes_path, 'r', encoding='utf-8') as f:
         class_names = [cname.strip() for cname in f.readlines()]
 
-    net = cv2.dnn.readNet(weights_path, cfg_path)
+    # OpenCV DNN 無法處理中文路徑，將檔案複製到暫存目錄（使用固定名稱避免重複複製）
+    import tempfile
+    import shutil
+    import atexit
+    
+    # 使用固定的暫存目錄名稱，如果已存在則重用
+    temp_dir = os.path.join(tempfile.gettempdir(), 'candy_yolo_models')
+    os.makedirs(temp_dir, exist_ok=True)
+    temp_cfg = os.path.join(temp_dir, 'model.cfg')
+    temp_weights = os.path.join(temp_dir, 'model.weights')
+    
+    # 只在檔案不存在或大小不同時才複製（避免重複複製）
+    if not os.path.exists(temp_cfg) or os.path.getsize(temp_cfg) != os.path.getsize(cfg_path):
+        shutil.copy2(cfg_path, temp_cfg)
+        print(f"已複製模型配置到: {temp_cfg}")
+    
+    if not os.path.exists(temp_weights) or os.path.getsize(temp_weights) != os.path.getsize(weights_path):
+        shutil.copy2(weights_path, temp_weights)
+        print(f"已複製模型權重到: {temp_weights}")
+    
+    # 註冊程式結束時清理暫存檔案
+    def cleanup_temp_models():
+        try:
+            if os.path.exists(temp_dir):
+                shutil.rmtree(temp_dir)
+                print(f"已清理暫存模型檔案: {temp_dir}")
+        except:
+            pass
+    atexit.register(cleanup_temp_models)
+    
+    # 從暫存目錄載入模型
+    net = cv2.dnn.readNet(temp_weights, temp_cfg)
     model = cv2.dnn_DetectionModel(net)
     input_size = config.getint('Detection', 'input_size')
     # 灰階 YOLO 模型 -> 單通道輸入，不需 swapRB
@@ -258,6 +292,18 @@ def create_camera_context(config: configparser.ConfigParser, section: str):
         cap.release()
         return None
 
+    # 設定曝光以減少殘影（Motion Blur）
+    try:
+        # 關閉自動曝光
+        cap.set(cv2.CAP_PROP_AUTO_EXPOSURE, 0.25)  # 0.25 = 手動模式
+        # 設定較短的曝光時間（值越小 = 快門越快）
+        # -4 到 -13 之間，-7 通常適合快速移動物體
+        exposure_value = config.getint(section, 'exposure_value', fallback=-7)
+        cap.set(cv2.CAP_PROP_EXPOSURE, exposure_value)
+        logger.info(f"{cam_name}: 已設定曝光值為 {exposure_value} (減少殘影)")
+    except Exception as e:
+        logger.warning(f"{cam_name}: 設定曝光失敗（可能不支援）: {e}")
+
     # 設定初始焦距
     if use_startup_af:
         initialize_focus(cap, cam_name, frames=af_frames, delay_sec=af_delay_ms / 1000.0)
@@ -311,6 +357,7 @@ def process_camera_frame(
     elapsed_time: float,
     draw_annotations: bool = True,
     multi_scale_detector=None,
+    model_lock=None,
 ) -> np.ndarray | None:
     cam_ctx.frame_index += 1
     ret, frame = cam_ctx.cap.read()
@@ -342,7 +389,13 @@ def process_camera_frame(
     else:
         # 標準檢測
         gray_frame = cv2.cvtColor(detection_frame, cv2.COLOR_BGR2GRAY)
-        classes, scores, boxes = model.detect(gray_frame, conf_threshold, nms_threshold)
+        
+        # 使用鎖保護模型檢測，防止多線程衝突
+        if model_lock:
+            with model_lock:
+                classes, scores, boxes = model.detect(gray_frame, conf_threshold, nms_threshold)
+        else:
+            classes, scores, boxes = model.detect(gray_frame, conf_threshold, nms_threshold)
 
         detections = []
         for (classid, score, box) in zip(classes, scores, boxes):

@@ -167,6 +167,25 @@ async function loadCameras() {
                     <div class="camera-hint" id="focus-hint-${camera.index}"></div>
                 </div>
                 
+                <!-- 曝光控制滑軌 -->
+                <div class="camera-control">
+                    <label>
+                        <span class="control-label">📸 曝光 (快門):</span>
+                        <input type="range" min="-13" max="-1" value="-7" 
+                               class="slider" id="exposure-${camera.index}"
+                               oninput="updateExposure(${camera.index}, this.value)">
+                        <span class="control-value" id="exposure-value-${camera.index}">-7</span>
+                    </label>
+                    <div class="camera-actions">
+                        <button class="btn-action" onclick="saveExposure(${camera.index})" id="btn-save-exposure-${camera.index}">
+                            💾 儲存曝光
+                        </button>
+                    </div>
+                    <div class="camera-hint exposure-hint">
+                        📌 值越小 = 快門越快 = 殘影越少（需更強光線）
+                    </div>
+                </div>
+                
                 <!-- 噴氣延遲控制滑軌 -->
                 <div class="camera-control">
                     <label>
@@ -833,6 +852,74 @@ async function saveFocus(cameraIndex) {
         if (btn) {
             btn.disabled = false;
             btn.textContent = '💾 儲存焦距';
+        }
+    }
+}
+
+// 更新曝光值（快門速度）
+async function updateExposure(cameraIndex, value) {
+    const valueDisplay = document.getElementById(`exposure-value-${cameraIndex}`);
+    if (valueDisplay) {
+        valueDisplay.textContent = value;
+    }
+
+    // 調用 API 更新曝光
+    try {
+        await fetch(`/api/cameras/${cameraIndex}/exposure`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ exposure: parseInt(value), auto: false })
+        });
+        console.log(`Camera ${cameraIndex} 曝光已更新: ${value}`);
+    } catch (error) {
+        console.error(`Camera ${cameraIndex} 曝光更新失敗:`, error);
+    }
+}
+
+// 儲存曝光為預設值
+async function saveExposure(cameraIndex) {
+    const slider = document.getElementById(`exposure-${cameraIndex}`);
+    const btn = document.getElementById(`btn-save-exposure-${cameraIndex}`);
+
+    if (!slider) return;
+    const exposureValue = parseInt(slider.value);
+
+    if (btn) {
+        btn.disabled = true;
+        btn.textContent = '儲存中...';
+    }
+
+    try {
+        const response = await fetch(`/api/cameras/${cameraIndex}/exposure`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ exposure: exposureValue, auto: false, save: true })
+        });
+        const result = await response.json();
+
+        if (result.success) {
+            // 顯示成功訊息在提示區
+            const allHints = document.querySelectorAll('.exposure-hint');
+            allHints.forEach(hint => {
+                if (hint.closest('.camera-control').querySelector(`#exposure-${cameraIndex}`)) {
+                    hint.textContent = `✅ 已儲存曝光值 ${exposureValue}（值越小快門越快）`;
+                    hint.style.color = '#10b981';
+                    setTimeout(() => {
+                        hint.textContent = '📌 值越小 = 快門越快 = 殘影越少（需更強光線）';
+                        hint.style.color = '';
+                    }, 3000);
+                }
+            });
+        } else {
+            alert('儲存曝光失敗：' + (result.error || '未知錯誤'));
+        }
+    } catch (error) {
+        console.error(`Camera ${cameraIndex} 曝光儲存失敗:`, error);
+        alert('儲存曝光失敗：' + error.message);
+    } finally {
+        if (btn) {
+            btn.disabled = false;
+            btn.textContent = '💾 儲存曝光';
         }
     }
 }

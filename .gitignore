@@ -1,33 +1,102 @@
-# Python cache
+# ========================================
+# Python
+# ========================================
 __pycache__/
 *.py[cod]
 *.pyo
+*.pyd
+.Python
 
-# Virtual environments
+# ========================================
+# Virtual Environments
+# ========================================
 .venv/
 venv/
 env/
+ENV/
+virtualenv/
 
-# Editors/IDE
+# ========================================
+# Editors & IDEs
+# ========================================
 .vscode/
 .idea/
 *.swp
 *.swo
+*~
+.DS_Store
 
-# Logs
+# ========================================
+# Logs & Databases
+# ========================================
 *.log
 logs/
 app/logs/
-
-# Database
 *.db
+*.sqlite
+*.sqlite3
+detection_data.db
 
-# Large/local datasets and artifacts (keep out of Git)
+# ========================================
+# Datasets & Training Files (Large Files)
+# ========================================
+# Extracted frames and annotated data
+datasets/extracted_frames/
+datasets/annotated/
+datasets/candy/
+datasets/yolo_dataset/
+
+# Training runs and results
+runs/
+results/
+reports/*.html
+
+# Old training data
 訓練集資料/
 雜項/
 Yolo/
+之前訓練的 yolov8/
 
-# Local runtimes and binaries
+# ========================================
+# Models & Weights (Large Files)
+# ========================================
+*.weights
+*.onnx
+*.pt
+!yolov8n.pt
+!yolo11n.pt
+*.pb
+*.engine
+*.tflite
+models/*.weights
+models/*.cfg
+
+# ========================================
+# Media Files
+# ========================================
+*.mkv
+*.mp4
+*.avi
+*.mov
+*.wmv
+*.flv
+*.webm
+recordings/
+
+# ========================================
+# Archives
+# ========================================
+*.zip
+*.7z
+*.rar
+*.tar
+*.gz
+*.bz2
+candy_dataset.zip
+
+# ========================================
+# Application Binaries
+# ========================================
 app/jdk-17.0.6/
 *.exe
 *.dll
@@ -36,63 +105,42 @@ app/jdk-17.0.6/
 *.dylib
 *.jar
 
-# Media and models
-*.mkv
-*.mp4
-*.avi
-*.mov
-*.weights
-*.onnx
-*.pt
-*.pb
-*.engine
-
-# Archives
-*.zip
-*.7z
-*.rar
-*.tar
-*.gz
-
-# Third-party software (Logitech Capture)
+# ========================================
+# Third-party Software
+# ========================================
 LogiCapture/
 
-# Results folder (local detection results)
-results/
-
-# Old/backup code
-candy_old/
-
-# Recordings
-recordings/
-
-# Test files
-gcam.py
-gcpt1.py
-gcpt2.py
-test_trackbar.py
-
-# Backup and sample files
-run_detector_backup.py
-sample_recorder.py
-
-# Temporary notes
-web_app_api_addition.txt
-pip_ultralytics.log
-
-# Temporary development files
+# ========================================
+# Temporary & Development Files
+# ========================================
 *.tmp
+*.backup
+*.bak
 toggle_relay_function.tmp
 insert_function.py
 fix_and_update_recorder.py
 extra_script.js
 extra_styles.css
+web_app_api_addition.txt
+pip_ultralytics.log
 
-# Backup files
-*.backup
+# JavaScript backups
 script.js.backup
 script_fixed.js
 script_new.js
 
-# Focus settings (runtime generated)
+# Runtime configuration
 focus_settings.json
+duplicate_report.txt
+
+# ========================================
+# Old/Test Files (Not for production)
+# ========================================
+candy_old/
+gcam.py
+gcpt1.py
+gcpt2.py
+test_trackbar.py
+run_detector_backup.py
+sample_recorder.py
+test_load.py

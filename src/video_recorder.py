@@ -271,7 +271,7 @@ class VideoRecorder:
         # 產生檔名
         if filename is None:
             timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-            filename = f"recording_{self.camera_index}_{timestamp}.mp4"
+            filename = f"{self.camera_index}_{timestamp}.mp4"
         
         self.current_filename = filename
         filepath = self.output_dir / filename
@@ -501,11 +501,12 @@ class VideoRecorder:
         return sorted(recordings, key=lambda x: x['created'], reverse=True)
 
     def delete_recording(self, filename):
-        """刪除錄影檔案"""
+        """刪除錄影檔案（移到垃圾桶）"""
+        import send2trash
         filepath = self.output_dir / filename
         if filepath.exists():
-            filepath.unlink()
-            return {'success': True, 'message': f'已刪除 {filename}'}
+            send2trash.send2trash(str(filepath))
+            return {'success': True, 'message': f'已將 {filename} 移到垃圾桶'}
         return {'success': False, 'error': '檔案不存在'}
 
     def release(self):

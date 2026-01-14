@@ -157,6 +157,21 @@ body {
     box-shadow: 0 4px 15px rgba(155, 89, 182, 0.4);
 }
 
+/* 標註按鈕連結 */
+.annotate-link {
+    background: linear-gradient(135deg, #f59e0b, #d97706) !important;
+    color: white !important;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+}
+
+.annotate-link:hover {
+    background: linear-gradient(135deg, #d97706, #b45309) !important;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4);
+}
+
 /* 分頁內容 */
 .tab-content {
     display: none;
@@ -322,6 +337,13 @@ body {
     padding: 4px 8px;
     background: var(--hint-bg);
     border-radius: 4px;
+}
+
+.exposure-hint {
+    font-size: 11px;
+    color: rgba(147, 197, 253, 0.8);
+    background: rgba(59, 130, 246, 0.1);
+    border-left: 2px solid #3b82f6;
 }
 
 .btn-ghost {

@@ -1,6 +1,9 @@
-@echo off
+﻿@echo off
 chcp 65001 >nul
 title Candy Detection System
+
+REM 將終端機視窗最大化
+mode con: cols=200 lines=50
 
 echo ========================================
 echo   Candy Detection System - Starting
@@ -46,6 +49,12 @@ if exist ".venv\Scripts\activate.bat" (
 
 if exist "src\web_app.py" (
     echo Starting web_app.py...
+    echo.
+    echo ========================================
+    echo   伺服器啟動中...
+    echo   打開瀏覽器訪問: http://localhost:5000
+    echo ========================================
+    echo.
     python src\web_app.py
 ) else (
     echo [ERROR] src\web_app.py not found!

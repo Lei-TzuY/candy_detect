@@ -77,4 +77,4 @@ CLASS_ABNORMAL = "abnormal"
 # ============================================================================
 LOG_FORMAT = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 LOG_DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
-LOG_LEVEL = "INFO"
+LOG_LEVEL = "DEBUG"  # 暫時啟用 DEBUG 查看 API 詳細日誌
