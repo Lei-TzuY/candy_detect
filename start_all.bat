@@ -68,4 +68,3 @@ taskkill /FI "WINDOWTITLE eq Relay*" /F >nul 2>&1
 
 echo.
 echo All services stopped.
-pause

@@ -418,29 +418,19 @@ class VideoRecorder:
         }
 
     def generate_preview_stream(self):
-        """產生預覽串流"""
+        """產生預覽串流 - 使用共享攝影機的緩存畫面"""
         self.is_previewing = True
         
-        # 先嘗試開啟攝影機
-        cap = self._get_cap()
-        
-        # 套用儲存的對焦設定
-        if cap is not None:
-            self._apply_focus_to_cap(cap)
-        
-        if cap is None:
-            # 嘗試開啟獨立攝影機（使用不同的攝影機索引嘗試）
-            for try_index in [self.camera_index, 0, 1, 2]:
-                self.camera_index = try_index
-                if self.open_own_camera():
-                    cap = self.own_cap
-                    print(f"錄影器: 成功開啟攝影機 {try_index}")
-                    break
-            
-            if cap is None:
+        # 檢查是否有共享攝影機
+        if self.shared_cap is None:
+            # 沒有共享攝影機，嘗試開啟獨立攝影機
+            if self.open_own_camera():
+                cap = self.own_cap
+                print(f"[錄影器 {self.camera_index}] 使用獨立攝影機模式")
+            else:
                 # 無法開啟攝影機，產生錯誤畫面
                 while self.is_previewing:
-                    error_frame = self._create_error_frame("無法開啟攝影機")
+                    error_frame = self._create_error_frame("無法連接攝影機\n請確認主系統已啟動")
                     ret, buffer = cv2.imencode('.jpg', error_frame)
                     if ret:
                         yield (b'--frame\r\n'
@@ -448,14 +438,33 @@ class VideoRecorder:
                     time.sleep(0.5)
                 return
         
+        print(f"[錄影器 {self.camera_index}] 使用共享攝影機模式（從緩存讀取）")
+        
+        # 開始串流 - 從共享攝影機的緩存中讀取
+        # 開始串流 - 從共享攝影機的緩存中讀取
         while self.is_previewing:
-            cap = self._get_cap()
-            if cap is None:
-                time.sleep(0.1)
-                continue
+            frame = None
             
-            ret, frame = cap.read()
-            if ret:
+            # 優先從共享攝影機的緩存中取得畫面
+            if self.shared_cap is not None:
+                # 從 camera_contexts 取得緩存的畫面
+                try:
+                    from web_app import camera_contexts
+                    if self.camera_index < len(camera_contexts):
+                        cam_ctx = camera_contexts[self.camera_index]
+                        # 使用緩存的原始畫面（未處理的畫面）
+                        if cam_ctx.latest_frame is not None:
+                            frame = cam_ctx.latest_frame.copy()
+                except Exception as e:
+                    print(f"[錄影器 {self.camera_index}] 無法從緩存取得畫面: {e}")
+            
+            # 如果沒有緩存畫面，使用獨立攝影機讀取
+            if frame is None and self.own_cap is not None:
+                ret, frame = self.own_cap.read()
+                if not ret:
+                    frame = None
+            
+            if frame is not None:
                 # 加入錄影狀態提示
                 if self.is_recording:
                     cv2.circle(frame, (30, 30), 15, (0, 0, 255), -1)

@@ -807,6 +807,54 @@ body {
     box-shadow: 0 2px 8px rgba(46, 213, 115, 0.4);
 }
 
+/* 模型選擇器 */
+.model-selector {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 15px;
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+    border-radius: 8px;
+    border: 1px solid rgba(102, 126, 234, 0.3);
+}
+
+.model-selector label {
+    font-size: 13px;
+    color: var(--muted-color);
+    white-space: nowrap;
+    font-weight: 600;
+}
+
+.model-selector select {
+    padding: 6px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 5px;
+    font-size: 13px;
+    min-width: 250px;
+    background: var(--input-bg);
+    color: var(--text-color);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.model-selector select:hover {
+    border-color: #667eea;
+}
+
+.model-selector select:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.model-info {
+    font-size: 12px;
+    font-weight: 600;
+    padding: 4px 8px;
+    background: rgba(16, 185, 129, 0.1);
+    border-radius: 4px;
+    white-space: nowrap;
+}
+
 .video-header {
     display: flex;
     justify-content: space-between;

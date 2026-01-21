@@ -37,8 +37,7 @@ candy/
 │   ├── web_app.py               # Flask Web 應用主程式
 │   ├── run_detector.py          # 即時偵測主程式
 │   ├── video_recorder.py        # 影片錄製模組
-│   ├── yolov8_trainer.py        # YOLOv8 訓練模組
-│   └── data_cleaning.py         # 資料清洗工具
+│   └── yolov8_trainer.py        # YOLOv8 訓練模組
 │
 ├── candy_detector/               # 核心套件模組
 │   ├── config.py                # 設定載入
@@ -46,8 +45,24 @@ candy/
 │   ├── models.py                # 資料模型
 │   └── optimization.py          # 效能優化
 │
+├── scripts/                      # 訓練與資料處理腳本
+│   ├── auto_labeling/           # 自動標註工具集
+│   │   ├── auto_label_cv.py    # OpenCV 傳統視覺標註
+│   │   ├── auto_label_sam.py   # SAM 模型標註
+│   │   └── auto_label_*.py     # 其他標註方法
+│   ├── train_yolo.py            # YOLOv8 訓練腳本
+│   ├── train_yolo_large.py      # 大型模型訓練
+│   └── prepare_yolo_dataset.py  # 資料集準備
+│
+├── tools/                        # 輔助工具集
+│   ├── check_*.py               # 檢查工具（訓練資料、標註品質等）
+│   ├── fix_*.py                 # 修復工具（標註問題等）
+│   ├── generate_*.py            # 報告生成工具
+│   ├── visualize_*.py           # 視覺化工具
+│   └── merge_training_data.py   # 資料集合併
+│
 ├── templates/                    # Web 介面模板
-│   ├── index.html               # 首頁 (即時監控)
+│   ├── index.html               # 首頁（即時監控）
 │   ├── recorder.html            # 錄影管理
 │   ├── annotate.html            # 資料標註
 │   └── trainer.html             # 模型訓練
@@ -70,8 +85,7 @@ candy/
 │
 ├── config.ini                    # 系統設定檔
 ├── requirements.txt              # Python 套件依賴
-├── train_yolo.py                 # 訓練腳本 (CLI)
-├── auto_label.py                 # 自動標註工具
+├── .gitignore                    # Git 忽略清單
 └── *.bat                         # Windows 啟動腳本
 ```
 

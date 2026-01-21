@@ -1,74 +1,282 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>YOLOv8 訓練與測試</title>
     <link rel="icon" href="{{ url_for('static', filename='favicon.svg') }}" type="image/svg+xml">
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
         body {
             font-family: 'Segoe UI', 'Microsoft JhengHei', sans-serif;
             background: #0f172a;
             color: #e5e7eb;
             padding: 20px;
         }
-        .container { max-width: 1400px; margin: 0 auto; }
-        h1 { text-align: center; margin-bottom: 20px; color: #38bdf8; }
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #38bdf8;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
         .card {
-            background: rgba(255,255,255,0.05);
-            border: 1px solid rgba(255,255,255,0.1);
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 12px;
             padding: 16px;
         }
-        .card h2 { margin-bottom: 10px; color: #67e8f9; font-size: 18px; }
-        .form-group { margin-bottom: 12px; }
-        .form-group label { display: block; margin-bottom: 6px; color: #cbd5e1; }
-        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        input, select {
-            width: 100%; padding: 10px; border-radius: 8px;
-            border: 1px solid rgba(255,255,255,0.15);
-            background: rgba(255,255,255,0.06); color: #e5e7eb;
+
+        .card h2 {
+            margin-bottom: 10px;
+            color: #67e8f9;
+            font-size: 18px;
         }
-        input:focus, select:focus { outline: 1px solid #38bdf8; }
+
+        .form-group {
+            margin-bottom: 12px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            color: #cbd5e1;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            background: rgba(255, 255, 255, 0.06);
+            color: #e5e7eb;
+        }
+
+        input:focus,
+        select:focus {
+            outline: 1px solid #38bdf8;
+        }
+
         .btn {
-            display: inline-flex; align-items: center; justify-content: center;
-            padding: 10px 14px; border: none; border-radius: 8px;
-            cursor: pointer; font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px 14px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 700;
         }
-        .btn-primary { background: #0ea5e9; color: #fff; }
-        .btn-secondary { background: #475569; color: #fff; }
-        .btn-success { background: #10b981; color: #fff; }
-        .btn-danger { background: #ef4444; color: #fff; }
-        .btn-sm { padding: 6px 10px; font-size: 13px; }
-        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
-        .progress { width: 100%; height: 14px; background: rgba(255,255,255,0.1); border-radius: 8px; overflow: hidden; margin: 8px 0; }
-        .progress-bar { height: 100%; width: 0%; background: linear-gradient(90deg,#22d3ee,#10b981); text-align: center; font-size: 12px; color: #0f172a; font-weight: 700; }
-        .status-row { display: flex; gap: 10px; align-items: center; margin-bottom: 6px; }
-        .badge { padding: 4px 10px; border-radius: 20px; font-weight: 700; font-size: 12px; background: #475569; }
-        .badge.training { background: #0ea5e9; }
-        .badge.completed { background: #10b981; }
-        .badge.error { background: #ef4444; }
-        .metrics { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; }
-        .metric { background: rgba(255,255,255,0.06); padding: 10px; border-radius: 8px; text-align: center; }
-        .metric .value { font-size: 20px; font-weight: 800; color: #38bdf8; }
-        .metric .label { color: #cbd5e1; font-size: 12px; }
-        .log-box { background: rgba(0,0,0,0.3); border-radius: 8px; padding: 10px; max-height: 240px; overflow-y: auto; font-family: Consolas, monospace; font-size: 13px; }
-        .log-entry { padding: 4px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
-        .stat-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; }
-        .stat { background: rgba(255,255,255,0.06); border-radius: 8px; padding: 8px; text-align: center; }
-        .stat .val { font-size: 18px; font-weight: 800; color: #10b981; }
-        .model-item { background: rgba(255,255,255,0.06); border-radius: 8px; padding: 10px; margin-bottom: 8px; }
-        .model-item .name { font-weight: 700; color: #38bdf8; }
-        .test-status { margin: 8px 0; padding: 8px 10px; border-radius: 8px; background: rgba(255,255,255,0.05); color: #cbd5e1; }
-        .test-status.success { color: #10b981; }
-        .test-status.error { color: #ef4444; }
-        .det-row { display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.08); padding: 6px 0; }
-        .det-row:last-child { border-bottom: none; }
-        @media(max-width: 900px){ .grid{grid-template-columns:1fr;} .form-row{grid-template-columns:1fr;} }
+
+        .btn-primary {
+            background: #0ea5e9;
+            color: #fff;
+        }
+
+        .btn-secondary {
+            background: #475569;
+            color: #fff;
+        }
+
+        .btn-success {
+            background: #10b981;
+            color: #fff;
+        }
+
+        .btn-danger {
+            background: #ef4444;
+            color: #fff;
+        }
+
+        .btn-sm {
+            padding: 6px 10px;
+            font-size: 13px;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .progress {
+            width: 100%;
+            height: 14px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            overflow: hidden;
+            margin: 8px 0;
+        }
+
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #22d3ee, #10b981);
+            text-align: center;
+            font-size: 12px;
+            color: #0f172a;
+            font-weight: 700;
+        }
+
+        .status-row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+
+        .badge {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 12px;
+            background: #475569;
+        }
+
+        .badge.training {
+            background: #0ea5e9;
+        }
+
+        .badge.completed {
+            background: #10b981;
+        }
+
+        .badge.error {
+            background: #ef4444;
+        }
+
+        .metrics {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+
+        .metric {
+            background: rgba(255, 255, 255, 0.06);
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .metric .value {
+            font-size: 20px;
+            font-weight: 800;
+            color: #38bdf8;
+        }
+
+        .metric .label {
+            color: #cbd5e1;
+            font-size: 12px;
+        }
+
+        .log-box {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            padding: 10px;
+            max-height: 240px;
+            overflow-y: auto;
+            font-family: Consolas, monospace;
+            font-size: 13px;
+        }
+
+        .log-entry {
+            padding: 4px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+
+        .stat {
+            background: rgba(255, 255, 255, 0.06);
+            border-radius: 8px;
+            padding: 8px;
+            text-align: center;
+        }
+
+        .stat .val {
+            font-size: 18px;
+            font-weight: 800;
+            color: #10b981;
+        }
+
+        .model-item {
+            background: rgba(255, 255, 255, 0.06);
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 8px;
+        }
+
+        .model-item .name {
+            font-weight: 700;
+            color: #38bdf8;
+        }
+
+        .test-status {
+            margin: 8px 0;
+            padding: 8px 10px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            color: #cbd5e1;
+        }
+
+        .test-status.success {
+            color: #10b981;
+        }
+
+        .test-status.error {
+            color: #ef4444;
+        }
+
+        .det-row {
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 6px 0;
+        }
+
+        .det-row:last-child {
+            border-bottom: none;
+        }
+
+        @media(max-width: 900px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
 </head>
+
 <body>
     <div class="container">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
@@ -77,6 +285,7 @@
                 <a href="/" class="btn btn-secondary">🏠 返回首頁</a>
                 <a href="/recorder" class="btn btn-secondary">🎥 錄影模式</a>
                 <a href="/annotate" class="btn btn-secondary">🏷️ 標註</a>
+                <button class="btn btn-secondary" onclick="restartApp()" title="重啟應用程式">🔄</button>
             </div>
         </div>
         <div class="grid">
@@ -99,9 +308,18 @@
                     </div>
                     <button class="btn btn-secondary" id="btn-prepare" onclick="prepareDataset()">準備資料</button>
                     <div id="dataset-stats" class="stat-grid" style="display:none; margin-top:10px;">
-                        <div class="stat"><div class="val" id="stat-total">0</div><div>總數</div></div>
-                        <div class="stat"><div class="val" id="stat-train">0</div><div>訓練</div></div>
-                        <div class="stat"><div class="val" id="stat-val">0</div><div>驗證</div></div>
+                        <div class="stat">
+                            <div class="val" id="stat-total">0</div>
+                            <div>總數</div>
+                        </div>
+                        <div class="stat">
+                            <div class="val" id="stat-train">0</div>
+                            <div>訓練</div>
+                        </div>
+                        <div class="stat">
+                            <div class="val" id="stat-val">0</div>
+                            <div>驗證</div>
+                        </div>
                     </div>
                 </div>
 
@@ -120,7 +338,9 @@
                         </div>
                         <div class="form-group">
                             <label>訓練裝置</label>
-                            <select id="device"><option value="cpu">CPU</option></select>
+                            <select id="device">
+                                <option value="cpu">CPU</option>
+                            </select>
                         </div>
                     </div>
                     <div class="form-row">
@@ -167,15 +387,26 @@
                         <span class="badge" id="status-badge">idle</span>
                         <span id="status-message" style="color:#cbd5e1;">尚未開始</span>
                     </div>
-                    <div class="progress"><div class="progress-bar" id="progress-bar">0%</div></div>
+                    <div class="progress">
+                        <div class="progress-bar" id="progress-bar">0%</div>
+                    </div>
                     <div class="form-row" style="margin-bottom:8px;">
                         <div>Epoch: <span id="current-epoch">0</span> / <span id="total-epochs">0</span></div>
                         <div>經過時間: <span id="elapsed-time">00:00:00</span></div>
                     </div>
                     <div class="metrics">
-                        <div class="metric"><div class="value" id="metric-loss">--</div><div class="label">Loss</div></div>
-                        <div class="metric"><div class="value" id="metric-map50">--</div><div class="label">mAP50</div></div>
-                        <div class="metric"><div class="value" id="metric-map95">--</div><div class="label">mAP50-95</div></div>
+                        <div class="metric">
+                            <div class="value" id="metric-loss">--</div>
+                            <div class="label">Loss</div>
+                        </div>
+                        <div class="metric">
+                            <div class="value" id="metric-map50">--</div>
+                            <div class="label">mAP50</div>
+                        </div>
+                        <div class="metric">
+                            <div class="value" id="metric-map95">--</div>
+                            <div class="label">mAP50-95</div>
+                        </div>
                     </div>
                 </div>
 
@@ -188,7 +419,8 @@
 
                 <div class="card" style="margin-bottom:12px;">
                     <h2>已訓練模型</h2>
-                    <button class="btn btn-secondary btn-sm" onclick="loadModels()" style="margin-bottom:6px;">重新整理</button>
+                    <button class="btn btn-secondary btn-sm" onclick="loadModels()"
+                        style="margin-bottom:6px;">重新整理</button>
                     <div id="model-list"></div>
                 </div>
 
@@ -197,7 +429,8 @@
                     <div class="form-group">
                         <label>模型路徑 (.pt)</label>
                         <input type="text" id="test-model-path" placeholder="填入 best.pt 路徑">
-                        <button class="btn btn-secondary btn-sm" style="margin-top:6px;" onclick="fillLatestModel()">填入最新 best.pt</button>
+                        <button class="btn btn-secondary btn-sm" style="margin-top:6px;"
+                            onclick="fillLatestModel()">填入最新 best.pt</button>
                     </div>
                     <div class="form-group">
                         <label>測試圖片</label>
@@ -224,7 +457,8 @@
                     <div class="form-group">
                         <label>模型路徑 (.pt)</label>
                         <input type="text" id="eval-model-path" placeholder="填入 best.pt 路徑">
-                        <button class="btn btn-secondary btn-sm" style="margin-top:6px;" onclick="fillLatestForEval()">填入最新 best.pt</button>
+                        <button class="btn btn-secondary btn-sm" style="margin-top:6px;"
+                            onclick="fillLatestForEval()">填入最新 best.pt</button>
                     </div>
                     <div class="form-group">
                         <label>data.yaml 路徑</label>
@@ -233,7 +467,9 @@
                     <div class="form-row">
                         <div class="form-group">
                             <label>裝置</label>
-                            <select id="eval-device"><option value="cpu">CPU</option></select>
+                            <select id="eval-device">
+                                <option value="cpu">CPU</option>
+                            </select>
                         </div>
                         <div class="form-group">
                             <label>信心閾值</label>
@@ -247,10 +483,22 @@
                     <button class="btn btn-primary" onclick="evaluateModel()">開始計算準確度</button>
                     <div id="eval-status" class="test-status">尚未計算</div>
                     <div id="eval-metrics" class="stat-grid" style="display:none; margin-top:8px;">
-                        <div class="stat"><div class="val" id="eval-map50">--</div><div>mAP50</div></div>
-                        <div class="stat"><div class="val" id="eval-map95">--</div><div>mAP50-95</div></div>
-                        <div class="stat"><div class="val" id="eval-precision">--</div><div>Precision</div></div>
-                        <div class="stat"><div class="val" id="eval-recall">--</div><div>Recall</div></div>
+                        <div class="stat">
+                            <div class="val" id="eval-map50">--</div>
+                            <div>mAP50</div>
+                        </div>
+                        <div class="stat">
+                            <div class="val" id="eval-map95">--</div>
+                            <div>mAP50-95</div>
+                        </div>
+                        <div class="stat">
+                            <div class="val" id="eval-precision">--</div>
+                            <div>Precision</div>
+                        </div>
+                        <div class="stat">
+                            <div class="val" id="eval-recall">--</div>
+                            <div>Recall</div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -359,7 +607,7 @@
                 if (s.map50) document.getElementById('metric-map50').textContent = (s.map50 * 100).toFixed(1) + '%';
                 if (s.map50_95) document.getElementById('metric-map95').textContent = (s.map50_95 * 100).toFixed(1) + '%';
                 if (s.start_time) {
-                    const elapsed = Math.max(0, (Date.now()/1000) - s.start_time);
+                    const elapsed = Math.max(0, (Date.now() / 1000) - s.start_time);
                     document.getElementById('elapsed-time').textContent = formatTime(elapsed);
                 }
                 document.getElementById('btn-start').disabled = s.is_training;
@@ -374,9 +622,9 @@
         }
 
         function formatTime(sec) {
-            const h = Math.floor(sec / 3600).toString().padStart(2,'0');
-            const m = Math.floor((sec % 3600) / 60).toString().padStart(2,'0');
-            const s = Math.floor(sec % 60).toString().padStart(2,'0');
+            const h = Math.floor(sec / 3600).toString().padStart(2, '0');
+            const m = Math.floor((sec % 3600) / 60).toString().padStart(2, '0');
+            const s = Math.floor(sec % 60).toString().padStart(2, '0');
             return `${h}:${m}:${s}`;
         }
 
@@ -396,11 +644,11 @@
                         <div class="name">${m.name}</div>
                         <div style="color:#cbd5e1; font-size:13px;">
                             建立時間: ${m.created || ''}<br>
-                            ${m.epochs ? `Epochs: ${m.epochs}` : ''} ${m.map50 ? ` | mAP50: ${(m.map50*100).toFixed(1)}%` : ''}
+                            ${m.epochs ? `Epochs: ${m.epochs}` : ''} ${m.map50 ? ` | mAP50: ${(m.map50 * 100).toFixed(1)}%` : ''}
                         </div>
                         <div style="display:flex; gap:8px; margin-top:6px; flex-wrap:wrap;">
-                            ${m.best_pt ? `<button class="btn btn-primary btn-sm" onclick="copyPath('${m.best_pt.replace(/\\\\/g,'\\\\\\\\')}')">複製 best.pt</button>` : ''}
-                            <button class="btn btn-secondary btn-sm" onclick="openFolder('${m.path.replace(/\\\\/g,'\\\\\\\\')}')">開啟資料夾</button>
+                            ${m.best_pt ? `<button class="btn btn-primary btn-sm" onclick="copyPath('${m.best_pt.replace(/\\\\/g, '\\\\\\\\')}')">複製 best.pt</button>` : ''}
+                            <button class="btn btn-secondary btn-sm" onclick="openFolder('${m.path.replace(/\\\\/g, '\\\\\\\\')}')">開啟資料夾</button>
                         </div>
                     </div>
                 `).join('');
@@ -430,19 +678,19 @@
             if (!fileInput.files.length) { alert('請選擇測試圖片'); return; }
             const form = new FormData();
             form.append('model_path', modelPath);
-            form.append('conf', isNaN(conf)?0.25:conf);
+            form.append('conf', isNaN(conf) ? 0.25 : conf);
             form.append('image', fileInput.files[0]);
             status.textContent = '測試中...'; status.className = 'test-status';
             img.src = ''; list.innerHTML = '';
             try {
-                const res = await fetch('/api/training/test-model', { method:'POST', body: form });
+                const res = await fetch('/api/training/test-model', { method: 'POST', body: form });
                 const result = await res.json();
                 if (!res.ok || !result.success) throw new Error(result.error || '測試失敗');
                 status.textContent = `測試成功，偵測 ${result.num_detections} 筆`;
                 status.className = 'test-status success';
                 img.src = result.output_image + '?t=' + Date.now();
                 if (result.detections && result.detections.length) {
-                    list.innerHTML = result.detections.map(d => `<div class="det-row"><div>${d.class_name}</div><div>${(d.confidence*100).toFixed(1)}%</div></div>`).join('');
+                    list.innerHTML = result.detections.map(d => `<div class="det-row"><div>${d.class_name}</div><div>${(d.confidence * 100).toFixed(1)}%</div></div>`).join('');
                 } else {
                     list.innerHTML = '<div class="det-row">無偵測結果</div>';
                 }
@@ -492,6 +740,16 @@
             if (latestModelPath) document.getElementById('eval-model-path').value = latestModelPath;
             else alert('尚未找到模型');
         }
+
+        function restartApp() {
+            if (confirm('您確定要重啟應用程式嗎？目前的連線將會中斷。')) {
+                fetch('/api/system/restart', { method: 'POST' })
+                    .then(() => console.log('Restart command sent.'))
+                    .catch(e => console.error('Restart command sent, server shutting down:', e));
+                setTimeout(() => location.reload(), 5000);
+            }
+        }
     </script>
 </body>
+
 </html>

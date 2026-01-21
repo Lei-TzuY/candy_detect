@@ -128,8 +128,13 @@
         }
 
         @keyframes spin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg);
+            }
         }
 
         /* 預覽模態框 */
@@ -306,6 +311,8 @@
             padding: 8px;
             position: relative;
             user-select: none;
+            cursor: crosshair;
+            /* 顯示十字游標暗示可以拖曳選取 */
         }
 
         .file-item {
@@ -317,6 +324,12 @@
             cursor: pointer;
             transition: all 0.2s;
             font-size: 0.85rem;
+            position: relative;
+        }
+
+        .file-item.selecting {
+            background: rgba(56, 189, 248, 0.2);
+            border-color: rgba(56, 189, 248, 0.5);
         }
 
         .file-item:hover {
@@ -409,7 +422,8 @@
             margin: 0;
             padding: 0;
         }
-            cursor: crosshair;
+
+        cursor: crosshair;
         }
 
         .canvas-info {
@@ -648,6 +662,7 @@
             <a href="/recorder" class="nav-btn">🎥 錄影</a>
             <a href="/trainer" class="nav-btn">🤖 訓練</a>
             <a href="/annotate" class="nav-btn active">🏷️ 標註</a>
+            <button class="nav-btn" onclick="restartApp()" title="重啟應用程式">🔄</button>
             <button class="nav-btn" id="btnHelp">❓ 快捷鍵</button>
         </nav>
     </div>
@@ -660,7 +675,8 @@
                     <h3>📁 影像檔案</h3>
                     <div style="display: flex; gap: 8px;">
                         <button class="btn-refresh" id="btnRefresh" title="重新載入檔案列表">⟳</button>
-                        <button class="btn-refresh" id="btnPreviewAll" title="預覽已選取的標記框" style="background: linear-gradient(135deg, #8b5cf6, #7c3aed); border-color: #8b5cf6;">🖼️</button>
+                        <button class="btn-refresh" id="btnPreviewAll" title="預覽已選取的標記框"
+                            style="background: linear-gradient(135deg, #8b5cf6, #7c3aed); border-color: #8b5cf6;">🖼️</button>
                     </div>
                 </div>
                 <div class="filter-group">
@@ -669,9 +685,27 @@
                     <button class="filter-btn" data-filter="unlabeled">未標</button>
                 </div>
                 <div style="margin-top: 12px; display: flex; flex-direction: column; gap: 6px;">
-                    <select class="search-box" id="folderSelector" style="cursor: pointer;">
-                        <option value="">📁 全部資料夾</option>
-                    </select>
+                    <div style="display: flex; gap: 4px;">
+                        <select class="search-box" id="folderSelector" style="cursor: pointer; flex: 1;">
+                            <option value="">📁 全部資料夾</option>
+                        </select>
+                        <button class="btn-refresh" id="btnBrowseFolder" title="瀏覽其他資料夾"
+                            style="background: linear-gradient(135deg, #f59e0b, #d97706); border-color: #f59e0b; padding: 8px 12px; white-space: nowrap;">
+                            📂 瀏覽...
+                        </button>
+                    </div>
+                    <div id="customFolderDisplay" style="display: none; background: rgba(59, 130, 246, 0.1); 
+                                                          border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 6px; 
+                                                          padding: 6px 8px; font-size: 0.75rem; color: #60a5fa;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span id="customFolderPath"
+                                style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"></span>
+                            <button onclick="clearCustomFolder()"
+                                style="background: none; border: none; color: #ef4444; cursor: pointer; padding: 2px 6px; font-size: 1rem;"
+                                title="清除自訂資料夾">✕</button>
+                        </div>
+                    </div>
+
                     <!-- 資料清洗工具折疊區 -->
                     <div style="border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 6px; overflow: hidden;">
                         <button id="btnToggleCleaningTools"
@@ -868,6 +902,18 @@
             } else {
                 section.style.display = 'none';
                 arrow.textContent = '▼';
+            }
+        }
+
+        function restartApp() {
+            if (confirm('您確定要重啟應用程式嗎？目前的連線將會中斷。')) {
+                fetch('/api/system/restart', { method: 'POST' })
+                    .then(() => console.log('Restart command sent.'))
+                    .catch(e => console.error('Restart command sent, server shutting down:', e));
+                setTimeout(() => {
+                    // 重載並清除 URL 參數（如 custom_path），確保回到預設路徑
+                    window.location.href = window.location.pathname;
+                }, 5000);
             }
         }
     </script>

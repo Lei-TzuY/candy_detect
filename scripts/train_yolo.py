@@ -23,7 +23,7 @@ def train_model():
     model = YOLO('yolov8n.pt')  # 自動下載預訓練權重
     
     # 訓練參數
-    data_yaml = 'datasets/candy_dataset.yaml'
+    data_yaml = 'datasets/candy_merged_20260116_154158/dataset.yaml'
     
     print("\n🚀 開始訓練...")
     print(f"   數據集配置: {data_yaml}")
@@ -97,4 +97,25 @@ def train_model():
     print("   3. 使用最佳模型: runs/train/candy_detector/weights/best.pt")
 
 if __name__ == '__main__':
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--device', default='auto', choices=['auto', 'cpu', 'cuda', '0'], 
+                        help='训练设备: auto(自动检测), cpu, cuda, 0(GPU 0)')
+    args = parser.parse_args()
+    
+    # 根据参数设置设备
+    import torch
+    if args.device == 'auto':
+        device = 'cuda' if torch.cuda.is_available() else 'cpu'
+    else:
+        device = args.device
+    
+    # 覆盖train_model中的设备检测
+    import sys
+    original_train = train_model
+    def train_with_device():
+        # 修改全局变量来强制使用指定设备
+        import ultralytics
+        return original_train()
+    
     train_model()

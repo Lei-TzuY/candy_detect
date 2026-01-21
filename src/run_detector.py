@@ -65,61 +65,85 @@ def setup_config(config_file: str = 'config.ini') -> configparser.ConfigParser:
 
 
 def load_yolo_model(config: configparser.ConfigParser):
-    """依設定檔路徑載入 YOLO 模型"""
+    """依設定檔路徑載入 YOLO 模型（支援 YOLOv4 和 YOLOv8）"""
     weights_path = os.path.normpath(os.path.join(PROJECT_ROOT, config.get('Paths', 'weights')))
-    cfg_path = os.path.normpath(os.path.join(PROJECT_ROOT, config.get('Paths', 'cfg')))
     classes_path = os.path.normpath(os.path.join(PROJECT_ROOT, config.get('Paths', 'classes')))
-
-    if not all(os.path.exists(p) for p in [weights_path, cfg_path, classes_path]):
-        raise FileNotFoundError(
-            f"模型權重或設定檔路徑不存在，請檢查 config.ini 設定\n"
-            f"weights: {weights_path} (exists: {os.path.exists(weights_path)})\n"
-            f"cfg: {cfg_path} (exists: {os.path.exists(cfg_path)})\n"
-            f"classes: {classes_path} (exists: {os.path.exists(classes_path)})"
-        )
-
+    
+    # 檢查模型類型
+    model_type = config.get('Paths', 'model_type', fallback='yolov4').lower()
+    
+    if not os.path.exists(classes_path):
+        raise FileNotFoundError(f"類別檔案不存在: {classes_path}")
+    
     with open(classes_path, 'r', encoding='utf-8') as f:
         class_names = [cname.strip() for cname in f.readlines()]
-
-    # OpenCV DNN 無法處理中文路徑，將檔案複製到暫存目錄（使用固定名稱避免重複複製）
-    import tempfile
-    import shutil
-    import atexit
     
-    # 使用固定的暫存目錄名稱，如果已存在則重用
-    temp_dir = os.path.join(tempfile.gettempdir(), 'candy_yolo_models')
-    os.makedirs(temp_dir, exist_ok=True)
-    temp_cfg = os.path.join(temp_dir, 'model.cfg')
-    temp_weights = os.path.join(temp_dir, 'model.weights')
-    
-    # 只在檔案不存在或大小不同時才複製（避免重複複製）
-    if not os.path.exists(temp_cfg) or os.path.getsize(temp_cfg) != os.path.getsize(cfg_path):
-        shutil.copy2(cfg_path, temp_cfg)
-        print(f"已複製模型配置到: {temp_cfg}")
-    
-    if not os.path.exists(temp_weights) or os.path.getsize(temp_weights) != os.path.getsize(weights_path):
-        shutil.copy2(weights_path, temp_weights)
-        print(f"已複製模型權重到: {temp_weights}")
-    
-    # 註冊程式結束時清理暫存檔案
-    def cleanup_temp_models():
+    # 根據模型類型載入
+    if model_type == 'yolov8':
+        # YOLOv8 使用 Ultralytics
+        if not os.path.exists(weights_path):
+            raise FileNotFoundError(f"YOLOv8 模型權重不存在: {weights_path}")
+        
         try:
-            if os.path.exists(temp_dir):
-                shutil.rmtree(temp_dir)
-                print(f"已清理暫存模型檔案: {temp_dir}")
-        except:
-            pass
-    atexit.register(cleanup_temp_models)
+            from ultralytics import YOLO
+        except ImportError:
+            raise ImportError("請安裝 ultralytics: pip install ultralytics")
+        
+        model = YOLO(weights_path)
+        logger.info(f"YOLOv8 模型載入成功: {weights_path}")
+        logger.info(f"類別: {class_names}")
+        return model, class_names
     
-    # 從暫存目錄載入模型
-    net = cv2.dnn.readNet(temp_weights, temp_cfg)
-    model = cv2.dnn_DetectionModel(net)
-    input_size = config.getint('Detection', 'input_size')
-    # 灰階 YOLO 模型 -> 單通道輸入，不需 swapRB
-    model.setInputParams(size=(input_size, input_size), scale=1 / 255, swapRB=False)
+    else:
+        # YOLOv4 使用 OpenCV DNN
+        cfg_path = os.path.normpath(os.path.join(PROJECT_ROOT, config.get('Paths', 'cfg')))
+        
+        if not all(os.path.exists(p) for p in [weights_path, cfg_path]):
+            raise FileNotFoundError(
+                f"模型權重或設定檔路徑不存在，請檢查 config.ini 設定\n"
+                f"weights: {weights_path} (exists: {os.path.exists(weights_path)})\n"
+                f"cfg: {cfg_path} (exists: {os.path.exists(cfg_path)})"
+            )
 
-    print(f"YOLO 模型載入成功。類別: {class_names}")
-    return model, class_names
+        # OpenCV DNN 無法處理中文路徑，將檔案複製到暫存目錄（使用固定名稱避免重複複製）
+        import tempfile
+        import shutil
+        import atexit
+        
+        # 使用固定的暫存目錄名稱，如果已存在則重用
+        temp_dir = os.path.join(tempfile.gettempdir(), 'candy_yolo_models')
+        os.makedirs(temp_dir, exist_ok=True)
+        temp_cfg = os.path.join(temp_dir, 'model.cfg')
+        temp_weights = os.path.join(temp_dir, 'model.weights')
+        
+        # 只在檔案不存在或大小不同時才複製（避免重複複製）
+        if not os.path.exists(temp_cfg) or os.path.getsize(temp_cfg) != os.path.getsize(cfg_path):
+            shutil.copy2(cfg_path, temp_cfg)
+            print(f"已複製模型配置到: {temp_cfg}")
+        
+        if not os.path.exists(temp_weights) or os.path.getsize(temp_weights) != os.path.getsize(weights_path):
+            shutil.copy2(weights_path, temp_weights)
+            print(f"已複製模型權重到: {temp_weights}")
+        
+        # 註冊程式結束時清理暫存檔案
+        def cleanup_temp_models():
+            try:
+                if os.path.exists(temp_dir):
+                    shutil.rmtree(temp_dir)
+                    print(f"已清理暫存模型檔案: {temp_dir}")
+            except:
+                pass
+        atexit.register(cleanup_temp_models)
+        
+        # 從暫存目錄載入模型
+        net = cv2.dnn.readNet(temp_weights, temp_cfg)
+        model = cv2.dnn_DetectionModel(net)
+        input_size = config.getint('Detection', 'input_size')
+        # 灰階 YOLO 模型 -> 單通道輸入，不需 swapRB
+        model.setInputParams(size=(input_size, input_size), scale=1 / 255, swapRB=False)
+
+        print(f"YOLOv4 模型載入成功。類別: {class_names}")
+        return model, class_names
 
 
 def trigger_relay(url: str, delay_ms: int = 0) -> None:
@@ -197,6 +221,38 @@ def initialize_focus(
             break
         cv2.waitKey(1)
         time.sleep(delay_sec)
+
+
+def run_detection(model, frame, conf_threshold, nms_threshold, model_type='yolov4'):
+    """統一的檢測接口，支援 YOLOv4 和 YOLOv8"""
+    if model_type == 'yolov8':
+        # YOLOv8 檢測
+        results = model.predict(frame, conf=conf_threshold, iou=nms_threshold, verbose=False)
+        
+        classes_list = []
+        scores_list = []
+        boxes_list = []
+        
+        for result in results:
+            boxes = result.boxes
+            for box in boxes:
+                # 獲取邊界框 (x, y, w, h)
+                x1, y1, x2, y2 = box.xyxy[0].cpu().numpy()
+                x, y, w, h = x1, y1, x2 - x1, y2 - y1
+                
+                conf = float(box.conf[0])
+                class_id = int(box.cls[0])
+                
+                classes_list.append([class_id])
+                scores_list.append([conf])
+                boxes_list.append([x, y, w, h])
+        
+        return classes_list, scores_list, boxes_list
+    
+    else:
+        # YOLOv4 檢測（需要灰階圖）
+        gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        return model.detect(gray_frame, conf_threshold, nms_threshold)
 
     focus_value = cap.get(cv2.CAP_PROP_FOCUS)
     try:
@@ -291,6 +347,13 @@ def create_camera_context(config: configparser.ConfigParser, section: str):
         print(f"錯誤: 無法開啟攝影機 {cam_index} ({cam_name})")
         cap.release()
         return None
+    
+    # 驗證實際解析度
+    actual_width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+    actual_height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+    if actual_width != frame_width or actual_height != frame_height:
+        logger.warning(f"{cam_name}: 請求解析度 {frame_width}x{frame_height}，實際取得 {actual_width}x{actual_height}")
+        logger.info(f"{cam_name}: 攝影機可能不支援請求的解析度，已自動調整")
 
     # 設定曝光以減少殘影（Motion Blur）
     try:
@@ -358,12 +421,16 @@ def process_camera_frame(
     draw_annotations: bool = True,
     multi_scale_detector=None,
     model_lock=None,
+    model_type='yolov4',
 ) -> np.ndarray | None:
     cam_ctx.frame_index += 1
     ret, frame = cam_ctx.cap.read()
     if not ret:
         print(f"警告: 無法向 {cam_ctx.name} 取得畫面，略過該幀。")
         return None
+    
+    # 保存原始畫面到緩存（供錄影預覽等功能使用）
+    cam_ctx.latest_frame = frame.copy()
 
     # 提取 ROI（如果啟用）
     detection_frame = frame
@@ -388,18 +455,18 @@ def process_camera_frame(
             detections.append({'center': (cx, cy), 'label': label, 'score': score, 'bbox': det['bbox']})
     else:
         # 標準檢測
-        gray_frame = cv2.cvtColor(detection_frame, cv2.COLOR_BGR2GRAY)
-        
         # 使用鎖保護模型檢測，防止多線程衝突
         if model_lock:
             with model_lock:
-                classes, scores, boxes = model.detect(gray_frame, conf_threshold, nms_threshold)
+                classes, scores, boxes = run_detection(model, detection_frame, conf_threshold, nms_threshold, model_type)
         else:
-            classes, scores, boxes = model.detect(gray_frame, conf_threshold, nms_threshold)
+            classes, scores, boxes = run_detection(model, detection_frame, conf_threshold, nms_threshold, model_type)
 
         detections = []
         for (classid, score, box) in zip(classes, scores, boxes):
-            classid = int(classid)
+            classid = int(classid[0] if isinstance(classid, (list, np.ndarray)) else classid)
+            score = float(score[0] if isinstance(score, (list, np.ndarray)) else score)
+            box = box if isinstance(box, (list, np.ndarray)) else box
             x, y, w, h = box
             cx, cy = int(x + w / 2), int(y + h / 2)
             
@@ -408,7 +475,7 @@ def process_camera_frame(
                 cx, cy = cam_ctx.roi_processor.convert_roi_to_frame_coords(cx, cy)
             
             label = class_names[classid]
-            detections.append({'center': (cx, cy), 'label': label, 'score': score, 'bbox': box})
+            detections.append({'center': (cx, cy), 'label': label, 'score': score, 'bbox': [int(x), int(y), int(w), int(h)]})
     
     # ??s??????
     if draw_annotations:
@@ -529,6 +596,9 @@ def process_camera_frame(
     cv2.putText(frame, f'Normal: {cam_ctx.normal_num}', (20, 160), cv2.FONT_HERSHEY_SIMPLEX, 1.4, (0, 200, 0), 2)
     cv2.putText(frame, f'Abnormal: {cam_ctx.abnormal_num}', (20, 200), cv2.FONT_HERSHEY_SIMPLEX, 1.4, (0, 0, 200), 2)
 
+    # 保存處理後的畫面到緩存
+    cam_ctx.latest_processed_frame = frame.copy()
+    
     return frame
 
 def main(camera_sections: list[str]) -> None:
@@ -543,6 +613,9 @@ def main(camera_sections: list[str]) -> None:
     use_multi_scale = config.getint('Detection', 'use_multi_scale', fallback=0) == 1
     multi_scale_str = config.get('Detection', 'multi_scale_factors', fallback='0.75,1.0,1.25')
     multi_scale_factors = [float(x.strip()) for x in multi_scale_str.split(',')]
+    
+    # 獲取模型類型
+    model_type = config.get('Paths', 'model_type', fallback='yolov4').lower()
     
     model, class_names = load_yolo_model(config)
     colors = [(0, 255, 0), (0, 0, 255), (255, 0, 0), (255, 255, 0)]
@@ -587,6 +660,7 @@ def main(camera_sections: list[str]) -> None:
                     nms_threshold,
                     elapsed_time,
                     multi_scale_detector=multi_scale_detector,
+                    model_type=model_type,
                 )
                 if frame is not None:
                     processed_frames.append(frame)

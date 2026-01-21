@@ -15,6 +15,7 @@ let panStartX = 0, panStartY = 0;
 let panStartOffsetX = 0, panStartOffsetY = 0;
 let selectedFiles = new Set(); // 追蹤選中的檔案索引
 let showLabels = true; // 控制是否顯示標籤文字
+let customFolderPath = null; // 自訂資料夾路徑
 
 // 框選功能變數
 let isDragSelecting = false;
@@ -32,6 +33,31 @@ document.addEventListener('DOMContentLoaded', function () {
     canvas = document.getElementById('imageCanvas');
     ctx = canvas.getContext('2d');
 
+    // 检查 URL 参数中是否有 custom_path
+    console.log('[DEBUG] window.location.href:', window.location.href);
+    console.log('[DEBUG] window.location.search:', window.location.search);
+    const urlParams = new URLSearchParams(window.location.search);
+    const urlCustomPath = urlParams.get('custom_path');
+    console.log('[DEBUG] URL param custom_path:', urlCustomPath);
+
+    if (urlCustomPath) {
+        customFolderPath = urlCustomPath;
+        console.log('[DEBUG] Set customFolderPath to:', customFolderPath);
+
+        // 显示自定义文件夹信息
+        const display = document.getElementById('customFolderDisplay');
+        const pathSpan = document.getElementById('customFolderPath');
+        if (display && pathSpan) {
+            pathSpan.textContent = `📂 ${customFolderPath}`;
+            pathSpan.title = customFolderPath;
+            display.style.display = 'block';
+        }
+
+        console.log('✅ Loaded custom path from URL:', customFolderPath);
+    } else {
+        console.log('⚠️ No custom_path in URL, using default path');
+    }
+
     setupEventListeners();
     setupResizers();
     loadFileList();
@@ -48,6 +74,9 @@ function setupEventListeners() {
     document.getElementById('btnZoomIn').addEventListener('click', () => zoom(1.2));
     document.getElementById('btnZoomOut').addEventListener('click', () => zoom(0.8));
     document.getElementById('btnZoomFit').addEventListener('click', fitToScreen);
+
+    // 瀏覽資料夾按鈕
+    document.getElementById('btnBrowseFolder').addEventListener('click', browseFolder);
     document.getElementById('btnToggleLabels').addEventListener('click', toggleLabels);
     document.getElementById('btnHelp').addEventListener('click', toggleHelp);
     document.getElementById('btnSave').addEventListener('click', saveAnnotations);
@@ -120,7 +149,12 @@ function setupEventListeners() {
 // 載入檔案列表
 async function loadFileList() {
     try {
-        const response = await axios.get('/api/annotate/images');
+        // 如果有自訂路徑，帶上參數
+        const url = customFolderPath
+            ? `/api/annotate/images?custom_path=${encodeURIComponent(customFolderPath)}`
+            : '/api/annotate/images';
+
+        const response = await axios.get(url);
         currentFiles = response.data.images || [];
         const folders = response.data.folders || [];
 
@@ -131,18 +165,25 @@ async function loadFileList() {
         const folderSelector = document.getElementById('folderSelector');
         const currentSelection = folderSelector.value;
 
-        folderSelector.innerHTML = '<option value="">📁 全部資料夾</option>';
-        folders.forEach(folder => {
-            const option = document.createElement('option');
-            option.value = folder;
-            option.textContent = `📁 ${folder}`;
-            folderSelector.appendChild(option);
-        });
+        // 如果使用自訂路徑，禁用資料夾選擇器
+        if (customFolderPath) {
+            folderSelector.innerHTML = '<option value="">📁 (使用自訂路徑)</option>';
+            folderSelector.disabled = true;
+        } else {
+            folderSelector.disabled = false;
+            folderSelector.innerHTML = '<option value="">📁 全部資料夾</option>';
+            folders.forEach(folder => {
+                const option = document.createElement('option');
+                option.value = folder;
+                option.textContent = `📁 ${folder}`;
+                folderSelector.appendChild(option);
+            });
+        }
 
         console.log('Folder selector options count:', folderSelector.options.length);
 
         // 恢復之前的選擇
-        if (currentSelection && folders.includes(currentSelection)) {
+        if (!customFolderPath && currentSelection && folders.includes(currentSelection)) {
             folderSelector.value = currentSelection;
         }
 
@@ -227,7 +268,6 @@ function renderFileList() {
         }
 
         const isChecked = selectedFiles.has(originalIndex);
-        const hasSelection = selectedFiles.size > 0;  // 是否有選中的檔案（選取模式）
 
         return `
         <div class="file-item ${file.labeled ? 'labeled' : ''} ${originalIndex === currentIndex ? 'active' : ''}" style="display: flex; align-items: center; gap: 8px;">
@@ -237,7 +277,7 @@ function renderFileList() {
                    ${isChecked ? 'checked' : ''}
                    onclick="event.stopPropagation(); toggleFileSelection(${originalIndex})"
                    style="cursor: pointer; width: 16px; height: 16px;">
-            <span onclick="${hasSelection ? 'toggleFileSelection(' + originalIndex + ')' : 'loadImage(' + originalIndex + ')'}" 
+            <span onclick="loadImage(${originalIndex})" 
                   style="flex: 1; cursor: pointer;">
                 ${displayName}${sourceLabel}
             </span>
@@ -249,14 +289,31 @@ function renderFileList() {
 
 // 載入影像
 async function loadImage(index) {
-    if (index < 0 || index >= currentFiles.length) return;
+    console.log('[loadImage] Called with index:', index);
+    console.log('[loadImage] currentFiles.length:', currentFiles.length);
+    console.log('[loadImage] customFolderPath:', customFolderPath);
+
+    if (index < 0 || index >= currentFiles.length) {
+        console.log('[loadImage] Invalid index, returning');
+        return;
+    }
 
     currentIndex = index;
     const file = currentFiles[index];
+    console.log('[loadImage] Loading file:', file.name);
 
-    // 載入影像
+    // 載入影像（帶上自訂路徑參數）
     const img = new Image();
+
+    // 添加錯誤處理
+    img.onerror = function () {
+        console.error('[loadImage] ❌ Image load failed for:', file.name);
+        console.error('[loadImage] Image URL was:', img.src);
+        document.getElementById('canvasInfo').textContent = `❌ 無法載入圖片: ${file.name}`;
+    };
+
     img.onload = async function () {
+        console.log('[loadImage] ✅ Image loaded successfully:', file.name);
         currentImage = img;
 
         // 使用容器尺寸設定 Canvas，避免 CSS 縮放導致座標偏移
@@ -281,7 +338,12 @@ async function loadImage(index) {
 
         // 載入標註（在影像載入完成後）
         try {
-            const response = await axios.get(`/api/annotate/annotations/${encodeURIComponent(file.name)}`);
+            // 構建標註 URL（帶上自訂路徑參數）
+            const annotationsUrl = customFolderPath
+                ? `/api/annotate/annotations/${encodeURIComponent(file.name)}?custom_path=${encodeURIComponent(customFolderPath)}`
+                : `/api/annotate/annotations/${encodeURIComponent(file.name)}`;
+
+            const response = await axios.get(annotationsUrl);
             const yoloAnnotations = response.data.annotations || [];
             const labelSource = response.data.label_source;
 
@@ -327,7 +389,14 @@ async function loadImage(index) {
         renderCanvas();
         renderFileList();
     };
-    img.src = `/api/annotate/image/${encodeURIComponent(file.name)}`;
+
+    // 構建圖片 URL（帶上自訂路徑參數）
+    const imageUrl = customFolderPath
+        ? `/api/annotate/image/${encodeURIComponent(file.name)}?custom_path=${encodeURIComponent(customFolderPath)}`
+        : `/api/annotate/image/${encodeURIComponent(file.name)}`;
+
+    console.log('[loadImage] Image URL:', imageUrl);
+    img.src = imageUrl;
 }
 
 // 渲染畫布
@@ -1423,19 +1492,19 @@ async function batchSwapClass() {
     for (let i = 0; i < indicesToSwap.length; i++) {
         const index = indicesToSwap[i];
         const file = currentFiles[index];
-        
+
         try {
             // 讀取當前標註
             const response = await axios.get(`/api/annotate/annotations/${encodeURIComponent(file.name)}`);
             const imageData = response.data;
-            
+
             if (imageData.annotations && imageData.annotations.length > 0) {
                 // 反轉所有標記框的類別
                 const swappedAnnotations = imageData.annotations.map(ann => ({
                     ...ann,
                     class: 1 - ann.class  // 0→1, 1→0
                 }));
-                
+
                 // 需要取得圖片尺寸
                 const img = new Image();
                 await new Promise((resolve, reject) => {
@@ -1443,7 +1512,7 @@ async function batchSwapClass() {
                     img.onerror = reject;
                     img.src = `/api/annotate/image/${encodeURIComponent(file.name)}`;
                 });
-                
+
                 // 將 YOLO 格式轉換為像素座標格式（與前端一致）
                 const pixelAnnotations = swappedAnnotations.map(ann => ({
                     class: ann.class,
@@ -1452,7 +1521,7 @@ async function batchSwapClass() {
                     width: ann.width * img.width,
                     height: ann.height * img.height
                 }));
-                
+
                 // 保存反轉後的標註
                 await axios.post('/api/annotate/save', {
                     filename: file.name,
@@ -1460,10 +1529,10 @@ async function batchSwapClass() {
                     image_width: img.width,
                     image_height: img.height
                 });
-                
+
                 totalSwapped += swappedAnnotations.length;
                 successCount++;
-                
+
                 // 更新本地快取（保持YOLO格式）
                 file.annotations = swappedAnnotations;
             } else {
@@ -1474,7 +1543,7 @@ async function batchSwapClass() {
             console.error(`反轉 ${file.name} 失敗:`, error);
             failCount++;
         }
-        
+
         updateProgress(i + 1, indicesToSwap.length, '反轉中...');
     }
 
@@ -1507,21 +1576,21 @@ async function exportDataset() {
                     }
                 }
             });
-            
+
             if (filesToExport.length === 0) {
                 alert('選中的圖片中沒有已標註的圖片！');
                 return;
             }
         }
-        
+
         const response = await axios.post('/api/annotate/export', {
             files: filesToExport.length > 0 ? filesToExport : null
         });
-        
-        const message = filesToExport.length > 0 
+
+        const message = filesToExport.length > 0
             ? `資料集匯出成功！\n已選中: ${filesToExport.length} 張\n已匯出: ${response.data.exported} 張\n輸出目錄: ${response.data.output_dir}`
             : `資料集匯出成功！\n已標註: ${response.data.exported} 張\n輸出目錄: ${response.data.output_dir}`;
-        
+
         alert(message);
     } catch (error) {
         console.error('匯出失敗:', error);
@@ -1564,7 +1633,7 @@ async function autoLabel() {
     // 選擇模型
     const modelChoice = prompt('選擇自動標註模型：\n\n1 = YOLOv4 (舊模型，黑白圖片訓練)\n2 = YOLOv8 (COCO 預訓練，快速標註，邊界框精準)\n\n請輸入 1 或 2：', '2');
     if (modelChoice === null) return; // 使用者取消
-    
+
     let modelType;
     if (modelChoice === '1') {
         modelType = 'yolov4';
@@ -1574,7 +1643,7 @@ async function autoLabel() {
         alert('無效的選擇！請輸入 1 或 2');
         return;
     }
-    
+
     // YOLOv8 COCO 模型的額外說明
     if (modelType === 'yolov8') {
         const confirmCoco = confirm('YOLOv8 COCO 模型說明：\n\n' +
@@ -1588,17 +1657,17 @@ async function autoLabel() {
             '是否繼續？');
         if (!confirmCoco) return;
     }
-    
+
     // 詢問信心閾值
     const thresholdInput = prompt('請輸入信心閾值 (0.0 - 1.0)，建議值：0.25', '0.25');
     if (thresholdInput === null) return; // 使用者取消
-    
+
     const threshold = parseFloat(thresholdInput);
     if (isNaN(threshold) || threshold < 0 || threshold > 1) {
         alert('無效的閾值！請輸入 0.0 到 1.0 之間的數值');
         return;
     }
-    
+
     // 詢問是否覆蓋已存在的標註
     const overwrite = confirm('是否覆蓋已存在的標註？\n\n點擊「確定」將覆蓋所有現有標註\n點擊「取消」將只處理未標註的圖片');
 
@@ -2484,31 +2553,69 @@ async function showPreviewModal() {
         document.getElementById('previewLabeled').textContent = labeled;
         document.getElementById('previewUnlabeled').textContent = filesToShow.length - labeled;
 
-        // 生成預覽卡片
-        const cards = await Promise.all(filesToShow.map(async (file, index) => {
-            return createPreviewCard(file, index);
-        }));
+        // 批量加載標註數據（並行加載，速度更快）
+        const annotationsCache = {};
+        const batchSize = 20; // 每次批量處理 20 張
+
+        for (let i = 0; i < filesToShow.length; i += batchSize) {
+            const batch = filesToShow.slice(i, i + batchSize);
+            await Promise.all(batch.map(async (file) => {
+                try {
+                    // 構建標註 URL（帶上自訂路徑參數）
+                    const annotationsUrl = customFolderPath
+                        ? `/api/annotate/annotations/${encodeURIComponent(file.name)}?custom_path=${encodeURIComponent(customFolderPath)}`
+                        : `/api/annotate/annotations/${encodeURIComponent(file.name)}`;
+                    const response = await axios.get(annotationsUrl);
+                    annotationsCache[file.name] = response.data.annotations || [];
+                } catch (error) {
+                    console.error(`無法載入 ${file.name} 的標註:`, error);
+                    annotationsCache[file.name] = [];
+                }
+            }));
+        }
+
+        // 生成預覽卡片（使用緩存的標註數據）
+        const cards = filesToShow.map((file, index) => {
+            return createPreviewCardSync(file, index, annotationsCache[file.name] || []);
+        });
 
         content.innerHTML = cards.join('');
 
-        // 等待 DOM 渲染完成後再繪製所有圖片
-        setTimeout(() => {
-            filesToShow.forEach((file, index) => {
-                const imagePath = `/api/annotate/image/${encodeURIComponent(file.name)}`;
-                const canvasId = `preview-canvas-${index}`;
+        // 使用 Intersection Observer 進行懶加載（只渲染可見的圖片）
+        const observerOptions = {
+            root: content,
+            rootMargin: '200px', // 提前 200px 開始加載
+            threshold: 0.01
+        };
 
-                // 獲取標註
-                axios.get(`/api/annotate/annotations/${encodeURIComponent(file.name)}`)
-                    .then(response => {
-                        const annotations = response.data.annotations || [];
+        const imageObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const card = entry.target;
+                    const index = parseInt(card.dataset.index);
+                    const file = filesToShow[index];
+                    // 構建圖片 URL（帶上自訂路徑參數）
+                    const imagePath = customFolderPath
+                        ? `/api/annotate/image/${encodeURIComponent(file.name)}?custom_path=${encodeURIComponent(customFolderPath)}`
+                        : `/api/annotate/image/${encodeURIComponent(file.name)}`;
+                    const canvasId = `preview-canvas-${index}`;
+                    const annotations = annotationsCache[file.name] || [];
+
+                    // 只渲染一次
+                    if (!card.dataset.loaded) {
                         drawPreviewWithAnnotations(canvasId, imagePath, annotations);
-                    })
-                    .catch(error => {
-                        console.error(`無法載入 ${file.name} 的標註:`, error);
-                        drawPreviewWithAnnotations(canvasId, imagePath, []);
-                    });
+                        card.dataset.loaded = 'true';
+                    }
+
+                    imageObserver.unobserve(card);
+                }
             });
-        }, 50);
+        }, observerOptions);
+
+        // 觀察所有預覽卡片
+        document.querySelectorAll('.preview-card').forEach(card => {
+            imageObserver.observe(card);
+        });
 
         // 綁定點擊事件
         document.querySelectorAll('.preview-card').forEach((card, index) => {
@@ -2526,21 +2633,9 @@ async function showPreviewModal() {
     }
 }
 
-// 創建預覽卡片HTML
-async function createPreviewCard(file, index) {
-    const imagePath = `/api/annotate/image/${encodeURIComponent(file.name)}`;
-
-    // 獲取標註信息
-    let annotationCount = 0;
-    let annotations = [];
-    try {
-        const response = await axios.get(`/api/annotate/annotations/${encodeURIComponent(file.name)}`);
-        annotations = response.data.annotations || [];
-        annotationCount = annotations.length;
-    } catch (error) {
-        console.error(`無法載入 ${file.name} 的標註:`, error);
-    }
-
+// 創建預覽卡片HTML（同步版本，更快）
+function createPreviewCardSync(file, index, annotations) {
+    const annotationCount = annotations.length;
     const labelStatus = file.labeled ? 'labeled' : 'unlabeled';
     const labelText = file.labeled ? '✓ 已標註' : '○ 未標註';
 
@@ -2561,13 +2656,16 @@ async function createPreviewCard(file, index) {
     `;
 }
 
-// 在預覽畫布上繪製圖片和標記框
+// 在預覽畫布上繪製圖片和標記框（優化版本）
 function drawPreviewWithAnnotations(canvasId, imagePath, annotations) {
     const canvas = document.getElementById(canvasId);
     if (!canvas) return;
 
     const ctx = canvas.getContext('2d');
     const img = new Image();
+
+    // 顯示載入中狀態
+    canvas.style.background = 'rgba(0, 0, 0, 0.5)';
 
     img.onload = () => {
         // 設置canvas尺寸
@@ -2626,18 +2724,29 @@ function drawPreviewWithAnnotations(canvasId, imagePath, annotations) {
                 }
             });
         }
+
+        // 移除載入中狀態
+        canvas.style.background = 'rgba(0, 0, 0, 0.3)';
     };
 
     img.onerror = () => {
         // 載入失敗時顯示錯誤
+        const containerWidth = canvas.offsetWidth;
+        const containerHeight = 200;
+        canvas.width = containerWidth;
+        canvas.height = containerHeight;
+
         ctx.fillStyle = '#1e293b';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillRect(0, 0, containerWidth, containerHeight);
         ctx.fillStyle = '#ef4444';
         ctx.font = '14px Arial';
         ctx.textAlign = 'center';
-        ctx.fillText('載入失敗', canvas.width / 2, canvas.height / 2);
+        ctx.fillText('載入失敗', containerWidth / 2, containerHeight / 2);
     };
 
+    // 添加圖片預加載優化
+    img.crossOrigin = 'anonymous';
+    img.decoding = 'async';
     img.src = imagePath;
 }
 
@@ -2663,50 +2772,72 @@ document.addEventListener('keydown', (e) => {
 // ========== 檔案列表框選功能 ==========
 
 function onFileListMouseDown(e) {
-    // 只在檔案列表空白區域開始框選
-    if (e.target.id !== 'fileList' && !e.target.classList.contains('file-list')) {
+    // 不要在 checkbox 或其他控制元素上開始框選
+    if (e.target.type === 'checkbox' ||
+        e.target.tagName === 'BUTTON' ||
+        e.target.tagName === 'SELECT' ||
+        e.target.tagName === 'INPUT' ||
+        e.target.closest('.filter-btn') ||
+        e.target.closest('.btn') ||
+        e.target.closest('button')) {
         return;
     }
-    
-    isDragSelecting = true;
+
+    // 支持在檔案列表任何位置開始框選（包括檔案項目上）
     const fileList = document.getElementById('fileList');
+    if (!e.target.closest('#fileList')) {
+        return;
+    }
+
+    isDragSelecting = true;
     const rect = fileList.getBoundingClientRect();
-    
-    dragSelectStart.x = e.clientX - rect.left + fileList.scrollTop;
+
+    dragSelectStart.x = e.clientX - rect.left + fileList.scrollLeft;
     dragSelectStart.y = e.clientY - rect.top + fileList.scrollTop;
     dragSelectCurrent.x = dragSelectStart.x;
     dragSelectCurrent.y = dragSelectStart.y;
-    
+
     // 創建選取框元素
     if (!dragSelectBox) {
         dragSelectBox = document.createElement('div');
         dragSelectBox.style.position = 'absolute';
-        dragSelectBox.style.border = '2px solid #38bdf8';
-        dragSelectBox.style.backgroundColor = 'rgba(56, 189, 248, 0.1)';
+        dragSelectBox.style.border = '2px dashed #38bdf8';
+        dragSelectBox.style.backgroundColor = 'rgba(56, 189, 248, 0.15)';
         dragSelectBox.style.pointerEvents = 'none';
         dragSelectBox.style.zIndex = '1000';
+        dragSelectBox.style.borderRadius = '4px';
+        dragSelectBox.style.boxShadow = '0 0 10px rgba(56, 189, 248, 0.5)';
         fileList.style.position = 'relative';
         fileList.appendChild(dragSelectBox);
     }
-    
+
+    dragSelectBox.style.display = 'block';
     e.preventDefault();
 }
 
 function onFileListMouseMove(e) {
     if (!isDragSelecting) return;
-    
+
     const fileList = document.getElementById('fileList');
     const rect = fileList.getBoundingClientRect();
-    
+
     dragSelectCurrent.x = e.clientX - rect.left + fileList.scrollLeft;
     dragSelectCurrent.y = e.clientY - rect.top + fileList.scrollTop;
-    
+
+    // 自動滾動支持
+    const scrollThreshold = 50;
+    if (e.clientY - rect.top < scrollThreshold) {
+        fileList.scrollTop -= 5;
+    } else if (rect.bottom - e.clientY < scrollThreshold) {
+        fileList.scrollTop += 5;
+    }
+
     // 更新選取框位置和大小
     const left = Math.min(dragSelectStart.x, dragSelectCurrent.x);
     const top = Math.min(dragSelectStart.y, dragSelectCurrent.y);
     const width = Math.abs(dragSelectCurrent.x - dragSelectStart.x);
     const height = Math.abs(dragSelectCurrent.y - dragSelectStart.y);
-    
+
     if (dragSelectBox) {
         dragSelectBox.style.left = left + 'px';
         dragSelectBox.style.top = top + 'px';
@@ -2714,21 +2845,27 @@ function onFileListMouseMove(e) {
         dragSelectBox.style.height = height + 'px';
         dragSelectBox.style.display = 'block';
     }
-    
+
     // 檢測與檔案項目的碰撞
     updateDragSelection(left, top, width, height);
 }
 
 function onFileListMouseUp(e) {
     if (!isDragSelecting) return;
-    
+
     isDragSelecting = false;
-    
+
     // 移除選取框
     if (dragSelectBox) {
         dragSelectBox.style.display = 'none';
     }
-    
+
+    // 移除所有選取中的視覺效果
+    const fileItems = document.querySelectorAll('.file-item');
+    fileItems.forEach(item => {
+        item.classList.remove('selecting');
+    });
+
     // 重新渲染列表以更新勾選狀態
     renderFileList();
     updateSelectedStats();
@@ -2737,36 +2874,88 @@ function onFileListMouseUp(e) {
 function updateDragSelection(boxLeft, boxTop, boxWidth, boxHeight) {
     const fileList = document.getElementById('fileList');
     const fileItems = fileList.querySelectorAll('.file-item');
-    
+
     fileItems.forEach((item, index) => {
         const rect = item.getBoundingClientRect();
         const fileListRect = fileList.getBoundingClientRect();
-        
-        // 計算項目相對於檔案列表的位置
+
+        // 計算項目相對於檔案列表的位置（考慮滾動）
         const itemLeft = rect.left - fileListRect.left + fileList.scrollLeft;
         const itemTop = rect.top - fileListRect.top + fileList.scrollTop;
         const itemRight = itemLeft + rect.width;
         const itemBottom = itemTop + rect.height;
-        
+
         const boxRight = boxLeft + boxWidth;
         const boxBottom = boxTop + boxHeight;
-        
-        // 檢測碰撞
-        const isIntersecting = !(itemRight < boxLeft || 
-                                 itemLeft > boxRight || 
-                                 itemBottom < boxTop || 
-                                 itemTop > boxBottom);
-        
+
+        // 檢測碰撞（AABB 碰撞檢測）
+        const isIntersecting = !(itemRight < boxLeft ||
+            itemLeft > boxRight ||
+            itemBottom < boxTop ||
+            itemTop > boxBottom);
+
         if (isIntersecting) {
             // 找到對應的檔案索引
             const checkbox = item.querySelector('.file-checkbox');
             if (checkbox) {
                 const fileIndex = parseInt(checkbox.dataset.index);
                 selectedFiles.add(fileIndex);
-                checkbox.checked = true;
             }
+            item.classList.add('selecting');
+        } else {
+            item.classList.remove('selecting');
         }
     });
 }
 
+// ==================== 自訂資料夾功能 ====================
+
+// 瀏覽並選擇資料夾
+async function browseFolder() {
+    try {
+        const btn = document.getElementById('btnBrowseFolder');
+        btn.disabled = true;
+        btn.innerHTML = '⏳ 選擇中...';
+
+        const response = await axios.post('/api/annotate/browse-folder');
+
+        if (response.data.success) {
+            customFolderPath = response.data.path;
+
+            // 顯示自訂資料夾資訊
+            const display = document.getElementById('customFolderDisplay');
+            const pathSpan = document.getElementById('customFolderPath');
+            pathSpan.textContent = `📂 ${customFolderPath} (${response.data.image_count} 張圖片)`;
+            pathSpan.title = customFolderPath; // 顯示完整路徑
+            display.style.display = 'block';
+
+            // 重新載入檔案列表
+            await loadFileList();
+
+            alert(`已載入自訂資料夾：\n${customFolderPath}\n找到 ${response.data.image_count} 張圖片`);
+        } else if (response.data.message) {
+            // 使用者取消選擇
+            console.log(response.data.message);
+        }
+    } catch (error) {
+        console.error('瀏覽資料夾失敗:', error);
+        alert('瀏覽資料夾失敗: ' + (error.response?.data?.error || error.message));
+    } finally {
+        const btn = document.getElementById('btnBrowseFolder');
+        btn.disabled = false;
+        btn.innerHTML = '📂 瀏覽...';
+    }
+}
+
+// 清除自訂資料夾
+async function clearCustomFolder() {
+    customFolderPath = null;
+
+    // 隱藏自訂資料夾顯示
+    const display = document.getElementById('customFolderDisplay');
+    display.style.display = 'none';
+
+    // 重新載入預設資料夾
+    await loadFileList();
+}
 // ========== 結束檔案列表框選功能 ==========

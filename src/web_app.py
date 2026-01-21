@@ -74,6 +74,8 @@ db_path = Path(PROJECT_ROOT) / "detection_data.db"
 lock = threading.Lock()
 model_lock = threading.Lock()  # 模型檢測鎖，防止多線程衝突
 is_running = False
+current_model_path = None  # 當前使用的模型路徑
+current_custom_images_path = None  # 當前自定義圖片路徑
 
 
 def init_database():
@@ -147,16 +149,30 @@ def _get_retention_days(default_days: int = 30) -> int:
         return default_days
 
 
-def load_yolo_model():
+def load_yolo_model(model_path=None):
     """載入 YOLO 模型"""
-    global model, class_names, config_manager
+    global model, class_names, config_manager, current_model_path
 
-    config_manager = ConfigManager()
+    if config_manager is None:
+        config_manager = ConfigManager()
     config = config_manager.config
+
+    # 如果指定了模型路徑，臨時修改配置
+    if model_path:
+        original_weights = config.get('Paths', 'weights')
+        config.set('Paths', 'weights', model_path)
+        current_model_path = model_path
+    else:
+        current_model_path = config.get('Paths', 'weights')
 
     from run_detector import load_yolo_model as load_model
     model, class_names = load_model(config)
-    logger.info("YOLO 模型載入成功")
+    
+    # 恢復原始配置（如果有修改）
+    if model_path:
+        config.set('Paths', 'weights', original_weights)
+    
+    logger.info(f"YOLO 模型載入成功: {current_model_path}")
 
 
 def initialize_cameras(camera_sections):
@@ -188,6 +204,7 @@ def generate_frames(camera_index=0):
     config = config_manager.config
     conf_threshold = config.getfloat('Detection', 'confidence_threshold')
     nms_threshold = config.getfloat('Detection', 'nms_threshold')
+    model_type = config.get('Paths', 'model_type', fallback='yolov4').lower()
 
     from run_detector import process_camera_frame
     start_time = time.time()
@@ -218,6 +235,7 @@ def generate_frames(camera_index=0):
             elapsed_time,
             draw_annotations=not hide_boxes,
             model_lock=model_lock,
+            model_type=model_type,
         )
 
         if frame is not None:
@@ -286,6 +304,96 @@ def get_stats():
                 'defect_rate': round(cam_ctx.abnormal_num / cam_ctx.total_num * 100, 2) if cam_ctx.total_num > 0 else 0
             })
         return jsonify(stats)
+
+
+@app.route('/api/models')
+def get_models():
+    """獲取所有可用的模型列表"""
+    try:
+        models_list = []
+        runs_dir = Path(PROJECT_ROOT) / 'runs'
+        
+        # 查找所有 best.pt 模型
+        if runs_dir.exists():
+            for model_path in runs_dir.rglob('best.pt'):
+                relative_path = model_path.relative_to(PROJECT_ROOT)
+                size_mb = model_path.stat().st_size / (1024 * 1024)
+                modified = datetime.fromtimestamp(model_path.stat().st_mtime)
+                
+                # 提取模型名稱（从路径中获取）
+                parts = model_path.parts
+                model_name = 'Unknown'
+                for i, part in enumerate(parts):
+                    if part in ['train', 'detect'] and i + 1 < len(parts):
+                        model_name = parts[i + 1]
+                        break
+                
+                models_list.append({
+                    'name': model_name,
+                    'path': str(relative_path),
+                    'size_mb': round(size_mb, 2),
+                    'modified': modified.strftime('%Y-%m-%d %H:%M'),
+                    'is_current': str(relative_path) == current_model_path
+                })
+        
+        # 按修改时间排序（最新的在前）
+        models_list.sort(key=lambda x: x['modified'], reverse=True)
+        
+        return jsonify({
+            'success': True,
+            'models': models_list,
+            'current_model': current_model_path
+        })
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@app.route('/api/models/switch', methods=['POST'])
+def switch_model():
+    """切換模型"""
+    global model, class_names, current_model_path, is_running
+    
+    try:
+        data = request.get_json()
+        model_path = data.get('model_path')
+        
+        if not model_path:
+            return jsonify({'success': False, 'error': '未指定模型路徑'}), 400
+        
+        full_path = Path(PROJECT_ROOT) / model_path
+        if not full_path.exists():
+            return jsonify({'success': False, 'error': '模型檔案不存在'}), 404
+        
+        # 暫停檢測
+        was_running = is_running
+        if was_running:
+            is_running = False
+            time.sleep(0.5)  # 等待當前幀處理完成
+        
+        # 重新載入模型
+        try:
+            with model_lock:
+                load_yolo_model(model_path)
+            
+            # 恢復檢測
+            if was_running:
+                time.sleep(0.2)
+                is_running = True
+            
+            return jsonify({
+                'success': True,
+                'message': f'成功切換到模型: {model_path}',
+                'current_model': current_model_path
+            })
+        except Exception as e:
+            # 恢復檢測（即使失敗）
+            if was_running:
+                is_running = True
+            raise e
+            
+    except Exception as e:
+        logger.error(f"切換模型失敗: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
 
 
 @app.route('/healthz')
@@ -547,6 +655,51 @@ def set_camera_focus(camera_index):
         return jsonify({'success': True, 'focus': focus, 'auto': auto, 'saved': save})
     except Exception as e:
         logger.error(f"設定焦距失敗: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@app.route('/api/cameras/<int:camera_index>/exposure', methods=['POST'])
+def set_camera_exposure(camera_index):
+    """設定攝影機曝光值（支援自動/手動），並可選擇儲存為預設值"""
+    try:
+        data = request.json or {}
+        exposure = int(data.get('exposure', -7))
+        auto = bool(data.get('auto', False))
+        save = bool(data.get('save', False))
+
+        if camera_index < 0 or camera_index >= len(camera_contexts):
+            return jsonify({'success': False, 'error': '攝影機索引無效'}), 400
+
+        cam_ctx = camera_contexts[camera_index]
+        if cam_ctx.cap is None:
+            return jsonify({'success': False, 'error': '攝影機未初始化'}), 400
+
+        try:
+            if auto:
+                cam_ctx.cap.set(cv2.CAP_PROP_AUTO_EXPOSURE, 0.75)  # 0.75 = 自動模式
+                logger.info(f"{cam_ctx.name} 已設定為自動曝光")
+            else:
+                cam_ctx.cap.set(cv2.CAP_PROP_AUTO_EXPOSURE, 0.25)  # 0.25 = 手動模式
+                cam_ctx.cap.set(cv2.CAP_PROP_EXPOSURE, exposure)
+                logger.info(f"{cam_ctx.name} 曝光值已設定為: {exposure}")
+            
+            # 如果 save 為 True，且為手動曝光，則儲存設定
+            if save and not auto:
+                section_name = f"Camera{camera_index + 1}"
+                if config_manager.config.has_section(section_name):
+                    config_manager.config.set(section_name, 'exposure_value', str(exposure))
+                    with open('config.ini', 'w', encoding='utf-8') as f:
+                        config_manager.config.write(f)
+                    logger.info(f"已將 {cam_ctx.name} 的預設曝光值儲存為: {exposure}")
+                else:
+                    logger.warning(f"找不到設定區塊 {section_name}，無法儲存曝光值")
+
+        except Exception as e:
+            logger.warning(f"設定曝光值時相機不支援或失敗: {e}")
+
+        return jsonify({'success': True, 'exposure': exposure, 'auto': auto, 'saved': save})
+    except Exception as e:
+        logger.error(f"設定曝光值失敗: {e}")
         return jsonify({'success': False, 'error': str(e)}), 500
 
 
@@ -1088,19 +1241,23 @@ def recorder_preview(camera_index):
     try:
         recorder = get_recorder(camera_index)
         
-        # 確保共享攝影機已連接
-        if recorder.shared_cap is None and camera_index < len(camera_contexts):
+        # 強制從偵測系統奪取共享攝影機
+        if camera_index < len(camera_contexts):
             cam_ctx = camera_contexts[camera_index]
             if cam_ctx.cap is not None and cam_ctx.cap.isOpened():
                 recorder.set_shared_camera(cam_ctx.cap)
                 logger.info(f"錄影器 {camera_index}: 已連接共享攝影機")
+            else:
+                logger.warning(f"錄影器 {camera_index}: 偵測系統的攝影機未開啟")
+        else:
+            logger.warning(f"錄影器 {camera_index}: camera_contexts 中沒有此鏡頭，嘗試獨立開啟")
         
         return Response(
             recorder.generate_preview_stream(),
             mimetype='multipart/x-mixed-replace; boundary=frame'
         )
     except Exception as e:
-        logger.error(f"預覽串流失敗: {e}")
+        logger.error(f"預覽串流失敗: {e}", exc_info=True)
         return jsonify({'error': str(e)}), 500
 
 
@@ -1125,9 +1282,24 @@ def annotate_page():
 
 @app.route('/api/annotate/images')
 def get_annotation_images():
-    """取得可標註的影像列表（支援子資料夾）"""
+    """取得可標註的影像列表（支援子資料夾和自訂路徑）"""
+    global current_custom_images_path
     try:
-        images_dir = Path(PROJECT_ROOT) / 'datasets' / 'extracted_frames'
+        # 檢查是否有自訂路徑參數
+        custom_path = request.args.get('custom_path', None)
+        
+        if custom_path:
+            # 使用自訂路徑
+            images_dir = Path(custom_path)
+            if not images_dir.exists() or not images_dir.is_dir():
+                return jsonify({'error': '指定的路徑不存在或不是資料夾'}), 400
+            # 保存到全局變量
+            current_custom_images_path = str(images_dir)
+        else:
+            # 使用預設路徑
+            images_dir = Path(PROJECT_ROOT) / 'datasets' / 'extracted_frames'
+            current_custom_images_path = None
+        
         labels_dir = Path(PROJECT_ROOT) / 'datasets' / 'annotated' / 'labels'
         metadata_dir = Path(PROJECT_ROOT) / 'datasets' / 'annotated' / 'metadata'
         
@@ -1173,17 +1345,74 @@ def get_annotation_images():
                 'label_source': label_source  # 'ai', 'manual', 'unknown', or None
             })
         
-        return jsonify({'images': images_list, 'folders': folders})
+        return jsonify({
+            'images': images_list, 
+            'folders': folders,
+            'custom_path': str(images_dir) if custom_path else None
+        })
     except Exception as e:
         logger.error(f"取得影像列表失敗: {e}")
         return jsonify({'error': str(e)}), 500
 
 
+@app.route('/api/annotate/browse-folder', methods=['POST'])
+def browse_folder():
+    """瀏覽並選擇資料夾"""
+    try:
+        import tkinter as tk
+        from tkinter import filedialog
+        
+        # 創建隱藏的 Tkinter 視窗
+        root = tk.Tk()
+        root.withdraw()
+        root.attributes('-topmost', True)
+        
+        # 開啟資料夾選擇對話框
+        folder_path = filedialog.askdirectory(
+            title='選擇圖片資料夾',
+            initialdir=str(Path(PROJECT_ROOT) / 'datasets')
+        )
+        
+        root.destroy()
+        
+        if folder_path:
+            # 檢查資料夾是否包含圖片
+            folder_path = Path(folder_path)
+            image_count = len(list(folder_path.glob('*.jpg'))) + len(list(folder_path.glob('*.png')))
+            
+            return jsonify({
+                'success': True,
+                'path': str(folder_path),
+                'image_count': image_count
+            })
+        else:
+            return jsonify({
+                'success': False,
+                'message': '未選擇資料夾'
+            })
+            
+    except Exception as e:
+        logger.error(f"瀏覽資料夾失敗: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
 @app.route('/api/annotate/image/<path:filename>')
 def get_annotation_image(filename):
-    """取得影像檔案（支援子資料夾路徑）"""
+    """取得影像檔案（支援子資料夾路徑和自訂路徑）"""
+    global current_custom_images_path
     try:
-        images_dir = Path(PROJECT_ROOT) / 'datasets' / 'extracted_frames'
+        # 優先使用全局變量中的自訂路徑
+        if current_custom_images_path:
+            images_dir = Path(current_custom_images_path)
+        else:
+            # 檢查 URL 參數
+            custom_path = request.args.get('custom_path', None)
+            if custom_path:
+                images_dir = Path(custom_path)
+            else:
+                # 使用預設路徑
+                images_dir = Path(PROJECT_ROOT) / 'datasets' / 'extracted_frames'
+        
         # 將 URL 路徑轉換為檔案系統路徑
         image_path = images_dir / filename.replace('/', '\\')
         
@@ -1199,15 +1428,30 @@ def get_annotation_image(filename):
 
 @app.route('/api/annotate/annotations/<path:filename>')
 def get_annotations(filename):
-    """取得影像的標註（支援子資料夾路徑）"""
+    """取得影像的標註（支援子資料夾路徑和自訂路徑）"""
+    global current_custom_images_path
     try:
-        labels_dir = Path(PROJECT_ROOT) / 'datasets' / 'annotated' / 'labels'
-        metadata_dir = Path(PROJECT_ROOT) / 'datasets' / 'annotated' / 'metadata'
+        # 優先使用全局變量中的自訂路徑
+        if current_custom_images_path:
+            images_dir = Path(current_custom_images_path)
+            labels_dir = images_dir.parent / 'labels'
+            metadata_dir = images_dir.parent / 'metadata' if (images_dir.parent / 'metadata').exists() else None
+        else:
+            # 檢查 URL 參數
+            custom_path = request.args.get('custom_path', None)
+            if custom_path:
+                images_dir = Path(custom_path)
+                labels_dir = images_dir.parent / 'labels'
+                metadata_dir = images_dir.parent / 'metadata' if (images_dir.parent / 'metadata').exists() else None
+            else:
+                # 使用預設路徑
+                labels_dir = Path(PROJECT_ROOT) / 'datasets' / 'annotated' / 'labels'
+                metadata_dir = Path(PROJECT_ROOT) / 'datasets' / 'annotated' / 'metadata'
         
         # 保留子資料夾結構
         filename_path = Path(filename.replace('/', '\\'))
-        label_file = labels_dir / filename_path.parent / f"{filename_path.stem}.txt"
-        metadata_file = metadata_dir / filename_path.parent / f"{filename_path.stem}.json"
+        label_file = labels_dir / f"{filename_path.stem}.txt"
+        metadata_file = metadata_dir / f"{filename_path.stem}.json" if metadata_dir else None
         
         annotations = []
         if label_file.exists():
@@ -1231,7 +1475,7 @@ def get_annotations(filename):
         
         # 讀取標註來源
         label_source = 'unknown'
-        if metadata_file.exists():
+        if metadata_file and metadata_file.exists():
             try:
                 import json
                 with open(metadata_file, 'r', encoding='utf-8') as f:
@@ -2774,6 +3018,7 @@ if __name__ == '__main__':
     if os.environ.get('WERKZEUG_RUN_MAIN') == 'true' or not app.debug:
         init_database()
         load_yolo_model()
+        # 使用兩個 BRIO 攝影機
         initialize_cameras(['Camera1', 'Camera2'])
         start_detection()
 

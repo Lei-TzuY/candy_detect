@@ -45,11 +45,19 @@ datasets/extracted_frames/
 datasets/annotated/
 datasets/candy/
 datasets/yolo_dataset/
+datasets/2026-*/
+datasets/*_backup*/
+datasets/other/
+datasets/失敗的標記/
+datasets/最新資料/
 
 # Training runs and results
 runs/
 results/
-reports/*.html
+reports/
+annotation_issues_visualization/
+relabeled_visualization/
+visualizations/
 
 # Old training data
 訓練集資料/
@@ -106,9 +114,10 @@ app/jdk-17.0.6/
 *.jar
 
 # ========================================
-# Third-party Software
+# Third-party Software & External Tools
 # ========================================
 LogiCapture/
+LabelImg/
 
 # ========================================
 # Temporary & Development Files
@@ -116,6 +125,7 @@ LogiCapture/
 *.tmp
 *.backup
 *.bak
+annotation_quality_report.json
 toggle_relay_function.tmp
 insert_function.py
 fix_and_update_recorder.py

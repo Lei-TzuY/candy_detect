@@ -91,6 +91,10 @@ class CameraContext:
     adaptive_tracker: object = None
     use_adaptive: bool = False
     relay_paused: bool = False
+    
+    # 畫面緩存（供錄影預覽等功能使用）
+    latest_frame: object = None  # 最新的原始畫面
+    latest_processed_frame: object = None  # 最新的處理後畫面
 
     def release(self) -> None:
         """釋放攝影機資源"""

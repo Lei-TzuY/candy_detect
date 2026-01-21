@@ -1103,26 +1103,19 @@ async function toggleRelayPause(cameraIndex) {
 
 function restartApp() {
     if (confirm('您確定要重啟應用程式嗎？目前的連線將會中斷。')) {
-        const settingsMessage = document.getElementById('settingsMessage');
-        settingsMessage.className = 'message info';
-        settingsMessage.textContent = '正在發送重啟指令... 應用程式即將關閉。請在幾秒後手動刷新頁面。';
-        settingsMessage.style.display = 'block';
-
         fetch('/api/system/restart', {
             method: 'POST'
         }).then(response => {
-            // The request might not complete successfully as the server is shutting down
             console.log('Restart command sent.');
         }).catch(error => {
-            // This error is expected
-            console.error('Restart command sent, but an error occurred as the server is shutting down:', error);
+            // This error is expected as the server is shutting down
+            console.error('Restart command sent, server shutting down:', error);
         });
 
-        // Visually indicate that the app is unavailable
+        // 等待伺服器重啟後自動重新載入頁面
         setTimeout(() => {
-            document.body.innerHTML = '<div class="container"><h1>🔄 應用程式正在重啟...</h1><p>請在約 15 秒後手動刷新此頁面。</p></div>';
-            document.body.className = 'restarting';
-        }, 2000);
+            location.reload();
+        }, 5000);
     }
 }
 
@@ -1198,3 +1191,107 @@ async function addSelectedCamera() {
         alert('新增攝影機失敗: ' + error.message);
     }
 }
+
+// ==================== 模型管理功能 ====================
+
+// 載入可用模型列表
+async function loadModels() {
+    try {
+        const response = await fetch('/api/models');
+        const data = await response.json();
+
+        if (data.success) {
+            const select = document.getElementById('model-versions');
+            const infoSpan = document.getElementById('model-info');
+            
+            // 清空下拉選單
+            select.innerHTML = '';
+
+            if (data.models.length === 0) {
+                select.innerHTML = '<option value="">-- 無可用模型 --</option>';
+                return;
+            }
+
+            // 填充模型列表
+            data.models.forEach(model => {
+                const option = document.createElement('option');
+                option.value = model.path;
+                option.textContent = `${model.name} (${model.size_mb}MB, ${model.modified})`;
+                option.selected = model.is_current;
+                select.appendChild(option);
+            });
+
+            // 顯示當前模型信息
+            const currentModel = data.models.find(m => m.is_current);
+            if (currentModel) {
+                infoSpan.textContent = `✅ ${currentModel.size_mb}MB`;
+                infoSpan.style.color = '#10b981';
+            }
+        }
+    } catch (error) {
+        console.error('載入模型列表失敗:', error);
+    }
+}
+
+// 切換模型
+async function switchModel() {
+    const select = document.getElementById('model-versions');
+    const modelPath = select.value;
+    const infoSpan = document.getElementById('model-info');
+
+    if (!modelPath) {
+        return;
+    }
+
+    // 顯示載入中
+    infoSpan.textContent = '⏳ 切換中...';
+    infoSpan.style.color = '#f59e0b';
+    select.disabled = true;
+
+    try {
+        const response = await fetch('/api/models/switch', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ model_path: modelPath })
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            // 成功切換
+            infoSpan.textContent = '✅ 切換成功';
+            infoSpan.style.color = '#10b981';
+            
+            // 顯示通知
+            const selectedOption = select.options[select.selectedIndex];
+            const modelName = selectedOption.textContent.split(' (')[0];
+            alert(`已成功切換到模型: ${modelName}`);
+            
+            // 重新載入模型列表以更新當前狀態
+            setTimeout(() => loadModels(), 1000);
+        } else {
+            // 切換失敗
+            infoSpan.textContent = '❌ 失敗';
+            infoSpan.style.color = '#ef4444';
+            alert('切換模型失敗: ' + (result.error || '未知錯誤'));
+            
+            // 恢復原選項
+            loadModels();
+        }
+    } catch (error) {
+        console.error('切換模型失敗:', error);
+        infoSpan.textContent = '❌ 錯誤';
+        infoSpan.style.color = '#ef4444';
+        alert('切換模型失敗: ' + error.message);
+        
+        // 恢復原選項
+        loadModels();
+    } finally {
+        select.disabled = false;
+    }
+}
+
+// 在頁面初始化時載入模型列表
+document.addEventListener('DOMContentLoaded', function() {
+    loadModels();
+});

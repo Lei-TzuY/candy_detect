@@ -1,0 +1,15 @@
+names:
+  0: normal
+  1: abnormal
+
+# 图片路径
+path: D:/專案/candy/datasets
+train: extracted_frames/old dataset/train
+val: extracted_frames/old dataset/train
+
+# 标签路径 (相对于path)
+labels:
+  train: annotated/labels/old dataset/train
+  val: annotated/labels/old dataset/train
+
+nc: 2

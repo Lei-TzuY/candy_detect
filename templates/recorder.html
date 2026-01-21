@@ -683,6 +683,7 @@
                 <a href="/" class="nav-btn">🏠 返回首頁</a>
                 <a href="/annotate" class="nav-btn">🏷️ 標註模式</a>
                 <a href="/trainer" class="nav-btn">🤖 訓練模式</a>
+                <button class="nav-btn" onclick="restartApp()" title="重啟應用程式">🔄</button>
             </div>
         </div>
 
@@ -861,156 +862,32 @@
             <div class="timer" id="global-timer">00:00:00</div>
         </div>
 
-        <div class="cameras-grid">
-            <!-- Camera 0 -->
-            <div class="camera-card" data-camera="0">
-                <div class="camera-header">
-                    <div class="camera-title">📷 鏡頭 0</div>
-                    <div class="camera-status">
-                        <span class="status-dot" id="status-0"></span>
-                        <span id="status-text-0">待機中</span>
-                    </div>
-                </div>
-                <div class="video-container" id="video-container-0" onclick="toggleZoom(0, event)">
-                    <div class="video-controls">
-                        <button class="video-control-btn" onclick="toggleZoom(0, event)" title="縮放">
-                            <span id="zoom-icon-0">🔍</span>
-                        </button>
-                        <button class="video-control-btn" onclick="toggleFullscreen(0, event)" title="全螢幕">
-                            <span id="fullscreen-icon-0">⛶</span>
-                        </button>
-                    </div>
-                    <div class="zoom-indicator" id="zoom-indicator-0">1.0x</div>
-                    <img id="preview-0" style="display: none;">
-                    <div class="video-placeholder" id="placeholder-0">
-                        <div style="font-size: 3rem;">📷</div>
-                        <div>點擊「開始預覽」查看畫面</div>
-                    </div>
-                </div>
-                <div class="controls">
-                    <button class="control-btn" onclick="togglePreview(0)">
-                        👁️ <span id="preview-btn-text-0">開始預覽</span>
+        <!-- 攝影機選擇器 -->
+        <div
+            style="background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); border-radius: 16px; padding: 20px; margin-bottom: 30px;">
+            <div
+                style="display: flex; justify-content: space-between; align-items: center; gap: 15px; flex-wrap: wrap;">
+                <div style="display: flex; gap: 10px; align-items: center; flex: 1;">
+                    <label style="font-weight: 600;">選擇攝影機：</label>
+                    <select id="camera-selector"
+                        style="flex: 1; max-width: 200px; padding: 10px; border-radius: 8px; border: 2px solid rgba(255,255,255,0.3); background: rgba(255,255,255,0.1); color: white; font-weight: 600; cursor: pointer;">
+                        <option value="" style="background: #333; color: white;">-- 選擇 --</option>
+                    </select>
+                    <button id="btn-add-camera" class="nav-btn" style="padding: 10px 20px;">
+                        ➕ 新增鏡頭
                     </button>
-                    <button class="control-btn" onclick="toggleRecording(0)">
-                        ⏺️ <span id="record-btn-text-0">開始錄影</span>
+                    <button id="btn-detect-cameras" class="nav-btn" style="padding: 10px 20px;">
+                        🔍 偵測攝影機
                     </button>
                 </div>
-                <div class="focus-control">
-                    <div class="focus-label">
-                        <span>手動對焦</span>
-                        <span>
-                            <button onclick="adjustFocus(0, -10)"
-                                style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 2px 8px; border-radius: 4px; cursor: pointer; margin-right: 5px;">-10</button>
-                            <button onclick="adjustFocus(0, -1)"
-                                style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 2px 8px; border-radius: 4px; cursor: pointer; margin-right: 5px;">-1</button>
-                            <span id="focus-value-0">128</span>
-                            <button onclick="adjustFocus(0, 1)"
-                                style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 2px 8px; border-radius: 4px; cursor: pointer; margin-left: 5px;">+1</button>
-                            <button onclick="adjustFocus(0, 10)"
-                                style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 2px 8px; border-radius: 4px; cursor: pointer; margin-left: 5px;">+10</button>
-                            <span id="focus-status-0"
-                                style="margin-left: 8px; font-size: 0.85rem; color: #10b981; opacity: 0;">✔ 已套用</span>
-                        </span>
-                    </div>
-                    <input type="range" class="focus-slider" id="focus-0" min="0" max="255" value="128"
-                        oninput="updateFocusDisplay(0, this.value)" onchange="setFocus(0, this.value)">
-                </div>
-                <!-- 曝光控制 -->
-                <div class="focus-control">
-                    <div class="focus-label">
-                        <span>📸 曝光 (快門速度)</span>
-                        <span>
-                            <button onclick="adjustExposure(0, -1)"
-                                style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 2px 8px; border-radius: 4px; cursor: pointer; margin-right: 5px;">-1</button>
-                            <span id="exposure-value-0">-7</span>
-                            <button onclick="adjustExposure(0, 1)"
-                                style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 2px 8px; border-radius: 4px; cursor: pointer; margin-left: 5px;">+1</button>
-                            <span id="exposure-status-0"
-                                style="margin-left: 8px; font-size: 0.85rem; color: #10b981; opacity: 0;">✔ 已套用</span>
-                        </span>
-                    </div>
-                    <input type="range" class="focus-slider" id="exposure-0" min="-13" max="-1" value="-7"
-                        oninput="updateExposureDisplay(0, this.value)" onchange="setExposure(0, this.value)">
-                    <div style="font-size: 0.8rem; color: rgba(255,255,255,0.6); margin-top: 4px;">
-                        💡 提示：值越小 = 快門越快 = 殘影越少（需更強光線）
-                    </div>
+                <div style="font-size: 0.9rem; color: rgba(255,255,255,0.7);">
+                    💡 請先選擇並新增攝影機
                 </div>
             </div>
+        </div>
 
-            <!-- Camera 1 -->
-            <div class="camera-card" data-camera="1">
-                <div class="camera-header">
-                    <div class="camera-title">📷 鏡頭 1</div>
-                    <div class="camera-status">
-                        <span class="status-dot" id="status-1"></span>
-                        <span id="status-text-1">待機中</span>
-                    </div>
-                </div>
-                <div class="video-container" id="video-container-1" onclick="toggleZoom(1, event)">
-                    <div class="video-controls">
-                        <button class="video-control-btn" onclick="toggleZoom(1, event)" title="縮放">
-                            <span id="zoom-icon-1">🔍</span>
-                        </button>
-                        <button class="video-control-btn" onclick="toggleFullscreen(1, event)" title="全螢幕">
-                            <span id="fullscreen-icon-1">⛶</span>
-                        </button>
-                    </div>
-                    <div class="zoom-indicator" id="zoom-indicator-1">1.0x</div>
-                    <img id="preview-1" style="display: none;">
-                    <div class="video-placeholder" id="placeholder-1">
-                        <div style="font-size: 3rem;">📷</div>
-                        <div>點擊「開始預覽」查看畫面</div>
-                    </div>
-                </div>
-                <div class="controls">
-                    <button class="control-btn" onclick="togglePreview(1)">
-                        👁️ <span id="preview-btn-text-1">開始預覽</span>
-                    </button>
-                    <button class="control-btn" onclick="toggleRecording(1)">
-                        ⏺️ <span id="record-btn-text-1">開始錄影</span>
-                    </button>
-                </div>
-                <div class="focus-control">
-                    <div class="focus-label">
-                        <span>手動對焦</span>
-                        <span>
-                            <button onclick="adjustFocus(1, -10)"
-                                style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 2px 8px; border-radius: 4px; cursor: pointer; margin-right: 5px;">-10</button>
-                            <button onclick="adjustFocus(1, -1)"
-                                style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 2px 8px; border-radius: 4px; cursor: pointer; margin-right: 5px;">-1</button>
-                            <span id="focus-value-1">128</span>
-                            <button onclick="adjustFocus(1, 1)"
-                                style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 2px 8px; border-radius: 4px; cursor: pointer; margin-left: 5px;">+1</button>
-                            <button onclick="adjustFocus(1, 10)"
-                                style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 2px 8px; border-radius: 4px; cursor: pointer; margin-left: 5px;">+10</button>
-                            <span id="focus-status-1"
-                                style="margin-left: 8px; font-size: 0.85rem; color: #10b981; opacity: 0;">✔ 已套用</span>
-                        </span>
-                    </div>
-                    <input type="range" class="focus-slider" id="focus-1" min="0" max="255" value="128"
-                        oninput="updateFocusDisplay(1, this.value)" onchange="setFocus(1, this.value)">
-                </div>
-                <!-- 曝光控制 -->
-                <div class="focus-control">
-                    <div class="focus-label">
-                        <span>📸 曝光 (快門速度)</span>
-                        <span>
-                            <button onclick="adjustExposure(1, -1)"
-                                style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 2px 8px; border-radius: 4px; cursor: pointer; margin-right: 5px;">-1</button>
-                            <span id="exposure-value-1">-7</span>
-                            <button onclick="adjustExposure(1, 1)"
-                                style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 2px 8px; border-radius: 4px; cursor: pointer; margin-left: 5px;">+1</button>
-                            <span id="exposure-status-1"
-                                style="margin-left: 8px; font-size: 0.85rem; color: #10b981; opacity: 0;">✔ 已套用</span>
-                        </span>
-                    </div>
-                    <input type="range" class="focus-slider" id="exposure-1" min="-13" max="-1" value="-7"
-                        oninput="updateExposureDisplay(1, this.value)" onchange="setExposure(1, this.value)">
-                    <div style="font-size: 0.8rem; color: rgba(255,255,255,0.6); margin-top: 4px;">
-                        💡 提示：值越小 = 快門越快 = 殘影越少（需更強光線）
-                    </div>
-                </div>
-            </div>
+        <div class="cameras-grid" id="cameras-grid">
+            <!-- 動態生成攝影機卡片 -->
         </div>
 
         <div class="recordings-section">
@@ -1041,15 +918,314 @@
     </div>
 
     <script>
-        // 狀態管理
-        const cameraState = {
-            0: { previewing: false, recording: false, zoomed: false, fullscreen: false },
-            1: { previewing: false, recording: false, zoomed: false, fullscreen: false }
-        };
+        // 狀態管理 - 動態管理
+        const cameraState = {};
+        const activeCameras = new Set(); // 追蹤已新增的攝影機
 
         let globalRecording = false;
         let timerInterval = null;
         let recordingStartTime = null;
+
+        // 保存使用中的攝影機到 localStorage
+        function saveActiveCameras() {
+            const cameras = Array.from(activeCameras);
+            localStorage.setItem('recorder_active_cameras', JSON.stringify(cameras));
+            console.log('已保存攝影機配置:', cameras);
+        }
+
+        // 從 localStorage 載入上次使用的攝影機
+        function loadActiveCameras() {
+            try {
+                const saved = localStorage.getItem('recorder_active_cameras');
+                if (saved) {
+                    const cameras = JSON.parse(saved);
+                    console.log('載入上次使用的攝影機:', cameras);
+                    return cameras;
+                }
+            } catch (e) {
+                console.error('載入攝影機配置失敗:', e);
+            }
+            return [];
+        }
+
+        // 初始化時偵測攝影機
+        window.addEventListener('DOMContentLoaded', function () {
+            console.log('頁面已載入，開始偵測攝影機...');
+
+            // 綁定選擇器變更事件 - 選擇後自動新增並預覽
+            document.getElementById('camera-selector').addEventListener('change', function () {
+                const cameraIndex = parseInt(this.value);
+                if (!isNaN(cameraIndex)) {
+                    console.log(`選擇了攝影機 ${cameraIndex}，自動新增並開始預覽`);
+
+                    // 如果已經新增過，直接開始預覽
+                    if (activeCameras.has(cameraIndex)) {
+                        const state = cameraState[cameraIndex];
+                        if (!state.previewing) {
+                            togglePreview(cameraIndex);
+                        }
+                        // 重置選擇器
+                        this.value = '';
+                    } else {
+                        // 新增攝影機
+                        addCameraCard(cameraIndex);
+                        activeCameras.add(cameraIndex);
+
+                        // 初始化狀態
+                        cameraState[cameraIndex] = {
+                            previewing: false,
+                            recording: false,
+                            zoomed: false,
+                            fullscreen: false
+                        };
+
+                        // 延遲一下確保卡片已生成，然後自動開始預覽
+                        setTimeout(() => {
+                            togglePreview(cameraIndex);
+                        }, 100);
+
+                        // 保存配置
+                        saveActiveCameras();
+
+                        // 重置選擇器，讓用戶可以繼續選其他攝影機
+                        this.value = '';
+                    }
+                }
+            });
+
+            // 綁定按鈕事件
+            document.getElementById('btn-add-camera').addEventListener('click', function () {
+                console.log('新增鏡頭按鈕被點擊');
+                addSelectedCamera();
+            });
+
+            document.getElementById('btn-detect-cameras').addEventListener('click', function () {
+                console.log('偵測攝影機按鈕被點擊');
+                detectCameras();
+            });
+
+            detectCameras();
+            loadRecordings();
+            
+            // 自動還原上次使用的攝影機
+            setTimeout(() => {
+                const savedCameras = loadActiveCameras();
+                if (savedCameras.length > 0) {
+                    console.log(`正在還原 ${savedCameras.length} 個攝影機...`);
+                    savedCameras.forEach((cameraIndex, idx) => {
+                        setTimeout(() => {
+                            // 新增攝影機卡片
+                            addCameraCard(cameraIndex);
+                            activeCameras.add(cameraIndex);
+                            
+                            // 初始化狀態
+                            cameraState[cameraIndex] = { 
+                                previewing: false, 
+                                recording: false, 
+                                zoomed: false, 
+                                fullscreen: false 
+                            };
+                            
+                            // 自動開始預覽
+                            setTimeout(() => {
+                                togglePreview(cameraIndex);
+                            }, 200);
+                        }, idx * 300); // 間隔開啟，避免同時開啟太多攝影機
+                    });
+                }
+            }, 1000); // 等待偵測完成後再還原
+        });
+
+        // 偵測可用攝影機
+        function detectCameras() {
+            console.log('正在偵測攝影機...');
+            fetch('/api/cameras/detect')
+                .then(res => {
+                    console.log('API 回應狀態:', res.status);
+                    return res.json();
+                })
+                .then(data => {
+                    console.log('偵測到的攝影機:', data);
+                    const selector = document.getElementById('camera-selector');
+                    selector.innerHTML = '<option value="" style="background: #333; color: white;">-- 選擇 --</option>';
+
+                    if (data.available && data.available.length > 0) {
+                        console.log(`找到 ${data.available.length} 個攝影機`);
+                        data.available.forEach(cam => {
+                            const option = document.createElement('option');
+                            option.value = cam.index;
+                            option.textContent = `攝影機 ${cam.index}${cam.in_use ? ' (使用中)' : ''}`;
+                            option.style.background = '#333';
+                            option.style.color = 'white';
+                            selector.appendChild(option);
+                        });
+                    } else {
+                        console.warn('未偵測到可用的攝影機');
+                        const option = document.createElement('option');
+                        option.value = "";
+                        option.textContent = "未找到攝影機";
+                        option.style.background = '#333';
+                        option.style.color = 'white';
+                        selector.appendChild(option);
+                    }
+                })
+                .catch(err => {
+                    console.error('偵測攝影機失敗:', err);
+                    alert('偵測攝影機失敗: ' + err.message);
+                });
+        }
+
+        // 新增選中的攝影機
+        function addSelectedCamera() {
+            console.log('=== 新增攝影機 ===');
+            const selector = document.getElementById('camera-selector');
+            console.log('selector:', selector);
+            console.log('selected value:', selector.value);
+
+            const cameraIndex = parseInt(selector.value);
+            console.log('cameraIndex:', cameraIndex);
+
+            if (isNaN(cameraIndex)) {
+                alert('請先選擇攝影機');
+                return;
+            }
+
+            if (activeCameras.has(cameraIndex)) {
+                alert(`攝影機 ${cameraIndex} 已經新增`);
+                return;
+            }
+
+            console.log('準備新增攝影機卡片:', cameraIndex);
+            // 新增攝影機卡片
+            addCameraCard(cameraIndex);
+            activeCameras.add(cameraIndex);
+
+            // 初始化狀態
+            cameraState[cameraIndex] = {
+                previewing: false,
+                recording: false,
+                zoomed: false,
+                fullscreen: false
+            };
+            console.log('攝影機卡片已新增');
+        }
+
+        // 動態生成攝影機卡片
+        function addCameraCard(cameraIndex) {
+            const grid = document.getElementById('cameras-grid');
+            const card = document.createElement('div');
+            card.className = 'camera-card';
+            card.setAttribute('data-camera', cameraIndex);
+            card.innerHTML = `
+                <div class="camera-header">
+                    <div class="camera-title">📷 鏡頭 ${cameraIndex}</div>
+                    <div class="camera-status">
+                        <span class="status-dot" id="status-${cameraIndex}"></span>
+                        <span id="status-text-${cameraIndex}">待機中</span>
+                    </div>
+                    <button onclick="removeCamera(${cameraIndex})" style="background: rgba(239, 68, 68, 0.3); border: none; padding: 6px 12px; border-radius: 8px; color: white; cursor: pointer; font-weight: 600;">
+                        🗑️ 移除
+                    </button>
+                </div>
+                <div class="video-container" id="video-container-${cameraIndex}" onclick="toggleZoom(${cameraIndex}, event)">
+                    <div class="video-controls">
+                        <button class="video-control-btn" onclick="toggleZoom(${cameraIndex}, event)" title="縮放">
+                            <span id="zoom-icon-${cameraIndex}">🔍</span>
+                        </button>
+                        <button class="video-control-btn" onclick="toggleFullscreen(${cameraIndex}, event)" title="全螢幕">
+                            <span id="fullscreen-icon-${cameraIndex}">⛶</span>
+                        </button>
+                    </div>
+                    <div class="zoom-indicator" id="zoom-indicator-${cameraIndex}">1.0x</div>
+                    <img id="preview-${cameraIndex}" style="display: none;">
+                    <div class="video-placeholder" id="placeholder-${cameraIndex}">
+                        <div style="font-size: 3rem;">📷</div>
+                        <div>點擊「開始預覽」查看畫面</div>
+                    </div>
+                </div>
+                <div class="controls">
+                    <button class="control-btn" onclick="togglePreview(${cameraIndex})">
+                        👁️ <span id="preview-btn-text-${cameraIndex}">開始預覽</span>
+                    </button>
+                    <button class="control-btn" onclick="toggleRecording(${cameraIndex})">
+                        ⏺️ <span id="record-btn-text-${cameraIndex}">開始錄影</span>
+                    </button>
+                </div>
+                <div class="focus-control">
+                    <div class="focus-label">
+                        <span>手動對焦</span>
+                        <span>
+                            <button onclick="adjustFocus(${cameraIndex}, -10)" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 2px 8px; border-radius: 4px; cursor: pointer; margin-right: 5px;">-10</button>
+                            <button onclick="adjustFocus(${cameraIndex}, -1)" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 2px 8px; border-radius: 4px; cursor: pointer; margin-right: 5px;">-1</button>
+                            <span id="focus-value-${cameraIndex}">128</span>
+                            <button onclick="adjustFocus(${cameraIndex}, 1)" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 2px 8px; border-radius: 4px; cursor: pointer; margin-left: 5px;">+1</button>
+                            <button onclick="adjustFocus(${cameraIndex}, 10)" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 2px 8px; border-radius: 4px; cursor: pointer; margin-left: 5px;">+10</button>
+                            <span id="focus-status-${cameraIndex}" style="margin-left: 8px; font-size: 0.85rem; color: #10b981; opacity: 0;">✔ 已套用</span>
+                        </span>
+                    </div>
+                    <input type="range" class="focus-slider" id="focus-${cameraIndex}" min="0" max="255" value="128" oninput="updateFocusDisplay(${cameraIndex}, this.value)" onchange="setFocus(${cameraIndex}, this.value)">
+                </div>
+                <div class="focus-control">
+                    <div class="focus-label">
+                        <span>📸 曝光 (快門速度)</span>
+                        <span>
+                            <button onclick="adjustExposure(${cameraIndex}, -1)" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 2px 8px; border-radius: 4px; cursor: pointer; margin-right: 5px;">-1</button>
+                            <span id="exposure-value-${cameraIndex}">-7</span>
+                            <button onclick="adjustExposure(${cameraIndex}, 1)" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 2px 8px; border-radius: 4px; cursor: pointer; margin-left: 5px;">+1</button>
+                            <span id="exposure-status-${cameraIndex}" style="margin-left: 8px; font-size: 0.85rem; color: #10b981; opacity: 0;">✔ 已套用</span>
+                        </span>
+                    </div>
+                    <input type="range" class="focus-slider" id="exposure-${cameraIndex}" min="-13" max="-1" value="-7" oninput="updateExposureDisplay(${cameraIndex}, this.value)" onchange="setExposure(${cameraIndex}, this.value)">
+                    <div style="font-size: 0.8rem; color: rgba(255,255,255,0.6); margin-top: 4px;">
+                        💡 提示：值越小 = 快門越快 = 殘影越少（需更強光線）
+                    </div>
+                </div>
+            `;
+            grid.appendChild(card);
+
+            // 初始化拖動和縮放支援
+            if (!zoomState[cameraIndex]) {
+                zoomState[cameraIndex] = {
+                    scale: 1,
+                    offsetX: 0,
+                    offsetY: 0,
+                    dragging: false,
+                    startX: 0,
+                    startY: 0
+                };
+            }
+            if (!wheelZoomState[cameraIndex]) {
+                wheelZoomState[cameraIndex] = 1;
+            }
+            setupDragging(cameraIndex);
+            setupWheelZoom(cameraIndex);
+        }
+
+        // 移除攝影機
+        function removeCamera(cameraIndex) {
+            if (!confirm(`確定要移除鏡頭 ${cameraIndex} 嗎？`)) {
+                return;
+            }
+
+            // 停止預覽和錄影
+            const state = cameraState[cameraIndex];
+            if (state && state.recording) {
+                fetch(`/api/recorder/${cameraIndex}/stop`, { method: 'POST' });
+            }
+
+            // 移除卡片
+            const card = document.querySelector(`.camera-card[data-camera="${cameraIndex}"]`);
+            if (card) {
+                card.remove();
+            }
+
+            // 移除狀態
+            delete cameraState[cameraIndex];
+            activeCameras.delete(cameraIndex);
+            
+            // 保存配置
+            saveActiveCameras();
+        }
 
         // 切換單一鏡頭預覽
         function togglePreview(cameraIndex) {
@@ -1094,9 +1270,11 @@
                     if (data.success && data.focus_value !== undefined) {
                         const slider = document.getElementById(`focus-${cameraIndex}`);
                         const valueDisplay = document.getElementById(`focus-value-${cameraIndex}`);
-                        slider.value = data.focus_value;
-                        valueDisplay.textContent = data.focus_value;
-                        console.log(`鏡頭 ${cameraIndex} 對焦值已載入: ${data.focus_value}`);
+                        if (slider && valueDisplay) {
+                            slider.value = data.focus_value;
+                            valueDisplay.textContent = data.focus_value;
+                            console.log(`鏡頭 ${cameraIndex} 對焦值已載入: ${data.focus_value}`);
+                        }
                     }
                 })
                 .catch(err => console.error(`鏡頭 ${cameraIndex} 對焦值載入失敗:`, err));
@@ -1184,49 +1362,45 @@
         function checkRecordingStatus() {
             console.log('=== 錄影狀態診斷 ===');
             console.log('globalRecording:', globalRecording);
-            console.log('鏡頭 0 狀態:', {
-                previewing: cameraState[0].previewing,
-                recording: cameraState[0].recording,
-                zoomed: cameraState[0].zoomed,
-                fullscreen: cameraState[0].fullscreen
-            });
-            console.log('鏡頭 1 狀態:', {
-                previewing: cameraState[1].previewing,
-                recording: cameraState[1].recording,
-                zoomed: cameraState[1].zoomed,
-                fullscreen: cameraState[1].fullscreen
+
+            const cameras = Array.from(activeCameras);
+            if (cameras.length === 0) {
+                alert('目前沒有新增任何攝影機');
+                return;
+            }
+
+            cameras.forEach(i => {
+                console.log(`鏡頭 ${i} 狀態:`, {
+                    previewing: cameraState[i].previewing,
+                    recording: cameraState[i].recording,
+                    zoomed: cameraState[i].zoomed,
+                    fullscreen: cameraState[i].fullscreen
+                });
             });
 
             // 檢查後端狀態
-            Promise.all([
-                fetch('/api/recorder/0/status').then(r => r.json()),
-                fetch('/api/recorder/1/status').then(r => r.json())
-            ]).then(([status0, status1]) => {
-                console.log('鏡頭 0 後端狀態:', status0);
-                console.log('鏡頭 1 後端狀態:', status1);
+            Promise.all(cameras.map(i =>
+                fetch(`/api/recorder/${i}/status`).then(r => r.json())
+            )).then(statuses => {
+                let msg = `錄影狀態診斷\n\n全域狀態: ${globalRecording ? '錄影中' : '未錄影'}\n\n`;
 
-                // 顯示診斷結果
-                const msg = `錄影狀態診斷\n\n` +
-                    `全域狀態: ${globalRecording ? '錄影中' : '未錄影'}\n\n` +
-                    `鏡頭 0:\n` +
-                    `  前端: ${cameraState[0].recording ? '錄影中' : '未錄影'}\n` +
-                    `  後端: ${status0.is_recording ? '錄影中' : '未錄影'}\n` +
-                    `  預覽: ${cameraState[0].previewing ? '是' : '否'}\n\n` +
-                    `鏡頭 1:\n` +
-                    `  前端: ${cameraState[1].recording ? '錄影中' : '未錄影'}\n` +
-                    `  後端: ${status1.is_recording ? '錄影中' : '未錄影'}\n` +
-                    `  預覽: ${cameraState[1].previewing ? '是' : '否'}\n\n` +
-                    `詳細資訊請查看控制台 (F12)`;
+                cameras.forEach((camIndex, idx) => {
+                    const status = statuses[idx];
+                    console.log(`鏡頭 ${camIndex} 後端狀態:`, status);
 
+                    msg += `鏡頭 ${camIndex}:\n` +
+                        `  前端: ${cameraState[camIndex].recording ? '錄影中' : '未錄影'}\n` +
+                        `  後端: ${status.is_recording ? '錄影中' : '未錄影'}\n` +
+                        `  預覽: ${cameraState[camIndex].previewing ? '是' : '否'}\n\n`;
+
+                    // 檢查不一致
+                    if (cameraState[camIndex].recording !== status.is_recording) {
+                        console.warn(`⚠️ 鏡頭 ${camIndex} 前後端狀態不一致！`);
+                    }
+                });
+
+                msg += `詳細資訊請查看控制台 (F12)`;
                 alert(msg);
-
-                // 檢查不一致
-                if (cameraState[0].recording !== status0.is_recording) {
-                    console.warn('⚠️ 鏡頭 0 前後端狀態不一致！');
-                }
-                if (cameraState[1].recording !== status1.is_recording) {
-                    console.warn('⚠️ 鏡頭 1 前後端狀態不一致！');
-                }
             }).catch(err => {
                 console.error('獲取後端狀態失敗:', err);
                 alert('無法獲取後端狀態，請查看控制台');
@@ -1236,12 +1410,18 @@
         // 全部預覽控制
         function toggleAllPreview() {
             console.log('觸發全部預覽控制');
-            const anyPreviewing = cameraState[0].previewing || cameraState[1].previewing;
+            const cameras = Array.from(activeCameras);
+            if (cameras.length === 0) {
+                alert('請先新增攝影機');
+                return;
+            }
+
+            const anyPreviewing = cameras.some(i => cameraState[i].previewing);
 
             if (anyPreviewing) {
                 // 停止所有預覽
                 console.log('停止所有預覽');
-                [0, 1].forEach(i => {
+                cameras.forEach(i => {
                     if (cameraState[i].previewing && !cameraState[i].recording) {
                         togglePreview(i);
                     }
@@ -1250,7 +1430,7 @@
             } else {
                 // 開始所有預覽
                 console.log('開始所有預覽');
-                [0, 1].forEach(i => {
+                cameras.forEach(i => {
                     if (!cameraState[i].previewing) {
                         togglePreview(i);
                     }
@@ -1262,68 +1442,57 @@
         // 全部錄影控制
         function toggleAllRecording() {
             console.log('觸發全部錄影控制');
-            const anyRecording = cameraState[0].recording || cameraState[1].recording;
+            const cameras = Array.from(activeCameras);
+            if (cameras.length === 0) {
+                alert('請先新增攝影機');
+                return;
+            }
+
+            const anyRecording = cameras.some(i => cameraState[i].recording);
 
             if (anyRecording) {
                 // 停止所有錄影
                 console.log('正在停止所有錄影...');
-                const stopPromises = [];
-
-                if (cameraState[0].recording) {
-                    stopPromises.push(
-                        fetch('/api/recorder/0/stop', { method: 'POST' })
+                cameras.forEach(i => {
+                    if (cameraState[i].recording) {
+                        fetch(`/api/recorder/${i}/stop`, { method: 'POST' })
                             .then(response => response.json())
                             .then(data => {
-                                console.log('鏡頭 0 停止錄影');
-                                cameraState[0].recording = false;
-                                const btn = document.getElementById('btn-record-0');
-                                if (btn) {
-                                    btn.textContent = '⏺️ 開始錄影';
-                                    btn.style.background = 'linear-gradient(135deg, #ef4444, #dc2626)';
+                                console.log(`鏡頭 ${i} 停止錄影`);
+                                cameraState[i].recording = false;
+                                const btnText = document.getElementById(`record-btn-text-${i}`);
+                                if (btnText) {
+                                    btnText.textContent = '開始錄影';
                                 }
-                                const statusText = document.getElementById('status-text-0');
-                                if (statusText) {
-                                    statusText.textContent = cameraState[0].previewing ? '預覽中' : '待機中';
-                                }
-                            })
-                            .catch(err => console.error('鏡頭 0 停止失敗:', err))
-                    );
-                }
-
-                if (cameraState[1].recording) {
-                    stopPromises.push(
-                        fetch('/api/recorder/1/stop', { method: 'POST' })
-                            .then(response => response.json())
-                            .then(data => {
-                                console.log('鏡頭 1 停止錄影');
-                                cameraState[1].recording = false;
-                                const btn = document.getElementById('btn-record-1');
-                                if (btn) {
-                                    btn.textContent = '⏺️ 開始錄影';
-                                    btn.style.background = 'linear-gradient(135deg, #ef4444, #dc2626)';
-                                }
-                                const statusText = document.getElementById('status-text-1');
-                                if (statusText) {
-                                    statusText.textContent = cameraState[1].previewing ? '預覽中' : '待機中';
+                                const statusDot = document.getElementById(`status-${i}`);
+                                const statusText = document.getElementById(`status-text-${i}`);
+                                if (statusDot && statusText) {
+                                    statusDot.classList.remove('recording');
+                                    if (cameraState[i].previewing) {
+                                        statusDot.classList.add('active');
+                                        statusText.textContent = '預覽中';
+                                    } else {
+                                        statusText.textContent = '待機中';
+                                    }
                                 }
                             })
-                            .catch(err => console.error('鏡頭 1 停止失敗:', err))
-                    );
-                }
+                            .catch(err => console.error(`鏡頭 ${i} 停止失敗:`, err));
+                    }
+                });
 
-                Promise.all(stopPromises).then(() => {
-                    globalRecording = false;
-                    stopTimer();
-                    const btn = document.getElementById('btn-record-all');
+                globalRecording = false;
+                stopTimer();
+                const btn = document.getElementById('btn-record-all');
+                if (btn) {
                     btn.textContent = '⏺️ 全部開始錄影';
                     btn.style.background = 'linear-gradient(135deg, #ef4444, #dc2626)';
-                    loadRecordings();
-                    console.log('所有錄影已停止');
-                });
+                }
+                loadRecordings();
+                console.log('所有錄影已停止');
             } else {
                 // 開始所有錄影
                 console.log('開始所有錄影');
-                [0, 1].forEach(i => {
+                cameras.forEach(i => {
                     if (!cameraState[i].recording) {
                         toggleRecording(i);
                     }
@@ -1335,39 +1504,26 @@
         async function forceStopAllRecording() {
             console.log('🛑 執行強制停止所有錄影...');
 
-            const stopPromises = [];
+            const cameras = Array.from(activeCameras);
+            if (cameras.length === 0) {
+                console.log('沒有攝影機需要停止');
+                return;
+            }
 
-            // 停止鏡頭 0
-            console.log('強制停止鏡頭 0');
-            stopPromises.push(
-                fetch('/api/recorder/0/stop', { method: 'POST' })
+            const stopPromises = cameras.map(i => {
+                console.log(`強制停止鏡頭 ${i}`);
+                return fetch(`/api/recorder/${i}/stop`, { method: 'POST' })
                     .then(response => response.json())
                     .then(data => {
-                        console.log('鏡頭 0 強制停止回應:', data);
-                        cameraState[0].recording = false;
+                        console.log(`鏡頭 ${i} 強制停止回應:`, data);
+                        cameraState[i].recording = false;
                         return data;
                     })
                     .catch(err => {
-                        console.error('鏡頭 0 強制停止失敗:', err);
-                        cameraState[0].recording = false; // 仍然更新狀態
-                    })
-            );
-
-            // 停止鏡頭 1
-            console.log('強制停止鏡頭 1');
-            stopPromises.push(
-                fetch('/api/recorder/1/stop', { method: 'POST' })
-                    .then(response => response.json())
-                    .then(data => {
-                        console.log('鏡頭 1 強制停止回應:', data);
-                        cameraState[1].recording = false;
-                        return data;
-                    })
-                    .catch(err => {
-                        console.error('鏡頭 1 強制停止失敗:', err);
-                        cameraState[1].recording = false; // 仍然更新狀態
-                    })
-            );
+                        console.error(`鏡頭 ${i} 強制停止失敗:`, err);
+                        cameraState[i].recording = false; // 仍然更新狀態
+                    });
+            });
 
             // 等待所有停止完成
             await Promise.all(stopPromises);
@@ -1380,12 +1536,14 @@
 
             // 更新按鈕
             const recordAllBtn = document.getElementById('btn-record-all');
-            recordAllBtn.textContent = '⏺️ 全部開始錄影';
-            recordAllBtn.style.background = 'linear-gradient(135deg, #ef4444, #dc2626)';
+            if (recordAllBtn) {
+                recordAllBtn.textContent = '⏺️ 全部開始錄影';
+                recordAllBtn.style.background = 'linear-gradient(135deg, #ef4444, #dc2626)';
+            }
 
-            // 更新兩個鏡頭的按鈕狀態
-            [0, 1].forEach(i => {
-                const btn = document.getElementById(`btn-record-${i}`);
+            // 更新所有鏡頭的按鈕狀態
+            cameras.forEach(i => {
+                const btnText = document.getElementById(`record-btn-text-${i}`);
                 if (btn) {
                     btn.textContent = '⏺️ 開始錄影';
                     btn.style.background = 'linear-gradient(135deg, #ef4444, #dc2626)';
@@ -1468,6 +1626,12 @@
         function setupDragging(cameraIndex) {
             const container = document.getElementById(`video-container-${cameraIndex}`);
             const img = document.getElementById(`preview-${cameraIndex}`);
+
+            if (!container || !img) {
+                console.warn(`無法為鏡頭 ${cameraIndex} 設置拖動，元素不存在`);
+                return;
+            }
+
             const zState = zoomState[cameraIndex];
 
             container.addEventListener('mousedown', function (e) {
@@ -1501,10 +1665,6 @@
             });
         }
 
-        // 初始化拖動支援
-        setupDragging(0);
-        setupDragging(1);
-
         // 滾輪縮放支援（僅在全螢幕模式下）
         const wheelZoomState = { 0: 1, 1: 1 };
 
@@ -1524,6 +1684,11 @@
             const container = document.getElementById(`video-container-${cameraIndex}`);
             const img = document.getElementById(`preview-${cameraIndex}`);
 
+            if (!container || !img) {
+                console.warn(`無法為鏡頭 ${cameraIndex} 設置滾輪縮放，元素不存在`);
+                return;
+            }
+
             container.addEventListener('wheel', function (e) {
                 if (cameraState[cameraIndex].fullscreen) {
                     e.preventDefault();
@@ -1542,9 +1707,6 @@
                 }
             }, { passive: false });
         }
-
-        setupWheelZoom(0);
-        setupWheelZoom(1);
 
         // 全螢幕功能
         function toggleFullscreen(cameraIndex, event) {
@@ -1616,8 +1778,8 @@
 
             if (!isFullscreen) {
                 // 用戶退出了全螢幕，更新狀態
-                [0, 1].forEach(i => {
-                    if (cameraState[i].fullscreen) {
+                Array.from(activeCameras).forEach(i => {
+                    if (cameraState[i] && cameraState[i].fullscreen) {
                         const container = document.getElementById(`video-container-${i}`);
                         const img = document.getElementById(`preview-${i}`);
                         const fullscreenIcon = document.getElementById(`fullscreen-icon-${i}`);
@@ -2010,9 +2172,9 @@
         document.addEventListener('keydown', function (e) {
             // ESC 鍵：退出全螢幕或縮放
             if (e.key === 'Escape') {
-                [0, 1].forEach(i => {
+                Array.from(activeCameras).forEach(i => {
                     const state = cameraState[i];
-                    if (state.fullscreen) {
+                    if (state && state.fullscreen) {
                         toggleFullscreen(i, e);
                     } else if (state.zoomed) {
                         toggleZoom(i, e);
@@ -2055,7 +2217,9 @@
         function startRecordingListRefresh() {
             setInterval(() => {
                 // 檢查是否有任何鏡頭正在錄影
-                const anyRecording = cameraState[0].recording || cameraState[1].recording;
+                const anyRecording = Array.from(activeCameras).some(i =>
+                    cameraState[i] && cameraState[i].recording
+                );
                 if (anyRecording) {
                     loadRecordings();
                 }
@@ -2125,6 +2289,15 @@
                 localStorage.setItem('recorder_guide_visited', 'true');
             }
         });
+
+        function restartApp() {
+            if (confirm('您確定要重啟應用程式嗎？目前的連線將會中斷。')) {
+                fetch('/api/system/restart', { method: 'POST' })
+                    .then(() => console.log('Restart command sent.'))
+                    .catch(e => console.error('Restart command sent, server shutting down:', e));
+                setTimeout(() => location.reload(), 5000);
+            }
+        }
     </script>
 </body>
 

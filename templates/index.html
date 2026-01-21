@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,6 +9,7 @@
     <link rel="icon" href="{{ url_for('static', filename='favicon.svg') }}" type="image/svg+xml">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 </head>
+
 <body>
     <div class="container">
         <!-- 頂部導航 -->
@@ -22,6 +24,7 @@
                         <a href="/recorder" class="nav-btn recorder-link">🎥 錄影</a>
                         <a href="/trainer" class="nav-btn trainer-link">🤖 訓練</a>
                         <a href="/annotate" class="nav-btn annotate-link">🏷️ 標註</a>
+                        <button class="nav-btn" onclick="restartApp()" title="重啟應用程式">🔄</button>
                     </nav>
                 </div>
                 <div class="font-controls">
@@ -57,8 +60,15 @@
                         ➕ 新增
                     </button>
                 </div>
+                <div class="model-selector">
+                    <label>🤖 模型版本：</label>
+                    <select id="model-versions" onchange="switchModel()">
+                        <option value="">-- 載入中 --</option>
+                    </select>
+                    <span id="model-info" class="model-info"></span>
+                </div>
             </div>
-            
+
             <!-- 攝影機畫面 -->
             <div class="video-container" id="videoContainer">
                 <!-- 動態產生攝影機畫面 -->
@@ -131,7 +141,7 @@
                     <button onclick="changeModel()" class="btn-change-model">🔄 切換模型</button>
                     <div id="currentModelInfo" class="model-info"></div>
                 </div>
-                
+
                 <h2>偵測參數設定</h2>
                 <div class="settings-group">
                     <label>
@@ -166,7 +176,7 @@
 
     <script>
         // 主題（日間/夜間）- 盡量在外部腳本前執行以避免 FOUC
-        (function() {
+        (function () {
             const THEME_KEY = 'theme';
             function determinePreferredTheme() {
                 const saved = localStorage.getItem(THEME_KEY);
@@ -191,7 +201,7 @@
                 localStorage.setItem(THEME_KEY, isDark ? 'dark' : 'light');
                 updateThemeToggleIcon();
             }
-            document.addEventListener('DOMContentLoaded', function() {
+            document.addEventListener('DOMContentLoaded', function () {
                 applySavedTheme();
                 var themeBtn = document.getElementById('btn-theme-toggle');
                 if (themeBtn) {
@@ -203,29 +213,30 @@
     <script src="{{ url_for('static', filename='script.js') }}"></script>
     <script>
         // 分頁按鈕事件綁定 - 確保 DOM 載入完成後執行
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             var tabDashboard = document.getElementById('tab-dashboard');
             var tabHistory = document.getElementById('tab-history');
             var tabSettings = document.getElementById('tab-settings');
-            
+
             if (tabDashboard) {
-                tabDashboard.onclick = function() {
+                tabDashboard.onclick = function () {
                     showTab('dashboard', this);
                 };
             }
             if (tabHistory) {
-                tabHistory.onclick = function() {
+                tabHistory.onclick = function () {
                     showTab('history', this);
                 };
             }
             if (tabSettings) {
-                tabSettings.onclick = function() {
+                tabSettings.onclick = function () {
                     showTab('settings', this);
                 };
             }
-            
+
             console.log('分頁按鈕已綁定');
         });
     </script>
 </body>
+
 </html>
