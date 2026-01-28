@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Logitech Text Overlay</title>
+    <link rel="stylesheet" href="animate.min.css" />
+    <link rel="stylesheet" href="brownpro.css" />
+
+    <style>
+      body {
+        padding: 0;
+        margin: 0;
+        overflow: hidden;
+        background: transparent;
+      }
+
+      #container {
+        box-sizing: border-box;
+        display: none;
+        height: 100%;
+        padding: 44px;
+        position: absolute;
+        width: 100%;
+        transition: all 0.5s;
+      }
+
+      #container.visible {
+        display: flex;
+        align-items: center;
+      }
+
+      #text {
+        position: absolute;
+        white-space: nowrap;
+      }
+
+      #sampler {
+        position: absolute;
+        white-space: nowrap;
+        visibility: hidden;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="container" class="visible">
+      <div id="text"></div>
+      <div id="sampler"></div>
+    </div>
+
+    <script>
+      // CodePen experiment by me: https://codepen.io/dcefram/pen/mYOjbY
+      const LS_KEY = 'logi-txt-ovrly-evt';
+      const LS_CB_KEY = 'logi-txt-ovrly-cb-evt';
+
+      const container = document.getElementById('container');
+      const textContainer = document.getElementById('text');
+      const samplerContainer = document.getElementById('sampler');
+
+      // @TODO: Alam mo, mas ok kung may state handler tayo, like initialState na object thingy, similar sa controls.html
+      let isHiding = false;
+      let previousAnimation = 'fadeIn';
+      let previousVisibility = true;
+      let previousFont = 'default';
+      let currentDuration = 0;
+      let durationTimeout = null;
+      let property = null;
+      let onDurationTimeout = null;
+      let animationStatus = null;
+      let previousAnimationStatus = null;
+
+      function mapper(type) {
+        switch (type) {
+          case 'slideToRight':
+            return { out: 'slideOutLeft', in: 'slideInLeft' };
+
+          case 'slideToLeft':
+            return { out: 'slideOutRight', in: 'slideInRight' };
+
+          case 'slideToTop':
+            return { out: 'slideOutUp', in: 'slideInDown' };
+
+          case 'slideToBottom':
+            return { out: 'slideOutDown', in: 'slideInUp' };
+
+          case 'fadeIn':
+            return { out: 'fadeOut', in: 'fadeIn' };
+
+          default:
+            return { out: 'none', in: 'none' };
+        }
+      }
+
+      function handleAnimation(animation, isVisible, propertyEvent) {
+        const keys = mapper(animation);
+
+        if (propertyEvent === 'textOverlay') {
+          previousAnimationStatus = null;
+        }
+
+        if (animationStatus === 'animation-end') {
+          previousAnimationStatus = 'animation-end';
+          container.classList.remove(keys.in);
+          container.classList.add('animated', keys.out);
+          isHiding = true;
+
+          clearTimeout(durationTimeout);
+          durationTimeout = null;
+          clearTimeout(onDurationTimeout);
+          onDurationTimeout = null;
+
+          previousVisibility = false;
+        }
+
+        if (previousAnimationStatus === 'animation-end') {
+          previousAnimationStatus = null;
+
+          return;
+        }
+
+        if (
+          propertyEvent === 'textOverlayDuration' ||
+          propertyEvent === 'textOverlayOnDuration'
+        ) {
+          clearTimeout(durationTimeout);
+          clearTimeout(onDurationTimeout);
+          durationTimeout = null;
+          onDurationTimeout = null;
+
+          if (currentDuration === 0) {
+            return;
+          }
+          onDurationTimeout = setTimeout(() => {
+            previousVisibility = false;
+            container.classList.remove(keys.in);
+            container.classList.add('animated', keys.out);
+            isHiding = true;
+            onDurationTimeout = null;
+          }, currentDuration);
+          return;
+        }
+
+        if (animation !== previousAnimation) {
+          const oldKeys = mapper(previousAnimation);
+          container.classList.remove(oldKeys.in, oldKeys.out);
+          previousAnimation = animation;
+        }
+
+        if (isVisible !== previousVisibility) {
+          previousVisibility = isVisible;
+        } else {
+          return;
+        }
+
+        localStorage.setItem(
+          LS_CB_KEY,
+          JSON.stringify({
+            key: 'animate-start',
+            value: isVisible,
+            rand: Date.now(),
+          })
+        );
+
+        if (animation === 'none') {
+          const key = isVisible ? 'add' : 'remove';
+          container.classList[key]('visible');
+          return;
+        }
+
+        if (!isHiding) {
+          container.classList.remove(keys.in);
+          container.classList.add('animated', keys.out);
+          isHiding = true;
+        } else {
+          container.classList.remove(keys.out);
+          container.classList.add('animated', keys.in, 'visible');
+          isHiding = false;
+        }
+      }
+
+      function handleAnimationEnd() {
+        if (isHiding) {
+          container.classList.remove('visible');
+        }
+        const keys = mapper(previousAnimation);
+
+        container.classList.remove('animated', keys.in, keys.out);
+
+        localStorage.setItem(
+          LS_CB_KEY,
+          JSON.stringify({
+            key: 'animate-end',
+            value: previousVisibility,
+            rand: Date.now(),
+          })
+        );
+
+        if (!isHiding && currentDuration !== 0) {
+          clearTimeout(durationTimeout);
+          durationTimeout = null;
+          durationTimeout = setTimeout(() => {
+            animationStatus = 'animation-end';
+            handleAnimation(previousAnimation, false, property);
+            durationTimeout = null;
+          }, Math.floor(currentDuration));
+        }
+      }
+
+      function htmlEntities(str) {
+        return String(str)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;');
+      }
+
+      function handleTextInput(text) {
+        samplerContainer.textContent = text;
+        text = htmlEntities(text);
+
+        textContainer.innerHTML = text.replace(/\s/g, '&nbsp;');
+      }
+
+      function handleFontChange(font) {
+        previousFont = font;
+
+        if (font === 'default') {
+          // Skip the ceremony and just remove font-family shing.
+          textContainer.style.fontFamily = 'unset';
+          return;
+        }
+
+        const details = JSON.parse(font);
+
+        const styleNode = (() => {
+          const node = document.getElementById('style-node');
+          if (node) return node;
+
+          const newNode = document.createElement('style');
+          const head = document.head;
+
+          newNode.setAttribute('id', 'style-node');
+
+          head.appendChild(newNode);
+
+          return newNode;
+        })();
+
+        styleNode.innerHTML = `
+@font-face {
+  font-family: '${details.label}';
+  src: url('${details.file}');
+  src: url('./fonts/${details.file}') format('truetype');
+}`;
+        textContainer.style.fontFamily = details.label;
+        samplerContainer.style.fontFamily = details.label;
+      }
+
+      function handleStorageEvent({ key, newValue }) {
+        if (key !== LS_KEY) return;
+        try {
+          const config = JSON.parse(newValue);
+          const whitelist = [
+            'text',
+            'animation',
+            'isVisible',
+            'font',
+            'duration',
+            'propertyEvent',
+          ];
+          const {
+            text,
+            animation,
+            isVisible,
+            font,
+            duration,
+            propertyEvent,
+          } = config;
+
+          const styles = Object.keys(config).reduce((stack, key) => {
+            if (whitelist.indexOf(key) === -1) {
+              return Object.assign({}, stack, { [key]: config[key] });
+            }
+
+            return stack;
+          }, {});
+          if (text !== undefined) {
+            handleTextInput(text);
+          }
+
+          if (font !== previousFont) {
+            handleFontChange(font);
+          }
+
+          currentDuration = duration;
+          animationStatus = null;
+
+          Object.keys(styles).forEach(key => {
+            container.style[key] = styles[key];
+          });
+
+          property = propertyEvent;
+
+          if (isVisible && propertyEvent === 'textOverlay') {
+            handleAnimation(animation, true, propertyEvent);
+            return;
+          }
+
+          if (propertyEvent === 'textOverlayDuration') {
+            handleAnimation(animation, true, propertyEvent);
+            return;
+          }
+
+          if (propertyEvent === 'textOverlay') {
+            clearTimeout(durationTimeout);
+            durationTimeout = null;
+            animationStatus = 'animation-end';
+            handleAnimation(previousAnimation, false, property);
+            durationTimeout = null;
+            return;
+          }
+        } catch (error) {
+          console.error(error);
+        }
+      }
+
+      window.addEventListener('storage', handleStorageEvent);
+      container.addEventListener('animationend', handleAnimationEnd);
+
+      window.OnSceneLoad = () => {};
+      window.SetVolume = () => {};
+    </script>
+  </body>
+</html>

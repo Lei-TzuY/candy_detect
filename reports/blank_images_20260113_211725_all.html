@@ -1,0 +1,196 @@
+
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>空白圖片檢測報告</title>
+    <style>
+        body {
+            font-family: "Microsoft JhengHei", Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .header {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        .stat-box {
+            background: #fff3e0;
+            padding: 15px;
+            border-radius: 5px;
+            border-left: 4px solid #ff9800;
+        }
+        .stat-label {
+            font-size: 0.9em;
+            color: #666;
+        }
+        .stat-value {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #ff9800;
+        }
+        .image-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        .image-card {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            border: 3px solid #f44336;
+            position: relative;
+            transition: opacity 0.3s;
+        }
+        .image-card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 4px;
+            background: #f0f0f0;
+        }
+        .image-info {
+            margin-top: 10px;
+        }
+        .filename {
+            font-size: 0.85em;
+            color: #333;
+            word-break: break-all;
+            margin-bottom: 5px;
+        }
+        .reason {
+            font-size: 0.8em;
+            color: #666;
+            background: #f9f9f9;
+            padding: 5px;
+            border-radius: 3px;
+        }
+        .color-preview {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border-radius: 3px;
+            border: 1px solid #ddd;
+            vertical-align: middle;
+            margin-right: 5px;
+        }
+        .badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 3px;
+            font-size: 0.75em;
+            font-weight: bold;
+            background: #f44336;
+            color: white;
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🗑️ 空白圖片檢測報告</h1>
+        <div class="stats">
+            <div class="stat-box">
+                <div class="stat-label">總圖片數</div>
+                <div class="stat-value">5</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-label">空白圖片</div>
+                <div class="stat-value">5</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-label">佔比</div>
+                <div class="stat-value">100.0%</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-label">可節省空間</div>
+                <div class="stat-value">0.4 MB</div>
+            </div>
+        </div>
+        <p style="margin-top: 15px; color: #666;">
+            ⚠️ 以下 5 張圖片被判定為空白/純色圖片
+        </p>
+    </div>
+    
+    <div class="image-grid">
+
+        <div class="image-card">
+            <div class="badge">將被刪除</div>
+            <img src="data:image/jpeg;base64,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" alt="Blank Image">
+
+            <div class="image-info">
+                <div class="filename">📁 frame_0000.jpg</div>
+                <div class="reason">
+                    <span class="color-preview" style="background-color: rgb(217,216,207);"></span>
+                    標準差過低 (標準差: 16.63)
+                </div>
+            </div>
+        </div>
+
+        <div class="image-card">
+            <div class="badge">將被刪除</div>
+            <img src="data:image/jpeg;base64,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" alt="Blank Image">
+
+            <div class="image-info">
+                <div class="filename">📁 frame_0001.jpg</div>
+                <div class="reason">
+                    <span class="color-preview" style="background-color: rgb(217,217,207);"></span>
+                    標準差過低 (標準差: 15.96)
+                </div>
+            </div>
+        </div>
+
+        <div class="image-card">
+            <div class="badge">將被刪除</div>
+            <img src="data:image/jpeg;base64,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" alt="Blank Image">
+
+            <div class="image-info">
+                <div class="filename">📁 frame_0005.jpg</div>
+                <div class="reason">
+                    <span class="color-preview" style="background-color: rgb(218,218,208);"></span>
+                    標準差過低 (標準差: 15.47)
+                </div>
+            </div>
+        </div>
+
+        <div class="image-card">
+            <div class="badge">將被刪除</div>
+            <img src="data:image/jpeg;base64,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" alt="Blank Image">
+
+            <div class="image-info">
+                <div class="filename">📁 frame_0002.jpg</div>
+                <div class="reason">
+                    <span class="color-preview" style="background-color: rgb(218,218,208);"></span>
+                    標準差過低 (標準差: 15.56)
+                </div>
+            </div>
+        </div>
+
+        <div class="image-card">
+            <div class="badge">將被刪除</div>
+            <img src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCABxAMgDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD0NQRjNTLwajQZNTAdKkCTtUsZ46VGB6VOOBSAdH97mpMHHBpgOTjPFSqABTATB9akUkDpTRwaXjtQA4H06080gAzmpAlACLx2p+B6VIqg0bDzQBCQd3FIFy3NWNnHvTMUAROoHSk2n0qVhkU0qQODQBEV+bmgjIpSDnmkoAjI4ph6EVNiomGDQBAaicd6sMvNREUgK7DIqvIuRmrbDBqBh1FMCk644oqSQcUUATIMDPrVhQCBUPU4qZVwKAJQAvvUgOPeoo+pqUYB9aQDlGTmpMUxWGelSDJoAVRzT1UA0gxTwM0ASIuRzUqLSKPSpN2RjGKYAAATzTgQRUedrc0ZB9qAHnBHWmAAk03mgE9RSuA7AGeabiilxgUwI2ApmKlprLxxQBFUcg71J3pj0gIjUbDmpaifrQBE471A4qw/SoGHFAFWQc0U6QcZopgPXI71MowKiVc1OoHc0AKAc1MpwKZ3p4ODmkA8LhhT8UwNuNSYoAVOtWIwOtQoMdanQ9qYEo4pwx600dKSgBWHPtUMsyQoWdgAKkdtqEk8CuQ1K/e7nZQfkBwBXHi8SqEbvc1pUnUZpz6+isREu73qKLxEwbDx/L7VhjilIBGRXivMK7d0ztWHppWsdva3MdzEHQ5BqcjgVyWj3pt7gIx+Rq60EFQc8V7eExCrQ5upxVafJKwYpj9M1KTxUT/dNdZkQGomOTUrcCoTSAQnAqNjk09jxUZoAY3SoTUzdKgY8UAQSdKKSSimA8ZJqdeOtQI9SoT3oAmXFPFMBBxin0gHKTu4qQE96YoOQRUgFAD1JJqZM54qFPvVYQ9qYEgNK1IKU0AQ3Clrd1HUiuIdSkzA9Qa7sjtXK61aGC5MgHytXkZpScoKa6HVhZ2biZjUqmgHdwASavWmlzXBGVKr6mvGp0p1Je6rnbKSitSnEjSTKqDkmu3gVkt0VuoFU7PTYrXBC5b1rQJ7V9BgcK6Cbluzz69VTdkGaY/SnVExr0DAYSB1qI9ae5phoAjfpUdPc0ykAx+lQP0qZ+lQt0oAryUUslFMAQip0Iqskg5GKlRsEGgC0jLjFP4BqtvGeKmRhjnrSAnQ5PFSVAp2nNSeZ7cUATgnGe1TR884qrvGB6VKr4XFMC4qZHWggKcVArsCOeKlZwRQBI4BGQaq3FtFcptkXIqwrjb0zSbs9qTipKzBO2xRi0u1gbKoCferaqBwB0pe9JkDvURpxjpFWG5N7i5pR1ppOKCcVaENkYk4qIketOkbrURxTASmMcU4kCmMRQBGxpKUnJppIxSAY57VCx4pzEVCx60wI5DzRUUhooAE68VYU8c1XQnPHSpwwJweKAJUA696kHWoht45qVWAPHNICQ8kCpABjBOKYpDYzxUoQetMBUGealAycVCCUOD0qVTk57UASgbT1qYFQKrE/MOc0/eAcGgCwpBOBQeDUSyZYYpzOCOKAH/WmOABTc5HWkJzQAmaUsSMGms4AphfPSkArkGoznHFBbB5pC4FMBH7VG3Wn76Yx5zQA3NRseOKXcOajJ4pARt96oX61IT1NQO1MCF885opJGooAfG4xxU4KcEnmqsaDoDUwRQRk0AWgV9KkXBORUATPepFT3oAlzg1Osq/jUCx5Oc1IIxmkBKX3ClV8cGmrGR3pxjJPWgBd6+tKCG5pPKGKFjwc5oAf06UqtgYpqgsfTFOCE0APyuOtIzLt+8eKb5ZHemsnY0wIml3Ehc/WkViKfs5GOlOCjGKAGldwzmmKDnFSFTgAUbOetADDwaY/Ip7/LTSMigCDpTWGaeRzTG4oAhfpVeQVPJ0qCQUAV5KKJBRTQxYfuD61O/8NFFIRMfu1On3RRRQBKnUVLRRSAmXoKWiigB4+7SDrRRQA+lFFFACmmNRRTAj70o60UUgFNJRRTAil6Cok+7RRQBH3pj0UUAQydKrSUUUAV5KKKKoaP/Z" alt="Blank Image">
+
+            <div class="image-info">
+                <div class="filename">📁 frame_0003.jpg</div>
+                <div class="reason">
+                    <span class="color-preview" style="background-color: rgb(219,219,210);"></span>
+                    標準差過低 (標準差: 15.49)
+                </div>
+            </div>
+        </div>
+
+    </div>
+</body>
+</html>

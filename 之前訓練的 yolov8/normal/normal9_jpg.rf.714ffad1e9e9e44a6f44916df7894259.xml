@@ -1,0 +1,27 @@
+<annotation>
+	<folder></folder>
+	<filename>normal9_jpg.rf.714ffad1e9e9e44a6f44916df7894259.jpg</filename>
+	<path>normal9_jpg.rf.714ffad1e9e9e44a6f44916df7894259.jpg</path>
+	<source>
+		<database>roboflow.com</database>
+	</source>
+	<size>
+		<width>1920</width>
+		<height>1080</height>
+		<depth>3</depth>
+	</size>
+	<segmented>0</segmented>
+	<object>
+		<name>normal</name>
+		<pose>Unspecified</pose>
+		<truncated>0</truncated>
+		<difficult>0</difficult>
+		<occluded>0</occluded>
+		<bndbox>
+			<xmin>616</xmin>
+			<xmax>841</xmax>
+			<ymin>448</ymin>
+			<ymax>658</ymax>
+		</bndbox>
+	</object>
+</annotation>

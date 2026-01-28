@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<StringDictionary version="1.2">
+  <Strings>
+    <String key="Buttons:MinimizeToolTip">Riduci a icona</String>
+    <String key="Buttons:CloseToolTip">Chiudi</String>
+
+    <!--First Page-->
+    <String key="WindowName">Programma di disinstallazione di %BrandName% Capture</String>
+    <String key="UnInstall11">%BrandName% Capture</String>
+    <String key="ApplicationName">Programma di disinstallazione di %BrandName% Capture</String>
+    <String key="Welcome">%BRANDNAME% Capture</String>
+    <String key="LogitechOptions">%BrandName% Capture</String>
+    <String key="Install">Disinstallazione di %BRANDNAME% Capture</String>
+    <String key="Disclaimer:Intro">Facendo clic su Installa sia accettano i termini del</String>
+    <String key="Disclaimer:EULA">Contratto di licenza con l'utente finale</String>
+
+    <!--Analytics-->
+    <String key="Analytics:HelpUsTitle">AIUTACI A MIGLIORARE I NOSTRI PRODOTTI</String>
+    <String key="Analytics:HelpUsDescription">È possibile aiutare %BrandName% a migliorare i propri prodotti e servizi inviando automaticamente report diagnostici e dati sull'utilizzo.</String>
+    <String key="Analytics:Allow">DISINSTALLA</String>
+    <String key="Analytics:Disallow">ESCI</String>
+    <String key="Analytics:ChangeInsideApp">Questa impostazione può essere modificata tramite il pulsante Altro in %BrandName% Capture</String>
+    <String key="Analytics:LearnMore">Ulteriori informazioni sull'Informativa sulla privacy di</String>
+    <String key="Analytics:PrivacyPolicy"> %BrandName%</String>
+    <String key="Analytics:WelcomeEULA"> Contratto di licenza con l'utente finale</String>
+      <String key="Analytics:UnInstall2">%BrandName% Capture verrà rimosso dal sistema. Verranno ripristinati i valori predefiniti delle impostazioni che sono state personalizzate.</String>
+      <String key="Analytics:UnInstall3">DISINSTALLA</String>
+      <String key="Analytics:UnInstall4">ESCI</String>
+
+    <!--CloseApps Page-->
+    <String key="CloseApps:Title">Impossibile continuare la disinstallazione</String>
+    <String key="CloseApps:Message">La videocamera Logi Capture sembra essere in uso, chiudi qualsiasi applicazione che potrebbe utilizzarla e riprova.</String>
+    <String key="CloseApps:Message2">Rilevamento utilizzo videocamera Logi Capture…</String>
+    <String key="Button:Retry">RIPROVA</String>
+
+    <!--Installing Page-->
+    <String key="Installing">Disinstallazione in corso</String>
+    <String key="Installing:2">INSTALLAZIONE IN CORSO</String>
+    <String key="AppDescription">%BrandName% Capture ti consente di personalizzare e ottenere il massimo dai tuoi dispositivi %BrandName%.</String>
+    <String key="AppDescription:2">Attendi, questo processo può richiedere alcuni minuti.</String>
+      <String key="UnInstalling3">Disinstallazione in corso</String>
+
+    <!--Install Completed Page-->
+    <String key="Installed">È INSTALLATO</String>
+    <String key="MoreInformation">Per ulteriori informazioni, visita</String>
+    <String key="Continue">CONTINUA</String>
+    <String key="OpenApp">AVVIA %BRANDNAME% CAPTURE</String>
+      <String key="UnInstallComplete">Disinstallazione completata</String>
+      <String key="UnInstallComplete2">%BrandName% Capture è stato rimosso dal sistema.</String>
+      <String key="UnInstallComplete3">CHIUDI</String>
+      <String key="UnInstallLockedFiles">Si consiglia di riavviare il sistema per completare la disinstallazione.</String>
+      <String key="Reboot">RIAVVIA</String>
+
+
+      <!--Error Page-->
+    <String key="Error:InstallationFailed">%BRANDNAME% CAPTURE /n INSTALLAZIONE NON RIUSCITA</String>
+    <String key="Button:Quit">ESCI DA INSTALLAZIONE</String>
+    <String key="Button:Continue">Continua</String>
+
+
+    <!--Error + Warning Messages-->
+    <String key="Err:Title">SPIACENTI. SI È VERIFICATO UN PROBLEMA</String>
+    <String key="Err:FailedTitle">%BRANDNAME% CAPTURE /n INSTALLAZIONE NON RIUSCITA</String>
+    <String key="Err:Failed">Impossibile installare %BrandName% Capture. Per ulteriori informazioni, visita la pagina del Supporto.</String>
+    <String key="Err:OSCHECK">Questa versione del sistema operativo non è supportata\nPer ulteriori informazioni, visita la pagina del Supporto.</String>
+    <String key="Err:Singleton">È in esecuzione un'altra istanza del programma di installazione di %BrandName% Capture. Completare l'altra installazione prima di eseguire questo programma di installazione.</String>
+    <String key="Err:OS">Impossibile installare %BrandName% Capture. Questa installazione richiede Windows 7 o versione successiva.</String>
+    <String key="Err:Space">Impossibile installare %BrandName% Capture. Il disco di sistema non dispone di spazio sufficiente.</String>
+    <String key="Err:Version">Nel sistema è stata rilevata una versione più recente di %BrandName% Capture. Questa installazione non verrà eseguita.</String>
+    <String key="Err:Multiuser">Impossibile continuare, in quanto %BrandName% Capture è attualmente in esecuzione in un altro account utente in questo sistema. Riprovare dopo avere chiuso %BrandName% Capture negli altri account utente.</String>
+    <String key="Err:Admin">Impossibile installare %BrandName% Capture.  Per eseguire l'installazione del software è necessario disporre dei diritti di amministratore.</String>
+    <String key="Button:Okay">OK</String>
+
+    <!--Error + Warning Buttons-->
+    <!-- FileLocked -->
+    <String key="Warn:Title:FileLocked">RIAVVIO NECESSARIO PER COMPLETARE L'INSTALLAZIONE</String>
+    <String key="Warn:Body:FileLocked">È necessario riavviare il computer per completare l'installazione. Finché non verrà completata l'installazione non sarà possibile utilizzare %BrandName% Capture e potrebbe verificarsi una perdita della funzionalità del dispositivo.</String>
+    <String key="Warn:ButtonPrimary:FileLocked">RIAVVIA ORA</String>
+    <String key="Warn:ButtonSecondary:FileLocked">RIAVVIA IN SEGUITO</String>
+  </Strings>
+</StringDictionary>

@@ -1,0 +1,27 @@
+<annotation>
+	<folder></folder>
+	<filename>normal35_jpg.rf.7e2a0813e780ccc438b316004b5e2b53.jpg</filename>
+	<path>normal35_jpg.rf.7e2a0813e780ccc438b316004b5e2b53.jpg</path>
+	<source>
+		<database>roboflow.com</database>
+	</source>
+	<size>
+		<width>1920</width>
+		<height>1080</height>
+		<depth>3</depth>
+	</size>
+	<segmented>0</segmented>
+	<object>
+		<name>abnormal</name>
+		<pose>Unspecified</pose>
+		<truncated>0</truncated>
+		<difficult>0</difficult>
+		<occluded>0</occluded>
+		<bndbox>
+			<xmin>752</xmin>
+			<xmax>989</xmax>
+			<ymin>324</ymin>
+			<ymax>607</ymax>
+		</bndbox>
+	</object>
+</annotation>

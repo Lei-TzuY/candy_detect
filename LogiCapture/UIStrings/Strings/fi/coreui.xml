@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<StringDictionary version="1.2">
+  <Strings>
+    <String key="Buttons:MinimizeToolTip">Pienennä</String>
+    <String key="Buttons:CloseToolTip">Sulje</String>
+
+    <!--First Page-->
+    <String key="WindowName">%BrandName% Capture -asennusohjelma</String>
+    <String key="ApplicationName">%BrandName% Capture -asennusohjelma</String>
+    <String key="Welcome">Tervetuloa</String>
+    <String key="LWS_UnInstall2">%BrandName%-verkkokameraohjelmisto</String>
+    <String key="LWS_UnInstall3">havaittu</String>
+    <String key="LWS_UnInstall4">Ennen uuden %BrandName% Capture -ohjelmiston asentamista on poistettava vanhan %BrandName% Webcam Software -ohjelmiston asennus.  Tämä johtuu siitä, että niillä on yhteisiä komponentteja, jotka voivat aiheuttaa odottamatonta käyttäytymistä, jos molemmat sovellukset on asennettu.</String>
+    <String key="LWS_UnInstall5">POISTA %BRANDNAME% WEBCAM SOFTWARE</String>
+    <String key="LogitechOptions">%BrandName% Capture</String>
+    <String key="Install">ASENNA %BRANDNAME% CAPTURE</String>
+    <String key="Disclaimer:Intro">Valitsemalla Asenna hyväksyt</String>
+    <String key="Disclaimer:EULA">Käyttöoikeussopimus</String>
+
+    <!--Analytics-->
+    <String key="Analytics:HelpUsTitle">Auta meitä parantamaan tuotteitamme</String>
+    <String key="Analytics:HelpUsDescription">Lähetä automaattisesti diagnostiikka- ja käyttötietoja, joiden avulla %BrandName% voi parantaa tuotteitaan ja palveluitaan.</String>
+    <String key="Analytics:Allow">KYLLÄ, JAA ANALYTIIKKATIETOJA</String>
+    <String key="Analytics:Disallow">EI KIITOS</String>
+    <String key="Analytics:ChangeInsideApp">Tämän voi muuttaa %BrandName% Capturessa.</String>
+    <String key="Analytics:LearnMore">Lisätietoja %BrandName%-yrityksen</String>
+    <String key="Analytics:PrivacyPolicy"> tietosuojakäytännöstä</String>
+    <String key="Analytics:WelcomeEULA">Käyttöoikeussopimus</String>
+
+    <!--Installing Page-->
+    <String key="Installing">Asennetaan</String>
+    <String key="Installing:2">Asennus käynnissä</String>
+    <String key="AppDescription">%BrandName% Capture -ohjelmiston avulla voit mukauttaa %BrandName%-verkkokameroitasi ja saat niistä kaiken tehon irti. Odota, tämä voi kestää muutaman minuutin.</String>
+    <String key="AppDescription:2">Odota, tämä voi kestää muutaman minuutin.</String>
+
+    <!--Install Completed Page-->
+    <String key="Installed">on asennettu</String>
+    <String key="MoreInformation">Lisätietoja on tukisivulla</String>
+    <String key="Continue">JATKA</String>
+    <String key="OpenApp">KÄYNNISTÄ %BRANDNAME% CAPTURE</String>
+
+    <!--Restart Page-->
+    <String key="Reboot1">Käynnistä tietokone uudelleen</String>
+    <String key="Reboot2">Tietokone on käynnistettävä uudelleen, jotta muutokset tulevat voimaan. Jos et käynnistä uudelleen, %BrandName%-verkkokamera ei välttämättä toimi oikein.</String>
+    <String key="Reboot3">KÄYNNISTÄ UUDELLEEN NYT</String>
+    <String key="Reboot4">KÄYNNISTÄ UUDELLEEN MYÖHEMMIN</String>
+
+      <!--Close Apps Page-->
+    <String key="CloseApps:Title">ASENNUSTA EI VOIDA JATKAA</String>
+    <String key="CloseApps:Message2">Havaittiin Logi Capture -kameran käyttöä…</String>
+    <String key="CloseApps:Message">Logi Capture -kamerasi näyttää olevan käytössä. Sulje kaikki sitä mahdollisesti käyttävät sovellukset ja yritä uudelleen.</String>
+
+      <!--Any Page-->
+      <String key="RestartRequired:Title">UUDELLEENKÄYNNISTYS VAADITAAN</String>
+      <String key="RestartRequired:Message51">Uudelleenkäynnistys vaaditaan, jotta %BrandName% Capture -asennusta voidaan jatkaa.</String>
+      <String key="Reboot52">KÄYNNISTÄ UUDELLEEN</String>
+      <String key="CameraInUse:Title">Kamera käytössä</String>
+      <String key="CameraInUse:Message53">Logi Capture -kamera näyttää olevan käytössä. Sulje sitä käyttävät sovellukset ja yritä uudelleen tai käynnistä järjestelmä uudelleen valitsemalla KÄYNNISTÄ UUDELLEEN ja suorita asennus loppuun käynnistyksen jälkeen.</String>
+      <String key="CameraInUse:Message54">Havaittiin Logi Capture -kameran käyttöä…</String>
+
+      <!--Error Page-->
+    <String key="Error:InstallationFailed">%BrandName% Capturen asennus epäonnistui</String>
+    <String key="Button:Quit">LOPETA ASENNUS</String>
+      <String key="Button:Quit2">LOPETA</String>
+      <String key="Button:Retry">YRITÄ UUDELLEEN</String>
+      <String key="Button:Continue">Jatka</String>
+
+
+    <!--Error + Warning Messages-->
+    <String key="Err:Title">Hups! Havaitsimme ongelman</String>
+    <String key="Err:FailedTitle">%BrandName% Capturen asennus epäonnistui</String>
+    <String key="Err:Generic">%BrandName% Capture -ohjelmistoa ei voitu asentaa. Lisätietoja on tukisivulla.</String>
+    <String key="Err:Failed">Tietokoneesi ei täytä näyttölaitteiston vähimmäisvaatimuksia. Lisätietoja saat ottamalla yhteyttä tukeen.</String>
+    <String key="Err:Win7Res">Ohjelmistoa ei voi asentaa. Pyydä lisätietoja tuesta.</String>
+    <String key="Err:OSCHECK">Koodaus-dll:n lataamisessa on ongelma.  Lisätietoja on tukisivulla</String>
+    <String key="Err:Singleton">%BrandName% Capture -asennusohjelman toinen esiintymä on käynnissä. Vie toinen asennus loppuun ennen tämän asennusohjelman suorittamista.</String>
+    <String key="Err:OS">%BrandName% Capture tukee vain 64-bittistä Windows 10 -käyttöjärjestelmää tai sitä uudempaa versiota. Päivitä Windows voidaksesi käyttää %BrandName% Capture -sovellusta tällä tietokoneella.</String>
+    <String key="Err:OSTitle">Yhteensopimaton Windows-versio.</String>
+    <String key="Err:Space">%BrandName% Capture -ohjelmiston asennus epäonnistui. Järjestelmälevyllä ei ole riittävästi vapaata tilaa.</String>
+    <String key="Err:Version">Järjestelmästä löytyi uudempi %BrandName% Capture -versio. Asennusta ei jatketa.</String>
+    <String key="Err:Multiuser">Jatkaminen ei onnistu, koska %BrandName% Capture on parhaillaan käynnissä tässä järjestelmässä toisella käyttäjätilillä. Yritä uudelleen, kun %BrandName% Capture on suljettu muilla käyttäjätileillä.</String>
+    <String key="Err:Admin">%BrandName% Capture -ohjelmiston asennus epäonnistui.  Tämän ohjelmiston asentaminen edellyttää järjestelmänvalvojan oikeuksia.</String>
+    <String key="Button:Okay">OK</String>
+    <String key="Err:NoInternetConnection">Tietokoneen internet-yhteyden on oltava käytössä. Tarkista yhteys ja yritä uudelleen.</String>
+
+    <!--Error + Warning Buttons-->
+    <!-- FileLocked -->
+    <String key="Warn:Title:FileLocked">Asennuksen viimeistely vaatii uudelleenkäynnistyksen</String>
+    <String key="Warn:Body:FileLocked">Tietokone on käynnistettävä uudelleen asennuksen suorittamiseksi loppuun. %BrandName% Capture ei toimi eikä laite ehkä toimi täydellisesti ennen kuin asennus on suoritettu loppuun.</String>
+    <String key="Warn:ButtonPrimary:FileLocked">KÄYNNISTÄ UUDELLEEN NYT</String>
+    <String key="Warn:ButtonSecondary:FileLocked">KÄYNNISTÄ UUDELLEEN MYÖHEMMIN</String>
+      <!-- RestartRequired -->
+      <String key="Warn:Title:RestartRequired">Uudelleenkäynnistys vaaditaan</String>
+      <String key="Warn:Body:RestartRequired">Uudelleenkäynnistys vaaditaan, jotta %BrandName% Capture -asennusta voidaan jatkaa.</String>
+      <String key="Warn:ButtonPrimary:RestartRequired">LOPETA</String>
+      <String key="Warn:ButtonSecondary:RestartRequired">KÄYNNISTÄ UUDELLEEN</String>
+  </Strings>
+</StringDictionary>

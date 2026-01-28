@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>重新标记结果检查</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 20px; 
+            background: #f5f5f5; 
+        }
+        h1 { 
+            color: #2e7d32; 
+            text-align: center;
+        }
+        .stats {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .stats h2 {
+            margin-top: 0;
+            color: #1976d2;
+        }
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        .stat-item {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 5px;
+            text-align: center;
+        }
+        .stat-value {
+            font-size: 32px;
+            font-weight: bold;
+            color: #1976d2;
+        }
+        .stat-label {
+            color: #666;
+            margin-top: 5px;
+        }
+        .legend {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin: 20px 0;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .legend-box {
+            width: 20px;
+            height: 20px;
+            border: 2px solid;
+        }
+        .normal { border-color: #00ff00; background: rgba(0, 255, 0, 0.2); }
+        .abnormal { border-color: #ff0000; background: rgba(255, 0, 0, 0.2); }
+        .gallery { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(400px, 1fr)); 
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .item { 
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+        }
+        .item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        .item img { 
+            width: 100%; 
+            height: auto;
+            display: block;
+        }
+        .item .info { 
+            padding: 10px; 
+            font-size: 14px; 
+            color: #666;
+            background: #fafafa;
+        }
+        .controls {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        .controls button {
+            background: #1976d2;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 0 5px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .controls button:hover {
+            background: #1565c0;
+        }
+    </style>
+</head>
+<body>
+    <h1>🎯 重新标记结果检查</h1>
+    
+    <div class="stats">
+        <h2>📊 统计信息</h2>
+        <div class="stat-grid">
+            <div class="stat-item">
+                <div class="stat-value">100</div>
+                <div class="stat-label">抽样图片数</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value">100</div>
+                <div class="stat-label">有标注的图片</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value">260</div>
+                <div class="stat-label">总标注框数</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value">2.6
+        <div class="item" data-class="all">
+            <img src="001_0_20251203_165445_frame_0036.jpg" alt="001_0_20251203_165445_frame_0036.jpg">
+            <div class="info">001_0_20251203_165445_frame_0036.jpg</div>
+        </div>
+
+        <div class="item" data-class="all">
+            <img src="002_old dataset_normal3_jpg.rf.21d02b6e1e50da42a0bd3b3dd68aac3d.jpg" alt="002_old dataset_normal3_jpg.rf.21d02b6e1e50da42a0bd3b3dd68aac3d.jpg">
+            <div class="info">002_old dataset_normal3_jpg.rf.21d02b6e1e50da42a0bd3b3dd68aac3d.jpg</div>
+        </div>
+
+        <div class="item" data-class="all">
+            <img src="003_2026-01-16_14-41_2026-01-16_14-10-04.jpg" alt="003_2026-01-16_14-41_2026-01-16_14-10-04.jpg">
+            <div class="info">003_2026-01-16_14-41_2026-01-16_14-10-04.jpg</div>
+        </div>
+
+        <div class="item" data-class="all">
+            <img src="004_old dataset_normal40_jpg.rf.417492bb14f91f117b0976cebd01bae2.jpg" alt="004_old dataset_normal40_jpg.rf.417492bb14f91f117b0976cebd01bae2.jpg">
+            <div class="info">004_old dataset_normal40_jpg.rf.417492bb14f91f117b0976cebd01bae2.jpg</div>
+        </div>
+
+        <div class="item" data-class="all">
+            <img src="005_0_20251203_162837_frame_0159.jpg" alt="005_0_20251203_162837_frame_0159.jpg">
+            <div class="info">005_0_20251203_162837_frame_0159.jpg</div>
+        </div>
+
+        <div class="item" data-class="all">
+            <img src="006_0_20251203_165445_frame_0055.jpg" alt="006_0_20251203_165445_frame_0055.jpg">
+            <div class="info">006_0_20251203_165445_frame_0055.jpg</div>
+        </div>
+
+        <div class="item" data-class="all">
+            <img src="007_0_20251203_162837_frame_0093.jpg" alt="007_0_20251203_162837_frame_0093.jpg">
+            <div class="info">007_0_20251203_162837_frame_0093.jpg</div>
+        </div>
+
+        <div class="item" data-class="all">
+            <img src="008_0_20251203_164628_frame_0165.jpg" alt="008_0_20251203_164628_frame_0165.jpg">
+            <div class="info">008_0_20251203_164628_frame_0165.jpg</div>
+        </div>
+
+        <div class="item" data-class="all">
+            <img src="009_old dataset_normal4_jpg.rf.abc4ecc3b730cd805dcd15f5bbd0f37b.jpg" alt="009_old dataset_normal4_jpg.rf.abc4ecc3b730cd805dcd15f5bbd0f37b.jpg">
+            <div class="info">009_old dataset_normal4_jpg.rf.abc4ecc3b730cd805dcd15f5bbd0f37b.jpg</div>
+        </div>
+
+        <div class="item" data-class="all">
+            <img src="010_old dataset_normal45_jpg.rf.e57eb26bd215b2e4f0d50e682d627ab2.jpg" alt="010_old dataset_normal45_jpg.rf.e57eb26bd215b2e4f0d50e682d627ab2.jpg">
+            <div class="info">010_old dataset_normal45_jpg.rf.e57eb26bd215b2e4f0d50e682d627ab2.jpg</div>
+        </div>
+
+        <div class="item" data-class="all">
+            <img src="011_old dataset_normal25_jpg.rf.fefff504c03a3064254163a61f0e147a.jpg" alt="011_old dataset_normal25_jpg.rf.fefff504c03a3064254163a61f0e147a.jpg">
+            <div class="info">011_old dataset_normal25_jpg.rf.fefff504c03a3064254163a61f0e147a.jpg</div>
+        </div>
+
+        <div class="item" data-class="all">
+            <img src="012_2026-01-16_14-41_2026-01-16_13-40-07.jpg" alt="012_2026-01-16_14-41_2026-01-16_13-40-07.jpg">
+            <div class="info">012_2026-01-16_14-41_2026-01-16_13-40-07.jpg</div>
+        </div>
+
+        <div class="item" data-class="all">
+            <img src="013_2026-01-16_14-41_2026-01-16_14-10-32.jpg" alt="013_2026-01-16_14-41_2026-01-16_14-10-32.jpg">
+            <div class="info">013_2026-01-16_14-41_2026-01-16_14-10-32.jpg</div>
+        </div>
+
+        <div class="item" data-class="all">
+            <img src="014_0_20251203_165445_frame_0032.jpg" alt="014_0_20251203_165445_frame_0032.jpg">
+            <div class="info">014_0_20251203_165445_frame_0032.jpg</div>
+        </div>
+
+        <div class="item" data-class="all">
+            <img src="015_1_20251203_165445_frame_0120.jpg" alt="015_1_20251203_165445_frame_0120.jpg">
+            <div class="info">015_1_20251203_165445_frame_0120.jpg</div>
+        </div>
+
+        <div class="item" data-class="all">
+            <img src="016_2026-01-16_14-41_2026-01-16_13-37-03.jpg" alt="016_2026-01-16_14-41_2026-01-16_13-37-03.jpg">
+            <div class="info">016_2026-01-16_14-41_2026-01-16_13-37-03.jpg</div>
+        </div>
+
+        <div class="item" data-class="all">
+            <img src="017_old dataset_abnormal5_jpg.rf.c79533737209619f883df2556aa036aa.jpg" alt="017_old dataset_abnormal5_jpg.rf.c79533737209619f883df2556aa036aa.jpg">
+            <div class="info">017_old dataset_abnormal5_jpg.rf.c79533737209619f883df2556aa036aa.jpg</div>
+        </div>
+
+        <div class="item" data-class="all">
+            <img src="018_0_20251203_162837_frame_0176.jpg" alt="018_0_20251203_162837_frame_0176.jpg">
+            <div class="info">018_0_20251203_162837_frame_0176.jpg</div>
+        </div>
+
+        <div class="item" data-class="all">
+            <img src="019_2026-01-16_14-41_2026-01-16_13-36-38.jpg" alt="019_2026-01-16_14-41_2026-01-16_13-36-38.jpg">
+            <div class="info">019_2026-01-16_14-41_2026-01-16_13-36-38.jpg</div>
+        </div>
+
+        <div class="item" data-class="all">
+            <img src="020_1_20251203_164628_frame_0140.jpg" alt="020_1_20251203_164628_frame_0140.jpg">
+            <div class="info">020_1_20251203_164628_frame_0140.jpg</div>
+        </div>
+
+        <div class="item" data-class="all">
+            <img src="021_old dataset_normal8_jpg.rf.de10c4e1c9e9301b4c2e0f1f74e9dc46.jpg" alt="021_old dataset_normal8_jpg.rf.de10c4e1c9e9301b4c2e0f1f74e9dc46.jpg">
+            <div class="info">021_old dataset_normal8_jpg.rf.de10c4e1c9e9301b4c2e0f1f74e9dc46.jpg</div>
+        </div>
+
+        <div class="item" data-class="all">
+            <img src="022_old dataset_normal15_jpg.rf.4452adbace36072825bf06f625568b9e.jpg" alt="022_old dataset_normal15_jpg.rf.4452adbace36072825bf06f625568b9e.jpg">
+            <div class="info">022_old dataset_normal15_jpg.rf.4452adbace36072825bf06f625568b9e.jpg</div>
+        </div>
+
+        <div class="item" data-class="all">
+            <img src="023_0_20251203_165445_frame_0072.jpg" alt="023_0_20251203_165445_frame_0072.jpg">
+            <div class="info">023_0_20251203_165445_frame_0072.jpg</div>
+        </div>
+
+        <div class="item" data-class="all">
+            <img src="024_1_20251203_164628_frame_0024.jpg" alt="024_1_20251203_164628_frame_0024.jpg">
+            <div class="info">024_1_20251203_164628_frame_0024.jpg</div>
+        </div>
+
+        <div class="item" data-class="all">
+            <img src="025_0_20251203_162837_frame_0151.jpg" alt="025_0_20251203_162837_frame_0151.jpg">
+            <div class="info">025_0_20251203_162837_frame_0151.jpg</div>
+        </div>
+
+        <div class="item" data-class="all">
+            <img src="026_2026-01-16_14-41_2026-01-16_14-03-15.jpg" alt="026_2026-01-16_14-41_2026-01-16_14-03-15.jpg">
+            <div class="info">026_2026-01-16_14-41_2026-01-16_14-03-15.jpg</div>
+        </div>
+
+        <div class="item" data-class="all">
+            <img src="027_2026-01-16_14-41_2026-01-16_14-02-46.jpg" alt="027_2026-01-16_14-41_2026-01-16_14-02-46.jpg">
+            <div class="info">027_2026-01-16_14-41_2026-01-16_14-02-46.jpg</div>
+        </div>
+
+        <div class="item" data-class="all">
+            <img src="028_2026-01-16_14-41_2026-01-16_13-37-23.jpg" alt="028_2026-01-16_14-41_2026-01-16_13-37-23.jpg">
+            <div class="info">028_2026-01-16_14-41_2026-01-16_13-37-23.jpg</div>
+        </div>
+
+        <div class="item" data-class="all">
+            <img src="029_old dataset_normal11_jpg.rf.25b4d8b8bbb20de10be0413a1508afe3.jpg" alt="029_old dataset_normal11_jpg.rf.25b4d8b8bbb20de10be0413a1508afe3.jpg">
+            <div class="info">029_old dataset_normal11_jpg.rf.25b4d8b8bbb20de10be0413a1508afe3.jpg</div>
+        </div>
+
+        <div class="item" data-class="all">
+            <img src="030_old dataset_normal12_jpg.rf.ada7303fbd9d8191b85b25ba3d1b3383.jpg" alt="030_old dataset_normal12_jpg.rf.ada7303fbd9d8191b85b25ba3d1b3383.jpg">
+            <div class="info">030_old dataset_normal12_jpg.rf.ada7303fbd9d8191b85b25ba3d1b3383.jpg</div>
+        </div>
+
+        <div class="item" data-class="all">
+            <img src="031_2026-01-16_14-41_2026-01-16_13-58-15.jpg" alt="031_2026-01-16_14-41_2026-01-16_13-58-15.jpg">
+            <div class="info">031_2026-01-16_14-41_2026-01-16_13-58-15.jpg</div>
+        </div>
+
+        <div class="item" data-class="all">
+            <img src="032_old dataset_normal23_jpg.rf.e1776e0e235a1bfe95488c31ccf09a42.jpg" alt="032_old dataset_normal23_jpg.rf.e1776e0e235a1bfe95488c31ccf09a42.jpg">
+            <div class="info">032_old dataset_normal23_jpg.rf.e1776e0e235a1bfe95488c31ccf09a42.jpg</div>
+        </div>
+
+        <div class="item" data-class="all">
+            <img src="033_2026-01-16_14-41_2026-01-16_14-00-04.jpg" alt="033_2026-01-16_14-41_2026-01-16_14-00-04.jpg">
+            <div class="info">033_2026-01-16_14-41_2026-01-16_14-00-04.jpg</div>
+        </div>
+
+        <div class="item" data-class="all">
+            <img src="034_2026-01-16_14-41_2026-01-16_14-00-00.jpg" alt="034_2026-01-16_14-41_2026-01-16_14-00-00.jpg">
+            <div class="info">034_2026-01-16_14-41_2026-01-16_14-00-00.jpg</div>
+        </div>
+
+        <div class="item" data-class="all">
+            <img src="035_1_20251203_165445_frame_0066.jpg" alt="035_1_20251203_165445_frame_0066.jpg">
+            <div class="info">035_1_20251203_165445_frame_0066.jpg</div>
+        </div>
+
+        <div class="item" data-class="all">
+            <img src="036_old dataset_normal35_jpg.rf.0fd4f98416c573ca672eb08d92d42329.jpg" alt="036_old dataset_normal35_jpg.rf.0fd4f98416c573ca672eb08d92d42329.jpg">
+            <div class="info">036_old dataset_normal35_jpg.rf.0fd4f98416c573ca672eb08d92d42329.jpg</div>
+        </div>
+
+        <div class="item" data-class="all">
+            <img src="037_old dataset_normal6_jpg.rf.e3230fd1027cce53b8ed539da6a716e1.jpg" alt="037_old dataset_normal6_jpg.rf.e3230fd1027cce53b8ed539da6a716e1.jpg">
+            <div class="info">037_old dataset_normal6_jpg.rf.e3230fd1027cce53b8ed539da6a716e1.jpg</div>
+        </div>
+
+        <div class="item" data-class="all">
+            <img src="038_1_20251203_162837_frame_0164.jpg" alt="038_1_20251203_162837_frame_0164.jpg">
+            <div class="info">038_1_20251203_162837_frame_0164.jpg</div>
+        </div>
+
+        <div class="item" data-class="all">
+            <img src="039_0_20251203_162837_frame_0022.jpg" alt="039_0_20251203_162837_frame_0022.jpg">
+            <div class="info">039_0_20251203_162837_frame_0022.jpg</div>
+        </div>
+
+        <div class="item" data-class="all">
+            <img src="040_old dataset_normal7_jpg.rf.c87d1f8c1019199e72857072eeb219f6.jpg" alt="040_old dataset_normal7_jpg.rf.c87d1f8c1019199e72857072eeb219f6.jpg">
+            <div class="info">040_old dataset_normal7_jpg.rf.c87d1f8c1019199e72857072eeb219f6.jpg</div>
+        </div>
+
+        <div class="item" data-class="all">
+            <img src="041_0_20251203_164628_frame_0068.jpg" alt="041_0_20251203_164628_frame_0068.jpg">
+            <div class="info">041_0_20251203_164628_frame_0068.jpg</div>
+        </div>
+
+        <div class="item" data-class="all">
+            <img src="042_2026-01-16_14-41_2026-01-16_14-05-29.jpg" alt="042_2026-01-16_14-41_2026-01-16_14-05-29.jpg">
+            <div class="info">042_2026-01-16_14-41_2026-01-16_14-05-29.jpg</div>
+        </div>
+
+        <div class="item" data-class="all">
+            <img src="043_2026-01-16_14-41_2026-01-16_13-35-01.jpg" alt="043_2026-01-16_14-41_2026-01-16_13-35-01.jpg">
+            <div class="info">043_2026-01-16_14-41_2026-01-16_13-35-01.jpg</div>
+        </div>
+
+        <div class="item" data-class="all">
+            <img src="044_0_20251203_165445_frame_0062.jpg" alt="044_0_20251203_165445_frame_0062.jpg">
+            <div class="info">044_0_20251203_165445_frame_0062.jpg</div>
+        </div>
+
+        <div class="item" data-class="all">
+            <img src="045_old dataset_normal4_jpg.rf.dab9c29f880d249185ffb964813880e3.jpg" alt="045_old dataset_normal4_jpg.rf.dab9c29f880d249185ffb964813880e3.jpg">
+            <div class="info">045_old dataset_normal4_jpg.rf.dab9c29f880d249185ffb964813880e3.jpg</div>
+        </div>
+
+        <div class="item" data-class="all">
+            <img src="046_old dataset_normal13_jpg.rf.940ac162eed250b4f21e4946eb9b3d24.jpg" alt="046_old dataset_normal13_jpg.rf.940ac162eed250b4f21e4946eb9b3d24.jpg">
+            <div class="info">046_old dataset_normal13_jpg.rf.940ac162eed250b4f21e4946eb9b3d24.jpg</div>
+        </div>
+
+        <div class="item" data-class="all">
+            <img src="047_2026-01-16_14-41_2026-01-16_14-06-23.jpg" alt="047_2026-01-16_14-41_2026-01-16_14-06-23.jpg">
+            <div class="info">047_2026-01-16_14-41_2026-01-16_14-06-23.jpg</div>
+        </div>
+
+        <div class="item" data-class="all">
+            <img src="048_0_20251203_162837_frame_0173.jpg" alt="048_0_20251203_162837_frame_0173.jpg">
+            <div class="info">048_0_20251203_162837_frame_0173.jpg</div>
+        </div>
+
+        <div class="item" data-class="all">
+            <img src="049_old dataset_normal1_jpg.rf.75990994baf01f3d005fe84b7d67dda7.jpg" alt="049_old dataset_normal1_jpg.rf.75990994baf01f3d005fe84b7d67dda7.jpg">
+            <div class="info">049_old dataset_normal1_jpg.rf.75990994baf01f3d005fe84b7d67dda7.jpg</div>
+        </div>
+
+        <div class="item" data-class="all">
+            <img src="050_old dataset_normal40_jpg.rf.f97e21e3915f81cc50afd05dc3a8b376.jpg" alt="050_old dataset_normal40_jpg.rf.f97e21e3915f81cc50afd05dc3a8b376.jpg">
+            <div class="info">050_old dataset_normal40_jpg.rf.f97e21e3915f81cc50afd05dc3a8b376.jpg</div>
+        </div>
+
+        <div class="item" data-class="all">
+            <img src="051_0_20251203_162837_frame_0119.jpg" alt="051_0_20251203_162837_frame_0119.jpg">
+            <div class="info">051_0_20251203_162837_frame_0119.jpg</div>
+        </div>
+
+        <div class="item" data-class="all">
+            <img src="052_old dataset_normal11_jpg.rf.4bb93b82c3a6c5c6f3ba9539f0a2bf0f.jpg" alt="052_old dataset_normal11_jpg.rf.4bb93b82c3a6c5c6f3ba9539f0a2bf0f.jpg">
+            <div class="info">052_old dataset_normal11_jpg.rf.4bb93b82c3a6c5c6f3ba9539f0a2bf0f.jpg</div>
+        </div>
+
+        <div class="item" data-class="all">
+            <img src="053_2026-01-16_14-41_2026-01-16_14-07-18.jpg" alt="053_2026-01-16_14-41_2026-01-16_14-07-18.jpg">
+            <div class="info">053_2026-01-16_14-41_2026-01-16_14-07-18.jpg</div>
+        </div>
+
+        <div class="item" data-class="all">
+            <img src="054_0_20251203_164628_frame_0180.jpg" alt="054_0_20251203_164628_frame_0180.jpg">
+            <div class="info">054_0_20251203_164628_frame_0180.jpg</div>
+        </div>
+
+        <div class="item" data-class="all">
+            <img src="055_1_20251203_164628_frame_0159.jpg" alt="055_1_20251203_164628_frame_0159.jpg">
+            <div class="info">055_1_20251203_164628_frame_0159.jpg</div>
+        </div>
+
+        <div class="item" data-class="all">
+            <img src="056_0_20251203_162837_frame_0091.jpg" alt="056_0_20251203_162837_frame_0091.jpg">
+            <div class="info">056_0_20251203_162837_frame_0091.jpg</div>
+        </div>
+
+        <div class="item" data-class="all">
+            <img src="057_0_20251203_165445_frame_0097.jpg" alt="057_0_20251203_165445_frame_0097.jpg">
+            <div class="info">057_0_20251203_165445_frame_0097.jpg</div>
+        </div>
+
+        <div class="item" data-class="all">
+            <img src="058_old dataset_normal18_jpg.rf.da2fa6663b8a7c75ae02468a378e1e3b.jpg" alt="058_old dataset_normal18_jpg.rf.da2fa6663b8a7c75ae02468a378e1e3b.jpg">
+            <div class="info">058_old dataset_normal18_jpg.rf.da2fa6663b8a7c75ae02468a378e1e3b.jpg</div>
+        </div>
+
+        <div class="item" data-class="all">
+            <img src="059_old dataset_normal45_jpg.rf.5ea5f34b3387b254a9b1d9add1d056ac.jpg" alt="059_old dataset_normal45_jpg.rf.5ea5f34b3387b254a9b1d9add1d056ac.jpg">
+            <div class="info">059_old dataset_normal45_jpg.rf.5ea5f34b3387b254a9b1d9add1d056ac.jpg</div>
+        </div>
+
+        <div class="item" data-class="all">
+            <img src="060_old dataset_normal34_jpg.rf.a797717f04594eac41b57de337aab8c9.jpg" alt="060_old dataset_normal34_jpg.rf.a797717f04594eac41b57de337aab8c9.jpg">
+            <div class="info">060_old dataset_normal34_jpg.rf.a797717f04594eac41b57de337aab8c9.jpg</div>
+        </div>
+
+        <div class="item" data-class="all">
+            <img src="061_old dataset_abnormal2_jpg.rf.877c4e06ff89d95d00440586ad3bc858.jpg" alt="061_old dataset_abnormal2_jpg.rf.877c4e06ff89d95d00440586ad3bc858.jpg">
+            <div class="info">061_old dataset_abnormal2_jpg.rf.877c4e06ff89d95d00440586ad3bc858.jpg</div>
+        </div>
+
+        <div class="item" data-class="all">
+            <img src="062_old dataset_normal6_jpg.rf.bf21e9e8cded8d9c79a37fdc9dbfcf6e.jpg" alt="062_old dataset_normal6_jpg.rf.bf21e9e8cded8d9c79a37fdc9dbfcf6e.jpg">
+            <div class="info">062_old dataset_normal6_jpg.rf.bf21e9e8cded8d9c79a37fdc9dbfcf6e.jpg</div>
+        </div>
+
+        <div class="item" data-class="all">
+            <img src="063_old dataset_normal30_jpg.rf.403dc14a135bb3ed06c5b753ba4ba7d8.jpg" alt="063_old dataset_normal30_jpg.rf.403dc14a135bb3ed06c5b753ba4ba7d8.jpg">
+            <div class="info">063_old dataset_normal30_jpg.rf.403dc14a135bb3ed06c5b753ba4ba7d8.jpg</div>
+        </div>
+
+        <div class="item" data-class="all">
+            <img src="064_1_20251203_164628_frame_0174.jpg" alt="064_1_20251203_164628_frame_0174.jpg">
+            <div class="info">064_1_20251203_164628_frame_0174.jpg</div>
+        </div>
+
+        <div class="item" data-class="all">
+            <img src="065_old dataset_normal6_jpg.rf.a7a3365b5178cc1b48963ebb4721ae63.jpg" alt="065_old dataset_normal6_jpg.rf.a7a3365b5178cc1b48963ebb4721ae63.jpg">
+            <div class="info">065_old dataset_normal6_jpg.rf.a7a3365b5178cc1b48963ebb4721ae63.jpg</div>
+        </div>
+
+        <div class="item" data-class="all">
+            <img src="066_1_20251203_162837_frame_0163.jpg" alt="066_1_20251203_162837_frame_0163.jpg">
+            <div class="info">066_1_20251203_162837_frame_0163.jpg</div>
+        </div>
+
+        <div class="item" data-class="all">
+            <img src="067_old dataset_normal1_jpg.rf.d89a19f9ac91e5e30edfa3a946fa694a.jpg" alt="067_old dataset_normal1_jpg.rf.d89a19f9ac91e5e30edfa3a946fa694a.jpg">
+            <div class="info">067_old dataset_normal1_jpg.rf.d89a19f9ac91e5e30edfa3a946fa694a.jpg</div>
+        </div>
+
+        <div class="item" data-class="all">
+            <img src="068_old dataset_normal20_jpg.rf.1023babd7a8a5f2f8ff6b2215dd9512e.jpg" alt="068_old dataset_normal20_jpg.rf.1023babd7a8a5f2f8ff6b2215dd9512e.jpg">
+            <div class="info">068_old dataset_normal20_jpg.rf.1023babd7a8a5f2f8ff6b2215dd9512e.jpg</div>
+        </div>
+
+        <div class="item" data-class="all">
+            <img src="069_2026-01-16_14-41_2026-01-16_14-00-55.jpg" alt="069_2026-01-16_14-41_2026-01-16_14-00-55.jpg">
+            <div class="info">069_2026-01-16_14-41_2026-01-16_14-00-55.jpg</div>
+        </div>
+
+        <div class="item" data-class="all">
+            <img src="070_2026-01-16_14-41_2026-01-16_14-17-00.jpg" alt="070_2026-01-16_14-41_2026-01-16_14-17-00.jpg">
+            <div class="info">070_2026-01-16_14-41_2026-01-16_14-17-00.jpg</div>
+        </div>
+
+        <div class="item" data-class="all">
+            <img src="071_0_20251203_164628_frame_0011.jpg" alt="071_0_20251203_164628_frame_0011.jpg">
+            <div class="info">071_0_20251203_164628_frame_0011.jpg</div>
+        </div>
+
+        <div class="item" data-class="all">
+            <img src="072_0_20251203_165445_frame_0096.jpg" alt="072_0_20251203_165445_frame_0096.jpg">
+            <div class="info">072_0_20251203_165445_frame_0096.jpg</div>
+        </div>
+
+        <div class="item" data-class="all">
+            <img src="073_old dataset_normal37_jpg.rf.3cde5b2207cc7c289b834d915f547618.jpg" alt="073_old dataset_normal37_jpg.rf.3cde5b2207cc7c289b834d915f547618.jpg">
+            <div class="info">073_old dataset_normal37_jpg.rf.3cde5b2207cc7c289b834d915f547618.jpg</div>
+        </div>
+
+        <div class="item" data-class="all">
+            <img src="074_2026-01-16_14-41_2026-01-16_13-38-06.jpg" alt="074_2026-01-16_14-41_2026-01-16_13-38-06.jpg">
+            <div class="info">074_2026-01-16_14-41_2026-01-16_13-38-06.jpg</div>
+        </div>
+
+        <div class="item" data-class="all">
+            <img src="075_old dataset_normal11_jpg.rf.b193cfb8351ed13b1c3a7ac3476ac1a5.jpg" alt="075_old dataset_normal11_jpg.rf.b193cfb8351ed13b1c3a7ac3476ac1a5.jpg">
+            <div class="info">075_old dataset_normal11_jpg.rf.b193cfb8351ed13b1c3a7ac3476ac1a5.jpg</div>
+        </div>
+
+        <div class="item" data-class="all">
+            <img src="076_0_20251203_165445_frame_0076.jpg" alt="076_0_20251203_165445_frame_0076.jpg">
+            <div class="info">076_0_20251203_165445_frame_0076.jpg</div>
+        </div>
+
+        <div class="item" data-class="all">
+            <img src="077_1_20251203_165445_frame_0042.jpg" alt="077_1_20251203_165445_frame_0042.jpg">
+            <div class="info">077_1_20251203_165445_frame_0042.jpg</div>
+        </div>
+
+        <div class="item" data-class="all">
+            <img src="078_2026-01-16_14-41_2026-01-16_13-48-59.jpg" alt="078_2026-01-16_14-41_2026-01-16_13-48-59.jpg">
+            <div class="info">078_2026-01-16_14-41_2026-01-16_13-48-59.jpg</div>
+        </div>
+
+        <div class="item" data-class="all">
+            <img src="079_1_20251203_162837_frame_0109.jpg" alt="079_1_20251203_162837_frame_0109.jpg">
+            <div class="info">079_1_20251203_162837_frame_0109.jpg</div>
+        </div>
+
+        <div class="item" data-class="all">
+            <img src="080_old dataset_normal15_jpg.rf.332dd1be10084b30e39290b8bb597909.jpg" alt="080_old dataset_normal15_jpg.rf.332dd1be10084b30e39290b8bb597909.jpg">
+            <div class="info">080_old dataset_normal15_jpg.rf.332dd1be10084b30e39290b8bb597909.jpg</div>
+        </div>
+
+        <div class="item" data-class="all">
+            <img src="081_2026-01-16_14-41_2026-01-16_13-43-20.jpg" alt="081_2026-01-16_14-41_2026-01-16_13-43-20.jpg">
+            <div class="info">081_2026-01-16_14-41_2026-01-16_13-43-20.jpg</div>
+        </div>
+
+        <div class="item" data-class="all">
+            <img src="082_2026-01-16_14-41_2026-01-16_13-50-03.jpg" alt="082_2026-01-16_14-41_2026-01-16_13-50-03.jpg">
+            <div class="info">082_2026-01-16_14-41_2026-01-16_13-50-03.jpg</div>
+        </div>
+
+        <div class="item" data-class="all">
+            <img src="083_0_20251203_164628_frame_0005.jpg" alt="083_0_20251203_164628_frame_0005.jpg">
+            <div class="info">083_0_20251203_164628_frame_0005.jpg</div>
+        </div>
+
+        <div class="item" data-class="all">
+            <img src="084_old dataset_normal14_jpg.rf.9416c7ce6ec54d5b1da58467213387c1.jpg" alt="084_old dataset_normal14_jpg.rf.9416c7ce6ec54d5b1da58467213387c1.jpg">
+            <div class="info">084_old dataset_normal14_jpg.rf.9416c7ce6ec54d5b1da58467213387c1.jpg</div>
+        </div>
+
+        <div class="item" data-class="all">
+            <img src="085_old dataset_normal25_jpg.rf.b0c2eada477a6e2206e8f293dba08738.jpg" alt="085_old dataset_normal25_jpg.rf.b0c2eada477a6e2206e8f293dba08738.jpg">
+            <div class="info">085_old dataset_normal25_jpg.rf.b0c2eada477a6e2206e8f293dba08738.jpg</div>
+        </div>
+
+        <div class="item" data-class="all">
+            <img src="086_old dataset_normal7_jpg.rf.9891bb650f6752aab957b4e704e5726f.jpg" alt="086_old dataset_normal7_jpg.rf.9891bb650f6752aab957b4e704e5726f.jpg">
+            <div class="info">086_old dataset_normal7_jpg.rf.9891bb650f6752aab957b4e704e5726f.jpg</div>
+        </div>
+
+        <div class="item" data-class="all">
+            <img src="087_old dataset_normal34_jpg.rf.7149e46319cdc065550756e84467342b.jpg" alt="087_old dataset_normal34_jpg.rf.7149e46319cdc065550756e84467342b.jpg">
+            <div class="info">087_old dataset_normal34_jpg.rf.7149e46319cdc065550756e84467342b.jpg</div>
+        </div>
+
+        <div class="item" data-class="all">
+            <img src="088_old dataset_normal21_jpg.rf.7d4898ba67e1571bd8545c078a9e4d06.jpg" alt="088_old dataset_normal21_jpg.rf.7d4898ba67e1571bd8545c078a9e4d06.jpg">
+            <div class="info">088_old dataset_normal21_jpg.rf.7d4898ba67e1571bd8545c078a9e4d06.jpg</div>
+        </div>
+
+        <div class="item" data-class="all">
+            <img src="089_0_20251203_164628_frame_0027.jpg" alt="089_0_20251203_164628_frame_0027.jpg">
+            <div class="info">089_0_20251203_164628_frame_0027.jpg</div>
+        </div>
+
+        <div class="item" data-class="all">
+            <img src="090_old dataset_normal10_jpg.rf.a9d7f6de97654bc383712e422a291531.jpg" alt="090_old dataset_normal10_jpg.rf.a9d7f6de97654bc383712e422a291531.jpg">
+            <div class="info">090_old dataset_normal10_jpg.rf.a9d7f6de97654bc383712e422a291531.jpg</div>
+        </div>
+
+        <div class="item" data-class="all">
+            <img src="091_old dataset_normal23_jpg.rf.eefbe211480a80c568e376fd38968336.jpg" alt="091_old dataset_normal23_jpg.rf.eefbe211480a80c568e376fd38968336.jpg">
+            <div class="info">091_old dataset_normal23_jpg.rf.eefbe211480a80c568e376fd38968336.jpg</div>
+        </div>
+
+        <div class="item" data-class="all">
+            <img src="092_0_20251203_164628_frame_0043.jpg" alt="092_0_20251203_164628_frame_0043.jpg">
+            <div class="info">092_0_20251203_164628_frame_0043.jpg</div>
+        </div>
+
+        <div class="item" data-class="all">
+            <img src="093_old dataset_normal10_jpg.rf.e8296375597f3b4b3ca8cb4400840c8c.jpg" alt="093_old dataset_normal10_jpg.rf.e8296375597f3b4b3ca8cb4400840c8c.jpg">
+            <div class="info">093_old dataset_normal10_jpg.rf.e8296375597f3b4b3ca8cb4400840c8c.jpg</div>
+        </div>
+
+        <div class="item" data-class="all">
+            <img src="094_0_20251203_165445_frame_0024.jpg" alt="094_0_20251203_165445_frame_0024.jpg">
+            <div class="info">094_0_20251203_165445_frame_0024.jpg</div>
+        </div>
+
+        <div class="item" data-class="all">
+            <img src="095_old dataset_normal28_jpg.rf.933d5d7de85709d76e1d8d258878d23f.jpg" alt="095_old dataset_normal28_jpg.rf.933d5d7de85709d76e1d8d258878d23f.jpg">
+            <div class="info">095_old dataset_normal28_jpg.rf.933d5d7de85709d76e1d8d258878d23f.jpg</div>
+        </div>
+
+        <div class="item" data-class="all">
+            <img src="096_0_20251203_164628_frame_0173.jpg" alt="096_0_20251203_164628_frame_0173.jpg">
+            <div class="info">096_0_20251203_164628_frame_0173.jpg</div>
+        </div>
+
+        <div class="item" data-class="all">
+            <img src="097_1_20251203_165445_frame_0053.jpg" alt="097_1_20251203_165445_frame_0053.jpg">
+            <div class="info">097_1_20251203_165445_frame_0053.jpg</div>
+        </div>
+
+        <div class="item" data-class="all">
+            <img src="098_old dataset_normal38_jpg.rf.ba153ae0b9ae1d0e3a64b24af775b809.jpg" alt="098_old dataset_normal38_jpg.rf.ba153ae0b9ae1d0e3a64b24af775b809.jpg">
+            <div class="info">098_old dataset_normal38_jpg.rf.ba153ae0b9ae1d0e3a64b24af775b809.jpg</div>
+        </div>
+
+        <div class="item" data-class="all">
+            <img src="099_old dataset_normal11_jpg.rf.73c1ae18eb2c53e289240153113b36c7.jpg" alt="099_old dataset_normal11_jpg.rf.73c1ae18eb2c53e289240153113b36c7.jpg">
+            <div class="info">099_old dataset_normal11_jpg.rf.73c1ae18eb2c53e289240153113b36c7.jpg</div>
+        </div>
+
+        <div class="item" data-class="all">
+            <img src="100_1_20251203_165445_frame_0108.jpg" alt="100_1_20251203_165445_frame_0108.jpg">
+            <div class="info">100_1_20251203_165445_frame_0108.jpg</div>
+        </div>
+
+    </div>
+    
+    <script>
+        function filterClass(className) {
+            // 这是简化版，实际需要根据图片内容过滤
+            // 这里只是展示所有图片
+            console.log('Filter:', className);
+        }
+    </script>
+</body>
+</html>

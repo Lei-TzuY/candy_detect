@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<StringDictionary version="1.2">
+  <Strings>
+    <String key="Buttons:MinimizeToolTip">Minimaliseren</String>
+    <String key="Buttons:CloseToolTip">Sluiten</String>
+
+    <!--First Page-->
+    <String key="WindowName">Verwijderingsprogramma van %BrandName% Capture</String>
+    <String key="UnInstall11">%BrandName% Capture</String>
+    <String key="ApplicationName">Verwijderingsprogramma van %BrandName% Capture</String>
+    <String key="Welcome">%BRANDNAME% Capture</String>
+    <String key="LogitechOptions">%BrandName% Capture</String>
+    <String key="Install">%BRANDNAME% CAPTURE VERWIJDEREN</String>
+    <String key="Disclaimer:Intro">Door op 'Installeren' te klikken, gaat u akkoord met de voorwaarden van de</String>
+    <String key="Disclaimer:EULA">Gebruiksrechtovereenkomst</String>
+
+    <!--Analytics-->
+    <String key="Analytics:HelpUsTitle">HELP ONS ONZE PRODUCTEN TE VERBETEREN</String>
+    <String key="Analytics:HelpUsDescription">Help %BrandName% onze producten en services te verbeteren door automatisch diagnose- en gebruiksgegevens te verzenden.</String>
+    <String key="Analytics:Allow">VERWIJDEREN</String>
+    <String key="Analytics:Disallow">AFSLUITEN</String>
+    <String key="Analytics:ChangeInsideApp">Dit kan worden gewijzigd via de knop Meer in %BrandName% Capture</String>
+    <String key="Analytics:LearnMore">Meer informatie over het privacybeleid van %BrandName%</String>
+    <String key="Analytics:PrivacyPolicy"> privacybeleid</String>
+    <String key="Analytics:WelcomeEULA"> Gebruiksrechtovereenkomst</String>
+      <String key="Analytics:UnInstall2">%BrandName% Capture wordt van je systeem verwijderd. Aangepaste instellingen worden op hun standaardinstellingen teruggezet.</String>
+      <String key="Analytics:UnInstall3">VERWIJDEREN</String>
+      <String key="Analytics:UnInstall4">AFSLUITEN</String>
+
+    <!--CloseApps Page-->
+    <String key="CloseApps:Title">Verwijdering kan niet worden voortgezet</String>
+    <String key="CloseApps:Message">Zo te zien is uw Logi Capture-camera in gebruik. Sluit elke toepassing die mogelijk de webcam gebruikt en probeer het opnieuw.</String>
+    <String key="CloseApps:Message2">Gebruik van Logi Capture-camera detecteren…</String>
+    <String key="Button:Retry">OPNIEUW</String>
+
+    <!--Installing Page-->
+    <String key="Installing">Verwijderen</String>
+    <String key="Installing:2">INSTALLATIE IN VOORTGANG</String>
+    <String key="AppDescription">Met %BrandName% Capture kun je je %BrandName%-apparaten aanpassen om ze ten volle te benutten.</String>
+    <String key="AppDescription:2">Even ogenblik geduld, dit proces kan een paar minuten duren.</String>
+      <String key="UnInstalling3">Verwijdering in voortgang</String>
+
+    <!--Install Completed Page-->
+    <String key="Installed">IS GEÏNSTALLEERD</String>
+    <String key="MoreInformation">Voor meer informatie gaat u naar</String>
+    <String key="Continue">DOORGAAN</String>
+    <String key="OpenApp">%BRANDNAME% CAPTURE STARTEN</String>
+      <String key="UnInstallComplete">Verwijderen voltooid</String>
+      <String key="UnInstallComplete2">%BrandName% Capture is van je systeem verwijderd.</String>
+      <String key="UnInstallComplete3">SLUITEN</String>
+      <String key="UnInstallLockedFiles">Het is raadzaam het systeem opnieuw op te starten om de verwijdering te voltooien.</String>
+      <String key="Reboot">OPNIEUW OPSTARTEN</String>
+
+
+      <!--Error Page-->
+    <String key="Error:InstallationFailed">INSTALLATIE VAN %BRANDNAME% /n CAPTURE MISLUKT</String>
+    <String key="Button:Quit">INSTALLATIE AFSLUITEN</String>
+    <String key="Button:Continue">Doorgaan</String>
+
+
+    <!--Error + Warning Messages-->
+    <String key="Err:Title">OEPS! ER IS EEN PROBLEEM</String>
+    <String key="Err:FailedTitle">INSTALLATIE VAN %BRANDNAME% /n CAPTURE MISLUKT</String>
+    <String key="Err:Failed">Kan %BrandName% Capture niet installeren. Ga naar de ondersteuningspagina voor meer informatie.</String>
+    <String key="Err:OSCHECK">Deze versie van het besturingssysteem wordt niet ondersteund.\n Ga voor meer informatie naar de ondersteuningspagina.</String>
+    <String key="Err:Singleton">Er is een ander exemplaar van het %BrandName% Capture-installatieprogramma actief. Voltooi eerst de andere installatie, voordat u dit installatieprogramma uitvoert.</String>
+    <String key="Err:OS">%BrandName% Capture kan niet worden verwijderd. Windows 7 of hoger is vereist voor deze installatie.</String>
+    <String key="Err:Space">%BrandName% Capture kan niet worden verwijderd. Je hebt onvoldoende vrije ruimte op je systeemschijf.</String>
+    <String key="Err:Version">Er is een nieuwere versie van %BrandName% Capture op dit systeem gevonden. Deze installatie wordt niet voortgezet.</String>
+    <String key="Err:Multiuser">Kan niet doorgaan omdat %BrandName% Capture momenteel actief is onder een andere gebruikersaccount op dit systeem. Probeer het opnieuw nadat %BrandName% Capture in andere gebruikersaccounts is gesloten.</String>
+    <String key="Err:Admin">%BrandName% Capture kan niet worden verwijderd.  Voor installatie van deze software zijn beheerdersrechten vereist.</String>
+    <String key="Button:Okay">OK</String>
+
+    <!--Error + Warning Buttons-->
+    <!-- FileLocked -->
+    <String key="Warn:Title:FileLocked">OPNIEUW OPSTARTEN VEREIST OM DE INSTALLATIE TE VOLTOOIEN</String>
+    <String key="Warn:Body:FileLocked">Uw computer moet opnieuw worden opgestart om het installatieproces te voltooien. %BrandName% Capture werkt niet en mogelijk werken bepaalde apparaatfuncties niet tot de installatie is voltooid.</String>
+    <String key="Warn:ButtonPrimary:FileLocked">NU OPNIEUW OPSTARTEN</String>
+    <String key="Warn:ButtonSecondary:FileLocked">LATER OPNIEUW OPSTARTEN</String>
+  </Strings>
+</StringDictionary>

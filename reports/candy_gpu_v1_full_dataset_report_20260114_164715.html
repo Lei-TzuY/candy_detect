@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>candy_gpu_v1 详细测试报告</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', 'Microsoft JhengHei', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            padding: 40px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+        h1 {
+            color: #2c3e50;
+            font-size: 36px;
+            margin-bottom: 10px;
+            border-bottom: 4px solid #3498db;
+            padding-bottom: 15px;
+        }
+        .subtitle {
+            color: #7f8c8d;
+            font-size: 14px;
+            margin-bottom: 30px;
+        }
+        .metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+        .metric-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .metric-card.success {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        }
+        .metric-card.warning {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+        .metric-card.info {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+        .metric-value {
+            font-size: 48px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        .metric-label {
+            font-size: 14px;
+            opacity: 0.9;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .section {
+            margin: 40px 0;
+        }
+        .section-title {
+            font-size: 24px;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            padding-left: 15px;
+            border-left: 4px solid #3498db;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+        td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #ecf0f1;
+        }
+        tr:hover {
+            background: #f8f9fa;
+        }
+        .footer {
+            margin-top: 50px;
+            padding-top: 20px;
+            border-top: 2px solid #ecf0f1;
+            text-align: center;
+            color: #7f8c8d;
+            font-size: 14px;
+        }
+        .confusion-matrix {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            max-width: 600px;
+            margin: 20px auto;
+        }
+        .cm-cell {
+            padding: 20px;
+            text-align: center;
+            border-radius: 8px;
+            font-weight: bold;
+        }
+        .cm-tp { background: #d4edda; color: #155724; }
+        .cm-fp { background: #f8d7da; color: #721c24; }
+        .cm-fn { background: #fff3cd; color: #856404; }
+        .cm-label { background: #e9ecef; color: #495057; font-weight: normal; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎯 candy_gpu_v1 完整数据集测试报告</h1>
+        <div class="subtitle">
+            生成时间: 2026-01-14 16:47:15 | 
+            模型: candy_gpu_v1 (best.pt) | 
+            测试集: old dataset (train + val)
+        </div>
+
+        <div class="metrics">
+            <div class="metric-card success">
+                <div class="metric-label">Precision (精确率)</div>
+                <div class="metric-value">98.8%</div>
+            </div>
+            <div class="metric-card success">
+                <div class="metric-label">Recall (召回率)</div>
+                <div class="metric-value">99.6%</div>
+            </div>
+            <div class="metric-card info">
+                <div class="metric-label">F1-Score</div>
+                <div class="metric-value">99.2%</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label">True Positives (TP)</div>
+                <div class="metric-value">560</div>
+            </div>
+            <div class="metric-card warning">
+                <div class="metric-label">False Positives (FP)</div>
+                <div class="metric-value">7</div>
+            </div>
+            <div class="metric-card warning">
+                <div class="metric-label">False Negatives (FN)</div>
+                <div class="metric-value">2</div>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-title">📊 混淆矩阵概念</div>
+            <div class="confusion-matrix">
+                <div class="cm-cell cm-label"></div>
+                <div class="cm-cell cm-label">预测: Positive</div>
+                <div class="cm-cell cm-label">预测: Negative</div>
+                
+                <div class="cm-cell cm-label">实际: Positive</div>
+                <div class="cm-cell cm-tp">TP<br>560</div>
+                <div class="cm-cell cm-fn">FN<br>2</div>
+                
+                <div class="cm-cell cm-label">实际: Negative</div>
+                <div class="cm-cell cm-fp">FP<br>7</div>
+                <div class="cm-cell cm-label">-</div>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-title">📈 各类别统计</div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>类别</th>
+                        <th>Ground Truth 总数</th>
+                        <th>预测总数</th>
+                        <th>正确预测</th>
+                        <th>准确率</th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                    <tr>
+                        <td><strong>normal</strong></td>
+                        <td>277</td>
+                        <td>284</td>
+                        <td>277</td>
+                        <td>100.0%</td>
+                    </tr>
+
+                    <tr>
+                        <td><strong>abnormal</strong></td>
+                        <td>285</td>
+                        <td>283</td>
+                        <td>283</td>
+                        <td>99.3%</td>
+                    </tr>
+
+                </tbody>
+            </table>
+        </div>
+
+        <div class="section">
+            <div class="section-title">📋 指标说明</div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>指标</th>
+                        <th>说明</th>
+                        <th>当前值</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>TP (True Positive)</strong></td>
+                        <td>正确检测到的目标数量</td>
+                        <td>560</td>
+                    </tr>
+                    <tr>
+                        <td><strong>FP (False Positive)</strong></td>
+                        <td>误检测（检测了不存在的目标）</td>
+                        <td>7</td>
+                    </tr>
+                    <tr>
+                        <td><strong>FN (False Negatives)</strong></td>
+                        <td>漏检测（未检测到存在的目标）</td>
+                        <td>2</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Precision (精确率)</strong></td>
+                        <td>检测结果中正确的比例 = TP / (TP + FP)</td>
+                        <td>98.77%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Recall (召回率)</strong></td>
+                        <td>实际目标中被检测到的比例 = TP / (TP + FN)</td>
+                        <td>99.64%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>F1-Score</strong></td>
+                        <td>精确率和召回率的调和平均数 = 2 × (P × R) / (P + R)</td>
+                        <td>99.20%</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="footer">
+            <p><strong>candy_gpu_v1 Model Performance Report</strong></p>
+            <p>IoU Threshold: 0.5 | Confidence Threshold: 0.25</p>
+            <p>检测结果图片保存于: runs/detect/runs/detect/candy_gpu_v1_quick_test/</p>
+        </div>
+    </div>
+</body>
+</html>

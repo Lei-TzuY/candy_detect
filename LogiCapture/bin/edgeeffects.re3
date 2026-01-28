@@ -1,0 +1,193 @@
+<configuration>
+	<edgeeffect id="border" name="Border">
+		<pixelshader>
+cbuffer myConst : register(b1)
+{
+    float4 p0;
+    float4 p1;
+	float4 p2;
+	float4 p3;
+}
+
+cbuffer myPrivateConst : register(b2)
+{
+    float4 pc0;
+    float4 pc1;
+	float4 pc2;
+	float4 pc3;
+}
+
+#define zorder (p1[3])
+#define rand_val_const (p0[0])
+#define rand_val_var (p0[1])
+#define clock (p0[3])
+
+#define crop_left (p3[0])
+#define crop_top (p3[1])
+#define crop_right (p3[2])
+#define crop_bottom (p3[3])
+
+static float4 color = pc0;
+static float r = pc1[0];
+static float bw = pc1[1];
+static float sw = pc1[2];
+static float d = r+bw+sw;
+static float2 s_offs = float2(pc2[0], pc2[1]);
+static float dark_r = pc2[2] + 0.0001;
+//static float4 shadow_color = pc3;
+
+static float4 bounds = lerp(
+	float4(psfx,psfy,psfx,psfy),
+	float4(psfu,psfv,psfu,psfv),
+	float4(crop_left, crop_top, 1-crop_right, 1-crop_bottom));
+
+void CustomPS(VS_TO_PS In, out float4 Out : SV_Target)
+{
+	TEXSAMPLE(Out, In.TexCoord0);
+
+	float2 uv = In.TexCoord0;
+
+	uv.x = (uv.x - bounds[0])/(bounds[2] - bounds[0]);
+	uv.y = (uv.y - bounds[1])/(bounds[3] - bounds[1]);
+	float psheight2 = psheight*(1-crop_top-crop_bottom);
+	float pswidth2 = pswidth*(1-crop_left-crop_right);
+
+	float2 scale = float2(1.0, 1.0);
+	if (abs(pswidth2) &gt; abs(psheight2))
+		scale.x = abs(pswidth2)/abs(psheight2);
+	else
+		scale.y = abs(psheight2)/abs(pswidth2);
+
+	float2 coords = float2(0.5 - abs(uv.x - 0.5), 0.5 - abs(uv.y - 0.5))*scale;
+
+
+	{
+		coords -= bw+sw;
+		if ((pow(coords.x-r, 2) + pow(coords.y-r, 2) &lt; pow(r,2)) ||
+			(coords.x &gt; 0 &amp;&amp; coords.y &gt; r) ||
+			(coords.x &gt; r &amp;&amp; coords.y &gt; 0))
+			return;
+	}
+	if (bw &gt; 0)
+	{
+		coords += bw;
+		if (r == 0) bw = 0;
+		if ((pow(coords.x-(r+bw), 2) + pow(coords.y-(r+bw), 2) &lt; pow((r+bw),2)) ||
+			(coords.x &gt; 0 &amp;&amp; coords.y &gt; (r+bw)) ||
+			(coords.x &gt; (r+bw) &amp;&amp; coords.y &gt; 0))
+		{
+			//Out.rgb = Out.rgb*(1.0-color.a) + color.rgb*color.a;
+			Out = Out*(1.0-color.a)*Out.a + color*color.a;
+ 			Out.a *= p2.a;
+			return;
+		}
+	}
+
+	if (sw &gt; 0)
+	{
+		if (r == 0) d = d/2;
+
+		coords = float2((0.5-s_offs.x*sign(s_offs.x)) - abs(uv.x - (0.5+s_offs.x)), (0.5-s_offs.y*sign(s_offs.y)) - abs(uv.y - (0.5+s_offs.y)))*scale;
+
+		Out = pc3;
+		if (coords.x &gt; 0 &amp;&amp; coords.y &gt; d)
+		{
+			Out.a = (coords.x/dark_r)*pc3.a*p2.a;
+			return;
+		}
+		if (coords.x &gt; d &amp;&amp; coords.y &gt; 0)
+		{
+			Out.a = (coords.y/dark_r)*pc3.a*p2.a;
+			return;
+		}
+
+		if (pow(coords.x-d, 2) + pow(coords.y-d, 2) &lt; pow(d,2))
+		{
+			Out.a = (d*(1 - sqrt(pow(coords.y/d-1,2) + pow(coords.x/d-1,2)))/(dark_r))*pc3.a*p2.a;
+			return;
+		}
+	}
+	Out.a = 0;
+}
+		</pixelshader>
+		<vertexshader></vertexshader>
+	</edgeeffect>
+
+	<edgeeffect id="border_simple" name="Border_simple">
+		<pixelshader>
+cbuffer myConst : register(b1)
+{
+    float4 p0;
+    float4 p1;
+	float4 p2;
+	float4 p3;
+}
+
+cbuffer myPrivateConst : register(b2)
+{
+    float4 pc0;
+    float4 pc1;
+	float4 pc2;
+	float4 pc3;
+}
+
+#define zorder (p1[3])
+#define rand_val_const (p0[0])
+#define rand_val_var (p0[1])
+#define clock (p0[3])
+
+#define crop_left (p3[0])
+#define crop_top (p3[1])
+#define crop_right (p3[2])
+#define crop_bottom (p3[3])
+
+static float4 color = pc0;
+static float r = pc1[0];
+static float bw = pc1[1];
+
+static float4 bounds = lerp(
+	float4(psfx,psfy,psfx,psfy),
+	float4(psfu,psfv,psfu,psfv),
+	float4(crop_left, crop_top, 1-crop_right, 1-crop_bottom));
+
+void CustomPS(VS_TO_PS In, out float4 Out : SV_Target)
+{
+	TEXSAMPLE(Out, In.TexCoord0);
+
+	float2 uv = In.TexCoord0;
+
+	uv.x = (uv.x - bounds[0])/(bounds[2] - bounds[0]);
+	uv.y = (uv.y - bounds[1])/(bounds[3] - bounds[1]);
+	float psheight2 = psheight*(1-crop_top-crop_bottom);
+	float pswidth2 = pswidth*(1-crop_left-crop_right);
+
+	float2 scale = float2(1.0, 1.0);
+	if (abs(pswidth2) &gt; abs(psheight2))
+		scale.x = abs(pswidth2)/abs(psheight2);
+	else
+		scale.y = abs(psheight2)/abs(pswidth2);
+
+	float2 coords = float2(0.5 - abs(uv.x - 0.5), 0.5 - abs(uv.y - 0.5))*scale;
+
+	coords -= bw;
+	if (coords.x &gt; 0 &amp;&amp; coords.y &gt; 0)
+		return;
+
+	if (bw &gt; 0)
+	{
+		coords += bw;
+		if (coords.x &gt; 0 &amp;&amp; coords.y &gt; 0)
+		{
+			//Out.rgb = Out.rgb*(1.0-color.a) + color.rgb*color.a;
+			//Out.rgb = lerp(Out.rgb, color.rgb, float3(color.a, color.a, color.a));
+			Out = Out*(1.0-color.a)*Out.a + color*color.a;
+ 			Out.a *= p2.a;
+			return;
+		}
+	}
+}
+		</pixelshader>
+		<vertexshader></vertexshader>
+	</edgeeffect>
+
+</configuration>

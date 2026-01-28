@@ -308,36 +308,70 @@ def get_stats():
 
 @app.route('/api/models')
 def get_models():
-    """獲取所有可用的模型列表"""
+    """獲取所有可用的模型列表（根目錄的預訓練模型和已訓練模型）"""
     try:
         models_list = []
-        runs_dir = Path(PROJECT_ROOT) / 'runs'
+        project_root = Path(PROJECT_ROOT)
         
-        # 查找所有 best.pt 模型
+        # 1. 掃描根目錄的預訓練模型（yolo*.pt）
+        for model_path in project_root.glob('yolo*.pt'):
+            if model_path.is_file():
+                relative_path = model_path.relative_to(PROJECT_ROOT)
+                size_mb = model_path.stat().st_size / (1024 * 1024)
+                modified = datetime.fromtimestamp(model_path.stat().st_mtime)
+                
+                # 使用檔案名稱作為模型名稱（移除 .pt）
+                model_name = model_path.stem  # 例如: yolo11m, yolov8n
+                display_name = f"{model_name} ({size_mb:.1f}MB)"
+                
+                models_list.append({
+                    'name': display_name,
+                    'raw_name': model_name,
+                    'path': str(relative_path),
+                    'size_mb': round(size_mb, 2),
+                    'modified': modified.strftime('%Y-%m-%d %H:%M'),
+                    'is_current': str(relative_path) == current_model_path,
+                    'type': 'pretrained'  # 標記為預訓練模型
+                })
+        
+        # 2. 掃描 runs 目錄中的已訓練模型
+        runs_dir = project_root / 'runs'
         if runs_dir.exists():
             for model_path in runs_dir.rglob('best.pt'):
                 relative_path = model_path.relative_to(PROJECT_ROOT)
                 size_mb = model_path.stat().st_size / (1024 * 1024)
                 modified = datetime.fromtimestamp(model_path.stat().st_mtime)
                 
-                # 提取模型名稱（从路径中获取）
+                # 從路徑提取訓練名稱
                 parts = model_path.parts
-                model_name = 'Unknown'
+                model_name = 'trained_model'
+                
                 for i, part in enumerate(parts):
-                    if part in ['train', 'detect'] and i + 1 < len(parts):
-                        model_name = parts[i + 1]
+                    if part in ['train', 'detect']:
+                        for j in range(i + 1, len(parts)):
+                            if parts[j] not in ['runs', 'weights', 'best.pt']:
+                                model_name = parts[j]
+                                break
                         break
                 
+                display_name = f"[已訓練] {model_name} ({size_mb:.1f}MB)"
+                
                 models_list.append({
-                    'name': model_name,
+                    'name': display_name,
+                    'raw_name': model_name,
                     'path': str(relative_path),
                     'size_mb': round(size_mb, 2),
                     'modified': modified.strftime('%Y-%m-%d %H:%M'),
-                    'is_current': str(relative_path) == current_model_path
+                    'is_current': str(relative_path) == current_model_path,
+                    'type': 'trained'  # 標記為已訓練模型
                 })
         
-        # 按修改时间排序（最新的在前）
-        models_list.sort(key=lambda x: x['modified'], reverse=True)
+        # 按類型和修改時間排序（預訓練模型在前，按名稱排序；已訓練模型在後，按時間排序）
+        models_list.sort(key=lambda x: (
+            0 if x['type'] == 'pretrained' else 1,
+            x['raw_name'] if x['type'] == 'pretrained' else '',
+            x['modified']
+        ), reverse=False)
         
         return jsonify({
             'success': True,
@@ -758,6 +792,7 @@ def get_cameras():
         {
             'index': i, 
             'name': cam.name,
+            'source_index': cam.index,  # 物理攝影機索引
             'relay_paused': getattr(cam, 'relay_paused', False)
         } 
         for i, cam in enumerate(camera_contexts)
@@ -773,6 +808,15 @@ def detect_cameras():
     
     # 檢查索引 0-9 的攝影機
     for i in range(10):
+        # 如果已經在使用中，直接添加而不嘗試開啟
+        if i in in_use_indices:
+            available.append({
+                'index': i,
+                'in_use': True,
+                'name': f'Camera {i}'
+            })
+            continue
+
         try:
             cap = cv2.VideoCapture(i, cv2.CAP_DSHOW)
             if cap.isOpened():
@@ -781,7 +825,7 @@ def detect_cameras():
                 if ret:
                     available.append({
                         'index': i,
-                        'in_use': i in in_use_indices,
+                        'in_use': False,
                         'name': f'Camera {i}'
                     })
                 cap.release()
@@ -807,38 +851,172 @@ def add_camera():
         
         # 檢查是否已存在
         for cam in camera_contexts:
-            if cam.camera_index == camera_index:
+            if cam.index == camera_index:
                 return jsonify({'success': False, 'error': f'攝影機 {camera_index} 已在使用中'}), 400
         
-        # 建立新的攝影機上下文
-        from run_detector import CameraContext
-        
-        new_cam = CameraContext(
-            camera_index=camera_index,
-            name=f"Camera{len(camera_contexts) + 1}",
-            relay_delay_ms=config_manager.get(f'Camera{len(camera_contexts) + 1}', 'relay_delay_ms', fallback=1600) if config_manager else 1600
-        )
+        # 確定名稱 (Camera3, Camera4, etc.)
+        max_num = 0
+        for cam in camera_contexts:
+            if cam.name.startswith("Camera"):
+                try:
+                    num = int(cam.name.replace("Camera", ""))
+                    if num > max_num:
+                        max_num = num
+                except ValueError:
+                    pass
+        new_name = f"Camera{max_num + 1}"
         
         # 開啟攝影機
-        new_cam.cap = cv2.VideoCapture(camera_index, cv2.CAP_DSHOW)
-        if not new_cam.cap.isOpened():
+        cap = cv2.VideoCapture(camera_index, cv2.CAP_DSHOW)
+        if not cap.isOpened():
             return jsonify({'success': False, 'error': f'無法開啟攝影機 {camera_index}'}), 500
         
         # 設定解析度
-        new_cam.cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
-        new_cam.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
+        cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
+        cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
+        
+        # 取得實際解析度
+        frame_width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+        frame_height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+        
+        from run_detector import CameraContext
+        
+        # 建立新的攝影機上下文
+        new_cam = CameraContext(
+            name=new_name,
+            index=camera_index,
+            frame_width=frame_width,
+            frame_height=frame_height,
+            relay_url=config_manager.get(new_name, 'relay_url', fallback='') if config_manager else '',
+            line_x1=int(frame_width * 0.45),
+            line_x2=int(frame_width * 0.55),
+            cap=cap,
+            relay_delay_ms=config_manager.get(new_name, 'relay_delay_ms', fallback=1600) if config_manager else 1600
+        )
         
         camera_contexts.append(new_cam)
         
-        logger.info(f"已新增攝影機 {camera_index}")
+        logger.info(f"已新增攝影機 {new_name} (Index: {camera_index})")
         return jsonify({
             'success': True,
             'camera_index': camera_index,
-            'name': new_cam.name
+            'name': new_cam.name,
+            'list_index': len(camera_contexts) - 1
         })
         
     except Exception as e:
         logger.error(f"新增攝影機失敗: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@app.route('/api/cameras/<int:array_index>', methods=['DELETE'])
+def remove_camera(array_index):
+    """移除攝影機"""
+    try:
+        if array_index < 0 or array_index >= len(camera_contexts):
+            return jsonify({'success': False, 'error': '無效的攝影機索引'}), 400
+            
+        cam_ctx = camera_contexts[array_index]
+        name = cam_ctx.name
+        
+        logger.info(f"正在移除攝影機: {name} (List Index: {array_index})")
+        
+        # 1. 釋放資源
+        if cam_ctx.cap is not None:
+            cam_ctx.cap.release()
+            cam_ctx.cap = None
+            
+        # 2. 從列表中移除
+        camera_contexts.pop(array_index)
+        
+        logger.info(f"已移除攝影機: {name}")
+        return jsonify({'success': True, 'message': f'已移除 {name}'})
+        
+    except Exception as e:
+        logger.error(f"移除攝影機失敗: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+
+@app.route('/api/cameras/<int:camera_index>/source', methods=['POST'])
+def switch_camera_source(camera_index):
+    """切換攝影機來源（實體 Index）"""
+    try:
+        data = request.json or {}
+        source_index = data.get('source_index')
+        
+        if source_index is None:
+            return jsonify({'success': False, 'error': '未指定來源索引'}), 400
+            
+        if camera_index < 0 or camera_index >= len(camera_contexts):
+            return jsonify({'success': False, 'error': '攝影機索引無效'}), 400
+
+        cam_ctx = camera_contexts[camera_index]
+        current_source = cam_ctx.index
+        
+        if current_source == source_index:
+            return jsonify({'success': True, 'message': '來源相同，無需切換'})
+
+        logger.info(f"正在切換 {cam_ctx.name} 來源: {current_source} -> {source_index}")
+        
+        # 1. 釋放舊的資源
+        if cam_ctx.cap is not None:
+            cam_ctx.cap.release()
+            
+        # 2. 開啟新的來源
+        new_cap = cv2.VideoCapture(source_index, cv2.CAP_DSHOW)
+        
+        # 設定與舊的一樣的解析度
+        new_cap.set(cv2.CAP_PROP_FRAME_WIDTH, cam_ctx.frame_width)
+        new_cap.set(cv2.CAP_PROP_FRAME_HEIGHT, cam_ctx.frame_height)
+        
+        # 檢查是否成功開啟
+        if not new_cap.isOpened():
+            logger.error(f"無法開啟新的攝影機來源 {source_index}")
+            # 嘗試恢復舊的
+            cam_ctx.cap = cv2.VideoCapture(current_source, cv2.CAP_DSHOW)
+            cam_ctx.cap.set(cv2.CAP_PROP_FRAME_WIDTH, cam_ctx.frame_width)
+            cam_ctx.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, cam_ctx.frame_height)
+            return jsonify({'success': False, 'error': f'無法開啟攝影機 {source_index}'}), 500
+            
+        # 3. 更新上下文
+        cam_ctx.cap = new_cap
+        cam_ctx.index = source_index
+        
+        # 4. 更新 config.ini
+        section_name = f"Camera{camera_index + 1}"
+        if config_manager.config.has_section(section_name):
+            config_manager.config.set(section_name, 'camera_index', str(source_index))
+            try:
+                with open('config.ini', 'w', encoding='utf-8') as f:
+                    config_manager.config.write(f)
+                logger.info(f"已更新設定檔 {section_name}.camera_index = {source_index}")
+            except Exception as e:
+                logger.warning(f"更新設定檔失敗: {e}")
+        
+        # 5. 重設曝光和焦距（新來源可能需要重新設定）
+        try:
+            # 嘗試應用儲存的設定或預設值
+            exposure = config_manager.config.getint(section_name, 'exposure_value', fallback=-7)
+            new_cap.set(cv2.CAP_PROP_AUTO_EXPOSURE, 0.25)
+            new_cap.set(cv2.CAP_PROP_EXPOSURE, exposure)
+            
+            focus = config_manager.config.getint(section_name, 'default_focus', fallback=80)
+            new_cap.set(cv2.CAP_PROP_AUTOFOCUS, 0)
+            new_cap.set(cv2.CAP_PROP_FOCUS, focus)
+        except Exception as e:
+            logger.warning(f"重設相機參數失敗: {e}")
+
+        logger.info(f"攝影機 {cam_ctx.name} 來源切換成功")
+        return jsonify({
+            'success': True,
+            'camera_index': camera_index,
+            'source_index': source_index,
+            'name': cam_ctx.name
+        })
+
+    except Exception as e:
+        logger.error(f"切換攝影機來源失敗: {e}")
         return jsonify({'success': False, 'error': str(e)}), 500
 
 
@@ -976,15 +1154,56 @@ def list_available_models():
     
     # 搜尋根目錄的 .pt 檔案
     for pt_file in Path('.').glob('*.pt'):
+        mtime = pt_file.stat().st_mtime
+        modified_str = datetime.fromtimestamp(mtime).strftime('%Y-%m-%d %H:%M')
         models.append({
             'name': pt_file.stem,
             'type': 'yolov8',
             'weights': str(pt_file),
             'cfg': '',
-            'size_mb': round(pt_file.stat().st_size / (1024 * 1024), 2)
+            'size_mb': round(pt_file.stat().st_size / (1024 * 1024), 2),
+            'modified': modified_str
         })
+
+    # 搜尋 datasets 目錄下的 .pt 檔案 (針對使用者回報的路徑)
+    datasets_dir = Path('datasets')
+    if datasets_dir.exists():
+        for pt_file in datasets_dir.rglob('*.pt'):
+            # 避免重複添加 (如果跟根目錄重複)
+            if any(m['weights'] == str(pt_file) for m in models):
+                continue
+
+            mtime = pt_file.stat().st_mtime
+            modified_str = datetime.fromtimestamp(mtime).strftime('%Y-%m-%d %H:%M')
+            
+            # 改進命名邏輯
+            # 如果是 weights/best.pt 形式，使用實驗名稱 (上一層資料夾)
+            if pt_file.parent.name == 'weights' and pt_file.stem in ['best', 'last']:
+                exp_name = pt_file.parent.parent.name
+                name = f"{exp_name} ({pt_file.stem})"
+            # 如果是 runs/detect/exp/best.pt 形式
+            elif pt_file.stem in ['best', 'last']:
+                name = f"{pt_file.parent.name} ({pt_file.stem})"
+            # 一般情況，使用 資料夾/檔名
+            else:
+                name = f"{pt_file.parent.name}/{pt_file.stem}"
+
+            models.append({
+                'name': name,
+                'type': 'yolov8',
+                'weights': str(pt_file),
+                'cfg': '',
+                'size_mb': round(pt_file.stat().st_size / (1024 * 1024), 2),
+                'modified': modified_str
+            })
     
-    return jsonify(models)
+    # 按照修改時間排序 (新的在前)
+    models.sort(key=lambda x: x.get('modified', ''), reverse=True)
+    
+    return jsonify({
+        'success': True,
+        'models': models
+    })
 
 
 @app.route('/api/models/current')
@@ -3014,16 +3233,35 @@ def stop_detection():
 if __name__ == '__main__':
     import os
     
+    # 啟動前輸出明確訊息
+    print("=" * 60)
+    print("  糖果瑕疵偵測系統 - 後端啟動中...")
+    print("=" * 60)
+    print()
+    
     # 初始化（避免 debug 模式下重複初始化）
     if os.environ.get('WERKZEUG_RUN_MAIN') == 'true' or not app.debug:
+        print("[1/4] 正在初始化資料庫...")
         init_database()
+        print("[2/4] 正在載入 YOLO 模型...")
         load_yolo_model()
+        print("[3/4] 正在初始化攝影機...")
         # 使用兩個 BRIO 攝影機
         initialize_cameras(['Camera1', 'Camera2'])
+        print("[4/4] 正在啟動偵測系統...")
         start_detection()
+        print()
+        print("✓ 所有組件初始化完成!")
+        print()
 
     try:
         # 啟動 Web 伺服器
+        print("=" * 60)
+        print("  Flask 伺服器啟動中...")
+        print(f"  訪問網址: http://localhost:5000")
+        print(f"  訪問網址: http://127.0.0.1:5000")
+        print("=" * 60)
+        print()
         app.run(host='0.0.0.0', port=5000, debug=False, threaded=True)
     finally:
         stop_detection()

@@ -2539,12 +2539,36 @@ async function showPreviewModal() {
     modal.classList.add('show');
 
     try {
-        // 只顯示已選中的圖像
-        const filesToShow = currentFiles.filter((f, index) => selectedFiles.has(index));
+        // 如果有选中的图片，显示选中的；否则限制显示前200张
+        let filesToShow;
+        let isLimited = false;
+        
+        if (selectedFiles.size > 0) {
+            filesToShow = currentFiles.filter((f, index) => selectedFiles.has(index));
+        } else {
+            // 限制显示数量，避免加载过慢
+            const MAX_PREVIEW = 200;
+            if (currentFiles.length > MAX_PREVIEW) {
+                filesToShow = currentFiles.slice(0, MAX_PREVIEW);
+                isLimited = true;
+            } else {
+                filesToShow = currentFiles;
+            }
+        }
 
         if (filesToShow.length === 0) {
-            content.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: #94a3b8; padding: 40px;">請先選取要預覽的圖像</div>';
+            content.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: #94a3b8; padding: 40px;">沒有可預覽的圖片</div>';
             return;
+        }
+        
+        // 显示提示信息
+        if (isLimited) {
+            content.innerHTML = `<div style="grid-column: 1/-1; text-align: center; color: #fbbf24; padding: 20px; background: rgba(251, 191, 36, 0.1); border-radius: 8px; margin-bottom: 20px;">
+                <strong>⚠️ 提示：</strong> 為了加速載入，僅顯示前 200 張圖片（共 ${currentFiles.length} 張）<br>
+                如需預覽特定圖片，請先使用左側列表的複選框選取後再點擊預覽
+            </div>`;
+        } else {
+            content.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: #94a3b8; padding: 20px;">正在載入標註數據...</div>';
         }
 
         // 更新統計
@@ -2556,6 +2580,9 @@ async function showPreviewModal() {
         // 批量加載標註數據（並行加載，速度更快）
         const annotationsCache = {};
         const batchSize = 20; // 每次批量處理 20 張
+        
+        let loadedCount = 0;
+        const totalCount = filesToShow.length;
 
         for (let i = 0; i < filesToShow.length; i += batchSize) {
             const batch = filesToShow.slice(i, i + batchSize);
@@ -2572,6 +2599,20 @@ async function showPreviewModal() {
                     annotationsCache[file.name] = [];
                 }
             }));
+            
+            // 更新進度
+            loadedCount += batch.length;
+            const progress = Math.round((loadedCount / totalCount) * 100);
+            const warningHtml = isLimited ? `<div style="grid-column: 1/-1; text-align: center; color: #fbbf24; padding: 20px; background: rgba(251, 191, 36, 0.1); border-radius: 8px; margin-bottom: 20px;">
+                <strong>⚠️ 提示：</strong> 為了加速載入，僅顯示前 200 張圖片（共 ${currentFiles.length} 張）<br>
+                如需預覽特定圖片，請先使用左側列表的複選框選取後再點擊預覽
+            </div>` : '';
+            content.innerHTML = `${warningHtml}<div style="grid-column: 1/-1; text-align: center; color: #94a3b8; padding: 20px;">
+                正在載入標註數據... ${loadedCount}/${totalCount} (${progress}%)
+                <div style="margin-top: 10px; height: 4px; background: rgba(148, 163, 184, 0.2); border-radius: 2px; overflow: hidden;">
+                    <div style="width: ${progress}%; height: 100%; background: #3b82f6; transition: width 0.3s;"></div>
+                </div>
+            </div>`;
         }
 
         // 生成預覽卡片（使用緩存的標註數據）

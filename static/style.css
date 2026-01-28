@@ -776,8 +776,9 @@ body {
 
 .camera-selector label {
     font-size: 13px;
-    color: var(--muted-color);
+    color: #000000;
     white-space: nowrap;
+    font-weight: 600;
 }
 
 .camera-selector select {
@@ -820,7 +821,7 @@ body {
 
 .model-selector label {
     font-size: 13px;
-    color: var(--muted-color);
+    color: #000000;
     white-space: nowrap;
     font-weight: 600;
 }

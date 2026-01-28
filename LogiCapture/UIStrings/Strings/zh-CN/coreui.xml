@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<StringDictionary version="1.2">
+  <Strings>
+    <String key="Buttons:MinimizeToolTip">最小化</String>
+    <String key="Buttons:CloseToolTip">关闭</String>
+
+    <!--First Page-->
+    <String key="WindowName">%BrandName% Capture 安装程序</String>
+    <String key="ApplicationName">%BrandName% Capture 安装程序</String>
+    <String key="Welcome">欢迎使用</String>
+    <String key="LWS_UnInstall2">检测到 %BrandName% 网络摄像头</String>
+    <String key="LWS_UnInstall3">软件</String>
+    <String key="LWS_UnInstall4">安装全新 %BrandName% Capture 前，需卸载旧版本 %BrandName% Webcam Software。  因为如果两款应用程序同时存在，共享组件可能导致意外问题。</String>
+    <String key="LWS_UnInstall5">卸载 %BRANDNAME% WEBCAM SOFTWARE</String>
+    <String key="LogitechOptions">%BrandName% Capture</String>
+    <String key="Install">安装 %BRANDNAME% CAPTURE</String>
+    <String key="Disclaimer:Intro">单击安装，即表示您已同意</String>
+    <String key="Disclaimer:EULA">最终用户许可协议</String>
+
+    <!--Analytics-->
+    <String key="Analytics:HelpUsTitle">帮助我们改善产品</String>
+    <String key="Analytics:HelpUsDescription">通过自动发送诊断与使用数据，帮助 %BrandName% 改善其产品与服务。</String>
+    <String key="Analytics:Allow">好的，分享分析数据</String>
+    <String key="Analytics:Disallow">不，谢谢</String>
+    <String key="Analytics:ChangeInsideApp">可在 %BrandName% Capture 中更改此设置。</String>
+    <String key="Analytics:LearnMore">了解 %BrandName% 隐私政策的</String>
+    <String key="Analytics:PrivacyPolicy"> 相关信息</String>
+    <String key="Analytics:WelcomeEULA">最终用户许可协议</String>
+
+    <!--Installing Page-->
+    <String key="Installing">正在安装</String>
+    <String key="Installing:2">正在安装中</String>
+    <String key="AppDescription">%BrandName% Capture 让您可以自定义并充分发挥您的 %BrandName% 网络摄像头性能。 请稍等，此过程可能需要几分钟时间。</String>
+    <String key="AppDescription:2">请稍等，此过程可能需要几分钟时间。</String>
+
+    <!--Install Completed Page-->
+    <String key="Installed">已安装</String>
+    <String key="MoreInformation">更多信息，请访问支持页面</String>
+    <String key="Continue">继续</String>
+    <String key="OpenApp">启用 %BRANDNAME% CAPTURE</String>
+
+    <!--Restart Page-->
+    <String key="Reboot1">请重新启动电脑</String>
+    <String key="Reboot2">您的电脑需要重新启动以使变更生效。 如果不重新启动，您的 %BrandName% 网络摄像头可能无法正确运行。</String>
+    <String key="Reboot3">立即重启</String>
+    <String key="Reboot4">稍后重启</String>
+
+      <!--Close Apps Page-->
+    <String key="CloseApps:Title">无法继续安装</String>
+    <String key="CloseApps:Message2">检测到 Logi Capture 摄像头正在使用中…</String>
+    <String key="CloseApps:Message">您的 Logi Capture 摄像头正在使用中，请关闭可能正在使用该摄像头的任何应用程序并重试。</String>
+
+      <!--Any Page-->
+      <String key="RestartRequired:Title">需要重新启动</String>
+      <String key="RestartRequired:Message51">继续安装 %BrandName% Capture 需要重新启动。</String>
+      <String key="Reboot52">重新启动</String>
+      <String key="CameraInUse:Title">摄像头正在使用中</String>
+      <String key="CameraInUse:Message53">您的 Logi Capture 摄像头正在使用中，请关闭可能正在使用该摄像头的任何应用程序并重试，或者单击“重新启动”以重新启动系统并继续完成安装。</String>
+      <String key="CameraInUse:Message54">检测到 Logi Capture 摄像头正在使用中…</String>
+
+      <!--Error Page-->
+    <String key="Error:InstallationFailed">%BrandName% Capture 安装失败</String>
+    <String key="Button:Quit">退出安装</String>
+      <String key="Button:Quit2">退出</String>
+      <String key="Button:Retry">重试</String>
+      <String key="Button:Continue">继续</String>
+
+
+    <!--Error + Warning Messages-->
+    <String key="Err:Title">糟糕！ 出现了问题</String>
+    <String key="Err:FailedTitle">%BrandName% Capture 安装失败</String>
+    <String key="Err:Generic">无法安装 %BrandName% Capture。 更多信息，请访问支持页面。</String>
+    <String key="Err:Failed">此 PC 硬件未满足最低图形硬件要求，请联系支持获取更多信息。</String>
+    <String key="Err:Win7Res">无法正确安装软件, 更多信息请联系客户支持。</String>
+    <String key="Err:OSCHECK">尝试下载编码器 dll 时发生错误。  获取更多信息，请访问支持页面</String>
+    <String key="Err:Singleton">%BrandName% Capture 安装程序的另一实例正在运行中。 运行该安装程序之前，请完成另一个安装程序。</String>
+    <String key="Err:OS">%BrandName% Capture 仅支持 64 位 Windows 10 或更新版本。 请升级此电脑的 Windows 以使用 %BrandName% Capture。</String>
+    <String key="Err:OSTitle">不兼容的 Windows 版本。</String>
+    <String key="Err:Space">无法安装 %BrandName% Capture。 系统磁盘可用空间不足。</String>
+    <String key="Err:Version">在此系统中检测到 %BrandName% Capture 的更新版本。 安装无法继续。</String>
+    <String key="Err:Multiuser">由于此系统中的另一用户账户中正在运行 %BrandName% Capture，因此无法继续操作。 请在关闭其他用户帐户中的 %BrandName% Capture 后重试。</String>
+    <String key="Err:Admin">无法安装 %BrandName% Capture。  安装此软件需要管理权限。</String>
+    <String key="Button:Okay">确定</String>
+    <String key="Err:NoInternetConnection">电脑需要连接网络。 请检查网络连接并重试。</String>
+
+    <!--Error + Warning Buttons-->
+    <!-- FileLocked -->
+    <String key="Warn:Title:FileLocked">需要重启以完成安装</String>
+    <String key="Warn:Body:FileLocked">您的电脑需要重启以完成安装过程。 安装完成前，%BrandName% Capture 无法运行，且设备也可能无法工作。</String>
+    <String key="Warn:ButtonPrimary:FileLocked">立即重启</String>
+    <String key="Warn:ButtonSecondary:FileLocked">稍后重启</String>
+      <!-- RestartRequired -->
+      <String key="Warn:Title:RestartRequired">需要重新启动</String>
+      <String key="Warn:Body:RestartRequired">继续安装 %BrandName% Capture 需要重新启动。</String>
+      <String key="Warn:ButtonPrimary:RestartRequired">退出</String>
+      <String key="Warn:ButtonSecondary:RestartRequired">重新启动</String>
+  </Strings>
+</StringDictionary>

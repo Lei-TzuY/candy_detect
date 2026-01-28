@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<StringDictionary version="1.2">
+  <Strings>
+    <String key="Buttons:MinimizeToolTip">Minimize</String>
+    <String key="Buttons:CloseToolTip">Close</String>
+
+    <!--First Page-->
+    <String key="WindowName">%BrandName% Capture Installer</String>
+    <String key="ApplicationName">%BrandName% Capture Installer</String>
+    <String key="Welcome">Welcome to</String>
+    <String key="LWS_UnInstall2">%BrandName% Webcam</String>
+    <String key="LWS_UnInstall3">software detected</String>
+    <String key="LWS_UnInstall4">Before you install the new %BrandName% Capture, you must uninstall %BrandName% Webcam Software.  This is because they share components that can cause unexpected behavior if both applications are installed.</String>
+    <String key="LWS_UnInstall5">UNINSTALL %BRANDNAME% WEBCAM SOFTWARE</String>
+    <String key="LogitechOptions">%BrandName% Capture</String>
+    <String key="Install">INSTALL %BRANDNAME% CAPTURE</String>
+    <String key="Disclaimer:Intro">By clicking install you agree to the terms of the</String>
+    <String key="Disclaimer:EULA">End User License Agreement</String>
+
+    <!--Analytics-->
+    <String key="Analytics:HelpUsTitle">Help us improve our products</String>
+    <String key="Analytics:HelpUsDescription">Help %BrandName% improve its products and services by automatically sending diagnostics and usage data.</String>
+    <String key="Analytics:Allow">YES, SHARE ANALYTICS DATA</String>
+    <String key="Analytics:Disallow">NO THANKS</String>
+    <String key="Analytics:ChangeInsideApp">This can be changed in %BrandName% Capture.</String>
+    <String key="Analytics:LearnMore">Learn more about %BrandName%'s</String>
+    <String key="Analytics:PrivacyPolicy"> privacy policy</String>
+    <String key="Analytics:WelcomeEULA">End User License Agreement</String>
+
+    <!--Installing Page-->
+    <String key="Installing">Installing</String>
+    <String key="Installing:2">Installation in progress</String>
+    <String key="AppDescription">%BrandName% Capture allows you to customize and get the most out of your %BrandName% webcam. Please wait, this process may take a few minutes.</String>
+    <String key="AppDescription:2">Please wait, this process may take a few minutes.</String>
+
+    <!--Install Completed Page-->
+    <String key="Installed">is installed</String>
+    <String key="MoreInformation">For more information visit support page</String>
+    <String key="Continue">CONTINUE</String>
+    <String key="OpenApp">LAUNCH %BRANDNAME% CAPTURE</String>
+
+    <!--Restart Page-->
+    <String key="Reboot1">Please restart your computer</String>
+    <String key="Reboot2">Your computer must be restarted for the changes to take effect. If you do not restart, your %BrandName% webcam may not work properly.</String>
+    <String key="Reboot3">RESTART NOW</String>
+    <String key="Reboot4">RESTART LATER</String>
+
+      <!--Close Apps Page-->
+    <String key="CloseApps:Title">INSTALLATION CANNOT CONTINUE</String>
+    <String key="CloseApps:Message2">Detecting Logi Capture camera use…</String>
+    <String key="CloseApps:Message">Your Logi Capture camera seems to be in use, please close any application that might be using it and then try again.</String>
+
+      <!--Any Page-->
+      <String key="RestartRequired:Title">RESTART REQUIRED</String>
+      <String key="RestartRequired:Message51">Restart is required to continue with %BrandName% Capture installation.</String>
+      <String key="Reboot52">RESTART</String>
+      <String key="CameraInUse:Title">Camera in use</String>
+      <String key="CameraInUse:Message53">Your Logi Capture camera seems to be in use, please close any application that might be using it and then try again Or Click on RESTART to  restart the system and finish the installation after restart.</String>
+      <String key="CameraInUse:Message54">Detecting Logi Capture camera use…</String>
+
+      <!--Error Page-->
+    <String key="Error:InstallationFailed">%BrandName% Capture installation failed</String>
+    <String key="Button:Quit">QUIT INSTALLATION</String>
+      <String key="Button:Quit2">QUIT</String>
+      <String key="Button:Retry">RETRY</String>
+      <String key="Button:Continue">Continue</String>
+
+
+    <!--Error + Warning Messages-->
+    <String key="Err:Title">Oops! We have a problem</String>
+    <String key="Err:FailedTitle">%BrandName% Capture installation failed</String>
+    <String key="Err:Generic">We were not able to install %BrandName% Capture. For more information visit our support page.</String>
+    <String key="Err:Failed">Your PC hardware does not meet the minimum graphics hardware requirements, please contact support for more information.</String>
+    <String key="Err:Win7Res">Unable to properly install your software, please contact support for more information.</String>
+    <String key="Err:OSCHECK">A problem occurred while trying to download an encoder dll.  For more information visit support page</String>
+    <String key="Err:Singleton">Another instance of %BrandName% Capture installer is running. Please complete the other installation before running this installer.</String>
+    <String key="Err:OS">%BrandName% Capture only supports Windows 10 64-bit or higher. Please update Windows to use %BrandName% Capture on this computer.</String>
+    <String key="Err:OSTitle">Incompatible version of Windows.</String>
+    <String key="Err:Space">Unable to install %BrandName% Capture. You do not have enough free space on your system disk.</String>
+    <String key="Err:Version">A newer version of %BrandName% Capture has been detected on this system. This installation will not proceed.</String>
+    <String key="Err:Multiuser">Unable to proceed because %BrandName% Capture is currently running in another user account on this system. Please try again after %BrandName% Capture has been closed in other user accounts.</String>
+    <String key="Err:Admin">Unable to install %BrandName% Capture.  Administrative privilege is required to install this software.</String>
+    <String key="Button:Okay">OK</String>
+    <String key="Err:NoInternetConnection">Your computer needs to be connected to the internet. Please check your connection and try again.</String>
+
+    <!--Error + Warning Buttons-->
+    <!-- FileLocked -->
+    <String key="Warn:Title:FileLocked">Restart required to complete installation</String>
+    <String key="Warn:Body:FileLocked">Your computer needs to be restarted to complete the installation process. %BrandName% Capture won’t work and you might lose device functionality until the installation is completed.</String>
+    <String key="Warn:ButtonPrimary:FileLocked">RESTART NOW</String>
+    <String key="Warn:ButtonSecondary:FileLocked">RESTART LATER</String>
+      <!-- RestartRequired -->
+      <String key="Warn:Title:RestartRequired">Restart required</String>
+      <String key="Warn:Body:RestartRequired">Restart is required to continue with %BrandName% Capture installation.</String>
+      <String key="Warn:ButtonPrimary:RestartRequired">QUIT</String>
+      <String key="Warn:ButtonSecondary:RestartRequired">RESTART</String>
+  </Strings>
+</StringDictionary>

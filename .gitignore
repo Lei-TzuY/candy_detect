@@ -1,156 +1,30 @@
-# ========================================
 # Python
-# ========================================
 __pycache__/
 *.py[cod]
-*.pyo
-*.pyd
-.Python
-
-# ========================================
-# Virtual Environments
-# ========================================
+*$py.class
 .venv/
-venv/
 env/
-ENV/
-virtualenv/
+venv/
 
-# ========================================
-# Editors & IDEs
-# ========================================
-.vscode/
+# IDEs
 .idea/
-*.swp
-*.swo
-*~
-.DS_Store
+.vscode/
 
-# ========================================
-# Logs & Databases
-# ========================================
-*.log
-logs/
-app/logs/
-*.db
-*.sqlite
-*.sqlite3
-detection_data.db
-
-# ========================================
-# Datasets & Training Files (Large Files)
-# ========================================
-# Extracted frames and annotated data
-datasets/extracted_frames/
-datasets/annotated/
-datasets/candy/
-datasets/yolo_dataset/
-datasets/2026-*/
-datasets/*_backup*/
-datasets/other/
-datasets/失敗的標記/
-datasets/最新資料/
-
-# Training runs and results
-runs/
-results/
-reports/
-annotation_issues_visualization/
-relabeled_visualization/
-visualizations/
-
-# Old training data
-訓練集資料/
-雜項/
-Yolo/
-之前訓練的 yolov8/
-
-# ========================================
-# Models & Weights (Large Files)
-# ========================================
+# Project Specific - Large Files & Data
+*.pt
 *.weights
 *.onnx
-*.pt
-!yolov8n.pt
-!yolo11n.pt
-*.pb
 *.engine
-*.tflite
-models/*.weights
-models/*.cfg
-
-# ========================================
-# Media Files
-# ========================================
-*.mkv
-*.mp4
-*.avi
-*.mov
-*.wmv
-*.flv
-*.webm
+datasets/
 recordings/
-
-# ========================================
-# Archives
-# ========================================
-*.zip
-*.7z
-*.rar
-*.tar
-*.gz
-*.bz2
+runs/
+results/
+logs/
+*.log
 candy_dataset.zip
+*.db
+*.sqlite
 
-# ========================================
-# Application Binaries
-# ========================================
-app/jdk-17.0.6/
-*.exe
-*.dll
-*.lib
-*.so
-*.dylib
-*.jar
-
-# ========================================
-# Third-party Software & External Tools
-# ========================================
-LogiCapture/
-LabelImg/
-
-# ========================================
-# Temporary & Development Files
-# ========================================
-*.tmp
-*.backup
-*.bak
-annotation_quality_report.json
-toggle_relay_function.tmp
-insert_function.py
-fix_and_update_recorder.py
-extra_script.js
-extra_styles.css
-web_app_api_addition.txt
-pip_ultralytics.log
-
-# JavaScript backups
-script.js.backup
-script_fixed.js
-script_new.js
-
-# Runtime configuration
-focus_settings.json
-duplicate_report.txt
-
-# ========================================
-# Old/Test Files (Not for production)
-# ========================================
-candy_old/
-gcam.py
-gcpt1.py
-gcpt2.py
-test_trackbar.py
-run_detector_backup.py
-sample_recorder.py
-test_load.py
+# System
+thumbs.db
+desktop.ini

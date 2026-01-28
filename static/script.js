@@ -73,6 +73,9 @@ function initializePage() {
     loadHistory();
     loadConfig();
     initializeCharts();
+
+    // 自動偵測可用攝影機（不顯示彈窗）
+    detectCameras(false);
 }
 
 // 分頁切換
@@ -107,12 +110,22 @@ function showTab(tabName, clickedBtn) {
 }
 
 // 載入攝影機列表
+// 載入攝影機列表
 async function loadCameras() {
     try {
         console.log('loadCameras: Starting...');
-        const response = await fetch('/api/cameras');
-        const cameras = await response.json();
+        // 同時獲取已設置的攝影機和所有可用的物理攝影機
+        const [camerasResponse, availableResponse] = await Promise.all([
+            fetch('/api/cameras'),
+            fetch('/api/cameras/detect')
+        ]);
+
+        const cameras = await camerasResponse.json();
+        const availableInfo = await availableResponse.json();
+        const availableSources = availableInfo.available || [];
+
         console.log('loadCameras: Fetched cameras:', cameras);
+        console.log('loadCameras: Available sources:', availableSources);
 
         // 產生攝影機畫面
         const videoContainer = document.getElementById('videoContainer');
@@ -120,7 +133,6 @@ async function loadCameras() {
             console.error('loadCameras: videoContainer element not found!');
             return;
         }
-        console.log('loadCameras: videoContainer found:', videoContainer);
 
         videoContainer.innerHTML = '';
 
@@ -128,13 +140,59 @@ async function loadCameras() {
             console.log('loadCameras: Creating card for:', camera.name);
             const videoCard = document.createElement('div');
             videoCard.className = 'video-card';
+
+            // 構建來源選項 HTML，並預選當前使用的來源
+            const currentSource = camera.source_index;  // 當前物理攝影機索引
+            let sourceOptions = '<option value="">-- 切換來源 --</option>';
+            availableSources.forEach(source => {
+                const selected = source.index === currentSource ? 'selected' : '';
+                const displayText = source.index === currentSource
+                    ? `來源 ${source.index} (當前)`
+                    : `來源 ${source.index}`;
+                sourceOptions += `<option value="${source.index}" ${selected}>${displayText}</option>`;
+            });
+
             videoCard.innerHTML = `
                 <div class="video-header">
-                    <h3>${camera.name}</h3>
-                    <button class="btn-pause-single" onclick="togglePauseCamera(${camera.index})" id="btn-pause-${camera.index}">
-                        ⏸️
-                    </button>
+                    <div style="display:flex; flex-direction:column; gap:5px;">
+                        <h3>${camera.name}</h3>
+                        <label style="font-size:0.8em;">
+                            切換來源:
+                            <select class="source-select" onchange="switchCameraSource(${camera.index}, this.value)">
+                                ${sourceOptions}
+                            </select>
+                        </label>
+                    </div>
+                    <div style="display:flex; gap:5px; margin-left:auto;">
+                        <button class="btn-pause-single" onclick="togglePauseCamera(${camera.index})" id="btn-pause-${camera.index}">
+                            ⏸️
+                        </button>
+                        <button class="btn-remove" onclick="removeCamera(${camera.index})" title="移除攝影機" style="background-color: #ef4444; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">
+                            ❌
+                        </button>
+                    </div>
                 </div>
+                
+                <!-- 攝影機統計數據 -->
+                <div class="camera-stats" id="camera-stats-${camera.index}" style="display:grid; grid-template-columns: repeat(4, 1fr); gap:10px; padding:10px; background:#f8fafc; border-radius:8px; margin-bottom:10px;">
+                    <div style="text-align:center;">
+                        <div style="font-size:0.8em; color:#64748b;">總偵測數</div>
+                        <div style="font-size:1.5em; font-weight:bold; color:#1e293b;" id="stat-total-${camera.index}">0</div>
+                    </div>
+                    <div style="text-align:center;">
+                        <div style="font-size:0.8em; color:#64748b;">正常品</div>
+                        <div style="font-size:1.5em; font-weight:bold; color:#10b981;" id="stat-normal-${camera.index}">0</div>
+                    </div>
+                    <div style="text-align:center;">
+                        <div style="font-size:0.8em; color:#64748b;">瑕疵品</div>
+                        <div style="font-size:1.5em; font-weight:bold; color:#ef4444;" id="stat-abnormal-${camera.index}">0</div>
+                    </div>
+                    <div style="text-align:center;">
+                        <div style="font-size:0.8em; color:#64748b;">瑕疵率</div>
+                        <div style="font-size:1.5em; font-weight:bold; color:#f59e0b;" id="stat-rate-${camera.index}">0%</div>
+                    </div>
+                </div>
+                
                 <img src="/video_feed/${camera.index}" alt="${camera.name}" id="camera-img-${camera.index}" data-src="/video_feed/${camera.index}">
                 
                 <!-- 動作按鈕 -->
@@ -159,12 +217,6 @@ async function loadCameras() {
                                oninput="updateFocus(${camera.index}, this.value)">
                         <span class="control-value" id="focus-value-${camera.index}">128</span>
                     </label>
-                    <div class="camera-actions">
-                        <button class="btn-action" onclick="saveFocus(${camera.index})" id="btn-save-focus-${camera.index}">
-                            💾 儲存焦距
-                        </button>
-                    </div>
-                    <div class="camera-hint" id="focus-hint-${camera.index}"></div>
                 </div>
                 
                 <!-- 曝光控制滑軌 -->
@@ -176,29 +228,18 @@ async function loadCameras() {
                                oninput="updateExposure(${camera.index}, this.value)">
                         <span class="control-value" id="exposure-value-${camera.index}">-7</span>
                     </label>
-                    <div class="camera-actions">
-                        <button class="btn-action" onclick="saveExposure(${camera.index})" id="btn-save-exposure-${camera.index}">
-                            💾 儲存曝光
-                        </button>
-                    </div>
-                    <div class="camera-hint exposure-hint">
-                        📌 值越小 = 快門越快 = 殘影越少（需更強光線）
-                    </div>
                 </div>
                 
                 <!-- 噴氣延遲控制滑軌 -->
                 <div class="camera-control">
                     <label>
-                        <span class="control-label">⏱️ 延遲(ms):</span>
+                        <span class="control-label">⏱️噴氣延遲(ms):</span>
                         <input type="range" min="0" max="5000" value="1600" step="100"
                                class="slider" id="delay-${camera.index}"
                                oninput="updateDelay(${camera.index}, this.value)">
                         <span class="control-value" id="delay-value-${camera.index}">1600</span>
                     </label>
                 </div>
-                
-                <!-- 狀態提示 -->
-                <div class="camera-hint" id="hint-${camera.index}"></div>
             `;
             videoContainer.appendChild(videoCard);
 
@@ -215,19 +256,78 @@ async function loadCameras() {
         // 更新歷史記錄的攝影機選單
         const cameraSelect = document.getElementById('historyCamera');
         if (cameraSelect) {
+            // 清空舊選項但保留 "全部"
+            cameraSelect.innerHTML = '<option value="">全部</option>';
             cameras.forEach(camera => {
                 const option = document.createElement('option');
                 option.value = camera.name;
                 option.textContent = camera.name;
                 cameraSelect.appendChild(option);
             });
-            console.log('loadCameras: Camera options added to history select');
-        } else {
-            console.warn('loadCameras: historyCamera select element not found');
         }
 
     } catch (error) {
         console.error('載入攝影機失敗:', error);
+    }
+}
+
+// 切換攝影機來源
+async function switchCameraSource(cameraIdx, sourceIdx) {
+    if (sourceIdx === "") return;
+
+    if (!confirm(`確定要將 Camera ${cameraIdx + 1} 切換到來源 ${sourceIdx} 嗎？\n這可能會導致畫面短暫中斷。`)) {
+        // 重置選擇
+        loadCameras();
+        return;
+    }
+
+    try {
+        const response = await fetch(`/api/cameras/${cameraIdx}/source`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ source_index: parseInt(sourceIdx) })
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            alert(`切換成功！已切換到來源 ${sourceIdx}`);
+            // 重新載入相機以更新畫面和 UI
+            loadCameras();
+        } else {
+            alert(`切換失敗: ${result.error}`);
+        }
+    } catch (error) {
+        console.error('切換來源失敗:', error);
+        alert('切換來源時發生錯誤');
+    }
+}
+
+// 移除攝影機
+async function removeCamera(cameraIdx) {
+    // 雖然 API 支援移除任何攝影機，但通常建議保留前兩個（如果你想要的話）
+    // 這裡直接詢問確認
+    if (!confirm(`確定要移除此攝影機 (Camera ${cameraIdx}) 無法復原 ?\n這將會關閉此鏡頭的畫面。`)) {
+        return;
+    }
+
+    try {
+        const response = await fetch(`/api/cameras/${cameraIdx}`, {
+            method: 'DELETE'
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            // 成功後重新載入
+            alert('已成功移除攝影機');
+            loadCameras();
+        } else {
+            alert(`移除失敗: ${result.error}`);
+        }
+    } catch (error) {
+        console.error('移除攝影機失敗:', error);
+        alert('移除攝影機時發生錯誤');
     }
 }
 
@@ -238,32 +338,20 @@ async function loadStats() {
         const response = await fetch('/api/stats');
         const stats = await response.json();
 
-        const statsContainer = document.getElementById('statsContainer');
-        statsContainer.innerHTML = '';
-
+        // 更新每個攝影機卡片內的統計數據
         stats.forEach(stat => {
-            const statCard = document.createElement('div');
-            statCard.className = 'stat-card';
-            statCard.innerHTML = `
-                <h3>${stat.name}</h3>
-                <div class="stat-value">${stat.total}</div>
-                <div class="stat-label">總偵測數</div>
-                <div class="stat-grid">
-                    <div class="stat-item">
-                        <div class="stat-item-label">正常品</div>
-                        <div class="stat-item-value normal">${stat.normal}</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-item-label">瑕疵品</div>
-                        <div class="stat-item-value abnormal">${stat.abnormal}</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-item-label">瑕疵率</div>
-                        <div class="stat-item-value rate">${stat.defect_rate}%</div>
-                    </div>
-                </div>
-            `;
-            statsContainer.appendChild(statCard);
+            // 假設 stat.name 是 "Camera1", "Camera2" 等，提取索引
+            const cameraIndex = parseInt(stat.name.replace('Camera', '')) - 1;
+            
+            const totalEl = document.getElementById(`stat-total-${cameraIndex}`);
+            const normalEl = document.getElementById(`stat-normal-${cameraIndex}`);
+            const abnormalEl = document.getElementById(`stat-abnormal-${cameraIndex}`);
+            const rateEl = document.getElementById(`stat-rate-${cameraIndex}`);
+            
+            if (totalEl) totalEl.textContent = stat.total;
+            if (normalEl) normalEl.textContent = stat.normal;
+            if (abnormalEl) abnormalEl.textContent = stat.abnormal;
+            if (rateEl) rateEl.textContent = `${stat.defect_rate}%`;
         });
 
         // 更新圖表
@@ -797,132 +885,58 @@ function stopAutoUpdate() {
 // 頁面卸載時停止更新
 window.addEventListener('beforeunload', stopAutoUpdate);
 
-// 更新焦距
+// 更新焦距（自動儲存）
 async function updateFocus(cameraIndex, value) {
     const valueDisplay = document.getElementById(`focus-value-${cameraIndex}`);
+
     if (valueDisplay) {
         valueDisplay.textContent = value;
     }
 
-    // 調用 API 更新焦距
+    // 調用 API 更新焦距並自動儲存
     try {
-        await fetch(`/api/cameras/${cameraIndex}/focus`, {
+        const response = await fetch(`/api/cameras/${cameraIndex}/focus`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ focus: parseInt(value), auto: false })
+            body: JSON.stringify({ focus: parseInt(value), auto: false, save: true })
         });
-        console.log(`Camera ${cameraIndex} 焦距已更新: ${value}`);
+        const result = await response.json();
+
+        if (result.success) {
+            console.log(`Camera ${cameraIndex} 焦距已更新並儲存: ${value}`);
+        }
     } catch (error) {
         console.error(`Camera ${cameraIndex} 焦距更新失敗:`, error);
     }
 }
 
-// 儲存焦距為預設值
-async function saveFocus(cameraIndex) {
-    const slider = document.getElementById(`focus-${cameraIndex}`);
-    const btn = document.getElementById(`btn-save-focus-${cameraIndex}`);
-    const hint = document.getElementById(`focus-hint-${cameraIndex}`);
 
-    if (!slider) return;
-    const focusValue = parseInt(slider.value);
 
-    if (btn) {
-        btn.disabled = true;
-        btn.textContent = '儲存中...';
-    }
-    if (hint) hint.textContent = '';
-
-    try {
-        const response = await fetch(`/api/cameras/${cameraIndex}/focus`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ focus: focusValue, auto: false, save: true })
-        });
-        const result = await response.json();
-
-        if (result.success) {
-            if (hint) hint.textContent = '已儲存為預設焦距';
-        } else {
-            if (hint) hint.textContent = '儲存失敗：' + (result.error || '未知錯誤');
-        }
-    } catch (error) {
-        console.error(`Camera ${cameraIndex} 焦距儲存失敗:`, error);
-        if (hint) hint.textContent = '儲存失敗：' + error.message;
-    } finally {
-        if (btn) {
-            btn.disabled = false;
-            btn.textContent = '💾 儲存焦距';
-        }
-    }
-}
-
-// 更新曝光值（快門速度）
+// 更新曝光值（快門速度，自動儲存）
 async function updateExposure(cameraIndex, value) {
     const valueDisplay = document.getElementById(`exposure-value-${cameraIndex}`);
     if (valueDisplay) {
         valueDisplay.textContent = value;
     }
 
-    // 調用 API 更新曝光
+    // 調用 API 更新曝光並自動儲存
     try {
-        await fetch(`/api/cameras/${cameraIndex}/exposure`, {
+        const response = await fetch(`/api/cameras/${cameraIndex}/exposure`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ exposure: parseInt(value), auto: false })
+            body: JSON.stringify({ exposure: parseInt(value), auto: false, save: true })
         });
-        console.log(`Camera ${cameraIndex} 曝光已更新: ${value}`);
+        const result = await response.json();
+
+        if (result.success) {
+            console.log(`Camera ${cameraIndex} 曝光已更新並儲存: ${value}`);
+        }
     } catch (error) {
         console.error(`Camera ${cameraIndex} 曝光更新失敗:`, error);
     }
 }
 
-// 儲存曝光為預設值
-async function saveExposure(cameraIndex) {
-    const slider = document.getElementById(`exposure-${cameraIndex}`);
-    const btn = document.getElementById(`btn-save-exposure-${cameraIndex}`);
 
-    if (!slider) return;
-    const exposureValue = parseInt(slider.value);
-
-    if (btn) {
-        btn.disabled = true;
-        btn.textContent = '儲存中...';
-    }
-
-    try {
-        const response = await fetch(`/api/cameras/${cameraIndex}/exposure`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ exposure: exposureValue, auto: false, save: true })
-        });
-        const result = await response.json();
-
-        if (result.success) {
-            // 顯示成功訊息在提示區
-            const allHints = document.querySelectorAll('.exposure-hint');
-            allHints.forEach(hint => {
-                if (hint.closest('.camera-control').querySelector(`#exposure-${cameraIndex}`)) {
-                    hint.textContent = `✅ 已儲存曝光值 ${exposureValue}（值越小快門越快）`;
-                    hint.style.color = '#10b981';
-                    setTimeout(() => {
-                        hint.textContent = '📌 值越小 = 快門越快 = 殘影越少（需更強光線）';
-                        hint.style.color = '';
-                    }, 3000);
-                }
-            });
-        } else {
-            alert('儲存曝光失敗：' + (result.error || '未知錯誤'));
-        }
-    } catch (error) {
-        console.error(`Camera ${cameraIndex} 曝光儲存失敗:`, error);
-        alert('儲存曝光失敗：' + error.message);
-    } finally {
-        if (btn) {
-            btn.disabled = false;
-            btn.textContent = '💾 儲存曝光';
-        }
-    }
-}
 
 // 更新噴氣延遲
 async function updateDelay(cameraIndex, value) {
@@ -1120,41 +1134,57 @@ function restartApp() {
 }
 
 // 重新偵測可用攝影機
-async function detectCameras() {
+async function detectCameras(showAlert = true) {
     const btn = document.getElementById('btn-detect-cameras');
     const select = document.getElementById('available-cameras');
 
-    btn.disabled = true;
-    btn.innerHTML = '🔄 偵測中...';
+    if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '🔄 偵測中...';
+    }
 
     try {
         const response = await fetch('/api/cameras/detect');
         const result = await response.json();
 
         // 更新下拉選單
-        select.innerHTML = '<option value="">-- 選擇攝影機 --</option>';
+        if (select) {
+            select.innerHTML = '<option value="">-- 選擇攝影機 --</option>';
 
-        if (result.available && result.available.length > 0) {
-            result.available.forEach(cam => {
-                const option = document.createElement('option');
-                option.value = cam.index;
-                option.textContent = `攝影機 ${cam.index}${cam.in_use ? ' (使用中)' : ''}${cam.name ? ' - ' + cam.name : ''}`;
-                if (cam.in_use) {
-                    option.disabled = true;
+            if (result.available && result.available.length > 0) {
+                result.available.forEach(cam => {
+                    const option = document.createElement('option');
+                    option.value = cam.index;
+                    option.textContent = `攝影機 ${cam.index}${cam.in_use ? ' (使用中)' : ''}${cam.name ? ' - ' + cam.name : ''}`;
+                    if (cam.in_use) {
+                        option.disabled = true;
+                    }
+                    select.appendChild(option);
+                });
+
+                if (showAlert) {
+                    alert(`偵測到 ${result.available.length} 個攝影機`);
+                } else {
+                    console.log(`自動偵測到 ${result.available.length} 個攝影機`);
                 }
-                select.appendChild(option);
-            });
-
-            alert(`偵測到 ${result.available.length} 個攝影機`);
-        } else {
-            alert('未偵測到可用的攝影機');
+            } else {
+                if (showAlert) {
+                    alert('未偵測到可用的攝影機');
+                } else {
+                    console.log('未偵測到可用的攝影機');
+                }
+            }
         }
     } catch (error) {
         console.error('偵測攝影機失敗:', error);
-        alert('偵測攝影機失敗: ' + error.message);
+        if (showAlert) {
+            alert('偵測攝影機失敗: ' + error.message);
+        }
     } finally {
-        btn.disabled = false;
-        btn.innerHTML = '🔍 重新偵測鏡頭';
+        if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = '🔍 重新偵測鏡頭';
+        }
     }
 }
 
@@ -1203,7 +1233,7 @@ async function loadModels() {
         if (data.success) {
             const select = document.getElementById('model-versions');
             const infoSpan = document.getElementById('model-info');
-            
+
             // 清空下拉選單
             select.innerHTML = '';
 
@@ -1212,19 +1242,26 @@ async function loadModels() {
                 return;
             }
 
-            // 填充模型列表
+            // 填充模型列表，顯示名稱和時間
             data.models.forEach(model => {
                 const option = document.createElement('option');
                 option.value = model.path;
-                option.textContent = `${model.name} (${model.size_mb}MB, ${model.modified})`;
+                // 顯示格式：名稱 | 時間 | 大小
+                option.textContent = `${model.name} | ${model.modified}`;
                 option.selected = model.is_current;
+
+                // 如果是當前使用的模型，添加標記
+                if (model.is_current) {
+                    option.textContent = `✅ ${option.textContent}`;
+                }
+
                 select.appendChild(option);
             });
 
             // 顯示當前模型信息
             const currentModel = data.models.find(m => m.is_current);
-            if (currentModel) {
-                infoSpan.textContent = `✅ ${currentModel.size_mb}MB`;
+            if (currentModel && infoSpan) {
+                infoSpan.textContent = `當前使用`;
                 infoSpan.style.color = '#10b981';
             }
         }
@@ -1261,12 +1298,12 @@ async function switchModel() {
             // 成功切換
             infoSpan.textContent = '✅ 切換成功';
             infoSpan.style.color = '#10b981';
-            
+
             // 顯示通知
             const selectedOption = select.options[select.selectedIndex];
             const modelName = selectedOption.textContent.split(' (')[0];
             alert(`已成功切換到模型: ${modelName}`);
-            
+
             // 重新載入模型列表以更新當前狀態
             setTimeout(() => loadModels(), 1000);
         } else {
@@ -1274,7 +1311,7 @@ async function switchModel() {
             infoSpan.textContent = '❌ 失敗';
             infoSpan.style.color = '#ef4444';
             alert('切換模型失敗: ' + (result.error || '未知錯誤'));
-            
+
             // 恢復原選項
             loadModels();
         }
@@ -1283,7 +1320,7 @@ async function switchModel() {
         infoSpan.textContent = '❌ 錯誤';
         infoSpan.style.color = '#ef4444';
         alert('切換模型失敗: ' + error.message);
-        
+
         // 恢復原選項
         loadModels();
     } finally {
@@ -1292,6 +1329,6 @@ async function switchModel() {
 }
 
 // 在頁面初始化時載入模型列表
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     loadModels();
 });

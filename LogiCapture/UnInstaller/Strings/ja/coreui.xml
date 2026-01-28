@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<StringDictionary version="1.2">
+  <Strings>
+    <String key="Buttons:MinimizeToolTip">最小化</String>
+    <String key="Buttons:CloseToolTip">閉じる</String>
+
+    <!--First Page-->
+    <String key="WindowName">%BrandName% Capture インストーラー</String>
+    <String key="UnInstall11">%BrandName% Capture</String>
+    <String key="ApplicationName">%BrandName% Capture インストーラー</String>
+    <String key="Welcome">%BRANDNAME% Capture</String>
+    <String key="LogitechOptions">%BrandName% Capture</String>
+    <String key="Install">%BRANDNAME% CAPTURE のインストール</String>
+    <String key="Disclaimer:Intro">[インストール] をクリックすることで、貴方は</String>
+    <String key="Disclaimer:EULA">ソフトウェア利用許諾契約</String>
+
+    <!--Analytics-->
+    <String key="Analytics:HelpUsTitle">製品強化にご協力ください</String>
+    <String key="Analytics:HelpUsDescription">診断データと使用データを匿名で送信することで、%BrandName% が製品とサービスを強化するのにご協力ください。</String>
+    <String key="Analytics:Allow">アンインストール</String>
+    <String key="Analytics:Disallow">終了</String>
+    <String key="Analytics:ChangeInsideApp">これは、%BrandName% Capture の [詳細] ボタンを使って変更することができます。</String>
+    <String key="Analytics:LearnMore">%BrandName% の詳細</String>
+    <String key="Analytics:PrivacyPolicy"> 個人情報保護方針を読む</String>
+    <String key="Analytics:WelcomeEULA"> ソフトウェア利用許諾契約の条件に同意したことになります</String>
+      <String key="Analytics:UnInstall2">%BrandName% Capture がシステムから削除されます。 カスタマイズした設定は、そのデフォルト値に戻ります。</String>
+      <String key="Analytics:UnInstall3">アンインストール</String>
+      <String key="Analytics:UnInstall4">終了</String>
+
+    <!--CloseApps Page-->
+    <String key="CloseApps:Title">アンインストールを続行できません</String>
+    <String key="CloseApps:Message">Logi Capture カメラは使用中のようです。カメラを使用している可能性のあるアプリケーションを閉じてから、再試行してください。</String>
+    <String key="CloseApps:Message2">Logi Capture カメラの使用を検出しています…</String>
+    <String key="Button:Retry">再試行</String>
+
+    <!--Installing Page-->
+    <String key="Installing">アンインストールしています</String>
+    <String key="Installing:2">インストール中です</String>
+    <String key="AppDescription">%BrandName% Capture によって、%BrandName% デバイスをカスタマイズして、お楽しみいただけます。</String>
+    <String key="AppDescription:2">お待ちください。このプロセスには数分かかる場合があります。</String>
+      <String key="UnInstalling3">インストール中です</String>
+
+    <!--Install Completed Page-->
+    <String key="Installed">がインストールされました</String>
+    <String key="MoreInformation">詳細情報については、次にアクセスしてください：</String>
+    <String key="Continue">続行</String>
+    <String key="OpenApp">%BRANDNAME% CAPTURE を起動</String>
+      <String key="UnInstallComplete">アンインストールが終了しました</String>
+      <String key="UnInstallComplete2">%BrandName% Capture がシステムから削除されました。</String>
+      <String key="UnInstallComplete3">閉じる</String>
+      <String key="UnInstallLockedFiles">システムを再起動して、アンインストールを終了することをお勧めします。</String>
+      <String key="Reboot">再起動</String>
+
+
+      <!--Error Page-->
+    <String key="Error:InstallationFailed">%BRANDNAME% CAPTURE /n インストールできませんでした</String>
+    <String key="Button:Quit">インストールを終了</String>
+    <String key="Button:Continue">続行</String>
+
+
+    <!--Error + Warning Messages-->
+    <String key="Err:Title">問題が 発生しました</String>
+    <String key="Err:FailedTitle">%BRANDNAME% CAPTURE /n インストールできませんでした</String>
+    <String key="Err:Failed">%BrandName% Capture をインストールできません。 詳細情報については、サポートページをご覧ください。</String>
+    <String key="Err:OSCHECK">この OS バージョンはサポートされていません\n 詳細情報については、サポートページをご覧ください。</String>
+    <String key="Err:Singleton">%BrandName% Capture インストーラーの別のインスタンスが実行中です。 このインストーラーを実行する前に、他のインストールを完了してください。</String>
+    <String key="Err:OS">%BrandName% Capture をインストールできません。. このインストールには Windows 7 またはそれ以降が必要です。</String>
+    <String key="Err:Space">%BrandName% Capture をインストールできません。. システムディスクに十分なスペースがありません。</String>
+    <String key="Err:Version">新しいバージョンの %BrandName% Capture がこのシステムで検出されました。 このインストールは続行されません。</String>
+    <String key="Err:Multiuser">%BrandName% Capture は現在このシステム上の別のユーザーアカウントで実行されているため、続行できません。 %BrandName% Capture が他のユーザーアカウントで閉じられた後に再試行してください。</String>
+    <String key="Err:Admin">%BrandName% Capture をインストールできません。.  このソフトウェアをインストールするには、管理者権限が必要です。</String>
+    <String key="Button:Okay">OK</String>
+
+    <!--Error + Warning Buttons-->
+    <!-- FileLocked -->
+    <String key="Warn:Title:FileLocked">インストールを完了するには、再起動が必要です</String>
+    <String key="Warn:Body:FileLocked">インストールプロセスを完了するには、コンピュータを再起動する必要があります。 インストールが完了するまでは、%BrandName% Capture は動作せず、デバイス機能が失われる場合があります。</String>
+    <String key="Warn:ButtonPrimary:FileLocked">今すぐ再起動</String>
+    <String key="Warn:ButtonSecondary:FileLocked">後で再起動</String>
+  </Strings>
+</StringDictionary>

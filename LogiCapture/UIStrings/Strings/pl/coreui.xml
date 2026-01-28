@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<StringDictionary version="1.2">
+  <Strings>
+    <String key="Buttons:MinimizeToolTip">Minimalizuj</String>
+    <String key="Buttons:CloseToolTip">Zamknij</String>
+
+    <!--First Page-->
+    <String key="WindowName">Instalator oprogramowania %BrandName% Capture</String>
+    <String key="ApplicationName">Instalator oprogramowania %BrandName% Capture</String>
+    <String key="Welcome">Witamy w</String>
+    <String key="LWS_UnInstall2">Wykryto oprogramowanie</String>
+    <String key="LWS_UnInstall3">kamery internetowej %BrandName%</String>
+    <String key="LWS_UnInstall4">Przed zainstalowaniem nowego oprogramowania %BrandName% Capture należy odinstalować wcześniejsze oprogramowanie kamery internetowej %BrandName%.  Obie wersje oprogramowania użytkują te same komponenty, co może powodować nieoczekiwane działanie, jeśli obie aplikacje są zainstalowane jednocześnie.</String>
+    <String key="LWS_UnInstall5">ODINSTALUJ OPROGRAMOWANIE %BRANDNAME% WEBCAM SOFTWARE</String>
+    <String key="LogitechOptions">%BrandName% Capture</String>
+    <String key="Install">ZAINSTALUJ OPROGRAMOWANIE %BRANDNAME% CAPTURE</String>
+    <String key="Disclaimer:Intro">Klikając przycisk Instaluj, wyrażasz zgodę na warunki</String>
+    <String key="Disclaimer:EULA">Umowa licencyjna użytkownika końcowego</String>
+
+    <!--Analytics-->
+    <String key="Analytics:HelpUsTitle">Pomóż nam ulepszyć nasze produkty</String>
+    <String key="Analytics:HelpUsDescription">Pomóż firmie %BrandName% ulepszać produkty i usługi, zezwalając na automatyczne wysyłanie danych diagnostycznych i dotyczących użytkowania.</String>
+    <String key="Analytics:Allow">TAK, UDOSTĘPNIAJ DANE ANALITYCZNE</String>
+    <String key="Analytics:Disallow">NIE, DZIĘKUJĘ</String>
+    <String key="Analytics:ChangeInsideApp">To ustawienie można zmienić w oprogramowaniu %BrandName% Capture.</String>
+    <String key="Analytics:LearnMore">Dowiedz się więcej o</String>
+    <String key="Analytics:PrivacyPolicy"> polityce prywatności firmy %BrandName%</String>
+    <String key="Analytics:WelcomeEULA">Umowa licencyjna użytkownika końcowego</String>
+
+    <!--Installing Page-->
+    <String key="Installing">Instalowanie</String>
+    <String key="Installing:2">Instalacja w toku</String>
+    <String key="AppDescription">Oprogramowanie %BrandName% Capture umożliwia dostosowywanie kamery internetowej %BrandName% i pełne wykorzystywanie jej możliwości. Czekaj, ten proces może potrwać kilka minut.</String>
+    <String key="AppDescription:2">Czekaj, ten proces może potrwać kilka minut.</String>
+
+    <!--Install Completed Page-->
+    <String key="Installed">jest zainstalowane</String>
+    <String key="MoreInformation">Aby uzyskać więcej informacji, odwiedź stronę pomocy</String>
+    <String key="Continue">KONTYNUUJ</String>
+    <String key="OpenApp">URUCHOM OPROGRAMOWANIE %BRANDNAME% CAPTURE</String>
+
+    <!--Restart Page-->
+    <String key="Reboot1">Uruchom ponownie komputer</String>
+    <String key="Reboot2">Aby zmiany zostały zastosowane, należy ponownie uruchomić komputer. Jeśli komputer nie zostanie ponownie uruchomiony, kamera internetowa %BrandName% może nie działać prawidłowo.</String>
+    <String key="Reboot3">URUCHOM PONOWNIE TERAZ</String>
+    <String key="Reboot4">URUCHOM PONOWNIE PÓŹNIEJ</String>
+
+      <!--Close Apps Page-->
+    <String key="CloseApps:Title">NIE MOŻNA KONTYNUOWAĆ INSTALACJI</String>
+    <String key="CloseApps:Message2">Wykrywanie używania kamery Logi Capture…</String>
+    <String key="CloseApps:Message">Kamera Logi Capture prawdopodobnie jest w użyciu; zamknij wszystkie aplikacje, które mogą jej używać, po czym spróbuj ponownie.</String>
+
+      <!--Any Page-->
+      <String key="RestartRequired:Title">WYMAGANE PONOWNE URUCHOMIENIE</String>
+      <String key="RestartRequired:Message51">Aby kontynuować instalację oprogramowania %BrandName% Capture, wymagane jest ponowne uruchomienie.</String>
+      <String key="Reboot52">URUCHOM PONOWNIE</String>
+      <String key="CameraInUse:Title">Kamera w użyciu</String>
+      <String key="CameraInUse:Message53">Kamera Logi Capture wydaje się być w użyciu. Zamknij wszystkie aplikacje, które mogą korzystać z kamery, a następnie spróbuj ponownie. Możesz też kliknąć przycisk URUCHOM PONOWNIE, aby uruchomić ponownie system i kontynuować instalację.</String>
+      <String key="CameraInUse:Message54">Wykrywanie używania kamery Logi Capture…</String>
+
+      <!--Error Page-->
+    <String key="Error:InstallationFailed">Nieudana instalacja %BrandName% Capture</String>
+    <String key="Button:Quit">ZAKOŃCZ INSTALACJĘ</String>
+      <String key="Button:Quit2">ZAMKNIJ</String>
+      <String key="Button:Retry">SPRÓBUJ PONOWNIE</String>
+      <String key="Button:Continue">Kontynuuj</String>
+
+
+    <!--Error + Warning Messages-->
+    <String key="Err:Title">Ups Mamy problem</String>
+    <String key="Err:FailedTitle">Nieudana instalacja %BrandName% Capture</String>
+    <String key="Err:Generic">Zainstalowanie programu %BrandName% Capture nie jest możliwe. Aby uzyskać więcej informacji, odwiedź stronę pomocy.</String>
+    <String key="Err:Failed">Komputer nie spełnia minimalnych wymagań sprzętowych w zakresie karty graficznej; skontaktuj się z pomocą techniczną, aby uzyskać więcej informacji.</String>
+    <String key="Err:Win7Res">Nie można poprawnie zainstalować oprogramowania. Skontaktuj się z pomocą techniczną, aby uzyskać więcej informacji.</String>
+    <String key="Err:OSCHECK">Wystąpił problem przy próbie pobrania biblioteki DLL kodera.  Aby uzyskać więcej informacji, odwiedź stronę pomocy technicznej</String>
+    <String key="Err:Singleton">Uruchomiona jest inna instancja instalatora oprogramowania %BrandName% Capture. Zakończ inną instalację przed uruchomieniem tego instalatora.</String>
+    <String key="Err:OS">%BrandName% Capture obsługuje jedynie Windows 10 64-bit lub nowszy. Należy zaktualizować system Windows, aby korzystać z %BrandName% Capture na tym komputerze.</String>
+    <String key="Err:OSTitle">Niekompatybilna wersja systemu Windows.</String>
+    <String key="Err:Space">Nie można zainstalować oprogramowania %BrandName% Capture. Zbyt mało wolnego miejsca na dysku systemowym.</String>
+    <String key="Err:Version">W systemie wykryto nowszą wersję oprogramowania %BrandName% Capture. Ta instalacja nie będzie kontynuowana.</String>
+    <String key="Err:Multiuser">Nie można kontynuować, ponieważ oprogramowanie %BrandName% Capture jest uruchomione na innym koncie użytkownika w tym systemie. Zamknij oprogramowanie %BrandName% Capture na innych kontach użytkowników i spróbuj ponownie.</String>
+    <String key="Err:Admin">Nie można zainstalować oprogramowania %BrandName% Capture.  W celu zainstalowania tego oprogramowania wymagane są uprawnienia administracyjne.</String>
+    <String key="Button:Okay">OK</String>
+    <String key="Err:NoInternetConnection">Komputer musi być połączony z Internetem. Sprawdź połączenie i spróbuj ponownie.</String>
+
+    <!--Error + Warning Buttons-->
+    <!-- FileLocked -->
+    <String key="Warn:Title:FileLocked">Do ukończenia uruchomienia wymagane ponowne uruchomienie.</String>
+    <String key="Warn:Body:FileLocked">Aby ukończyć proces instalacji, wymagane jest ponowne uruchomienie komputera. Do momentu ukończenia instalacji oprogramowanie %BrandName% Capture nie będzie działać. Korzystanie z urządzenia może nie być możliwe.</String>
+    <String key="Warn:ButtonPrimary:FileLocked">URUCHOM PONOWNIE TERAZ</String>
+    <String key="Warn:ButtonSecondary:FileLocked">URUCHOM PONOWNIE PÓŹNIEJ</String>
+      <!-- RestartRequired -->
+      <String key="Warn:Title:RestartRequired">Wymagane ponowne uruchomienie</String>
+      <String key="Warn:Body:RestartRequired">Aby kontynuować instalację oprogramowania %BrandName% Capture, wymagane jest ponowne uruchomienie.</String>
+      <String key="Warn:ButtonPrimary:RestartRequired">ZAMKNIJ</String>
+      <String key="Warn:ButtonSecondary:RestartRequired">URUCHOM PONOWNIE</String>
+  </Strings>
+</StringDictionary>

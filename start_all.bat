@@ -19,6 +19,13 @@ echo [0/2] Closing old processes...
 REM 只關閉特定的 Java 和 Python 程序，避免誤殺 IDE
 taskkill /IM java.exe /F >nul 2>&1
 taskkill /IM python.exe /FI "WINDOWTITLE eq *web_app*" /F >nul 2>&1
+
+REM 檢查並關閉占用 Port 5000 的程序
+echo      Checking for port 5000...
+for /f "tokens=5" %%a in ('netstat -aon ^| findstr ":5000" ^| findstr "LISTENING"') do (
+    echo      Killing process %%a using port 5000...
+    taskkill /F /PID %%a >nul 2>&1
+)
 timeout /t 2 /nobreak >nul
 echo      Done
 echo.
@@ -55,7 +62,8 @@ if exist "src\web_app.py" (
     echo   打開瀏覽器訪問: http://localhost:5000
     echo ========================================
     echo.
-    python src\web_app.py
+    REM 強制即時輸出，避免緩衝
+    python -u src\web_app.py
 ) else (
     echo [ERROR] src\web_app.py not found!
     pause

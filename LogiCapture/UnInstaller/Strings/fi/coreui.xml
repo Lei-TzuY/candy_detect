@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<StringDictionary version="1.2">
+  <Strings>
+    <String key="Buttons:MinimizeToolTip">Pienennä</String>
+    <String key="Buttons:CloseToolTip">Sulje</String>
+
+    <!--First Page-->
+    <String key="WindowName">%BrandName% Capture -asennuksen poisto-ohjelma</String>
+    <String key="UnInstall11">%BrandName% Capture</String>
+    <String key="ApplicationName">%BrandName% Capture -asennuksen poisto-ohjelma</String>
+    <String key="Welcome">%BRANDNAME% Capture</String>
+    <String key="LogitechOptions">%BrandName% Capture</String>
+    <String key="Install">Poista %BRANDNAME% Capturen asennus</String>
+    <String key="Disclaimer:Intro">Valitsemalla Asenna hyväksyt</String>
+    <String key="Disclaimer:EULA">Käyttöoikeussopimus</String>
+
+    <!--Analytics-->
+    <String key="Analytics:HelpUsTitle">AUTA MEITÄ PARANTAMAAN TUOTTEITAMME</String>
+    <String key="Analytics:HelpUsDescription">Lähetä automaattisesti diagnostiikka- ja käyttötietoja, joiden avulla %BrandName% voi parantaa tuotteitaan ja palveluitaan.</String>
+    <String key="Analytics:Allow">ASENNUKSEN POISTAMINEN</String>
+    <String key="Analytics:Disallow">LOPETA</String>
+    <String key="Analytics:ChangeInsideApp">Tämän voi muuttaa painamalla %BrandName% Capture -ohjelmiston Enemmän-painiketta</String>
+    <String key="Analytics:LearnMore">Lisätietoja %BrandName%-yrityksen</String>
+    <String key="Analytics:PrivacyPolicy"> tietosuojakäytännöstä</String>
+    <String key="Analytics:WelcomeEULA"> käyttöoikeussopimuksen</String>
+      <String key="Analytics:UnInstall2">%BrandName% Capture poistetaan järjestelmästä. Kaikki mukauttamasi asetukset palautetaan oletusarvoihinsa.</String>
+      <String key="Analytics:UnInstall3">ASENNUKSEN POISTAMINEN</String>
+      <String key="Analytics:UnInstall4">LOPETA</String>
+
+    <!--CloseApps Page-->
+    <String key="CloseApps:Title">Asennuksen poistoa ei voida jatkaa</String>
+    <String key="CloseApps:Message">Logi Capture -kamerasi näyttää olevan käytössä. Sulje kaikki sitä mahdollisesti käyttävät sovellukset ja yritä uudelleen.</String>
+    <String key="CloseApps:Message2">Havaittiin Logi Capture -kameran käyttöä…</String>
+    <String key="Button:Retry">YRITÄ UUDELLEEN</String>
+
+    <!--Installing Page-->
+    <String key="Installing">Poistetaan asennusta</String>
+    <String key="Installing:2">ASENNUS KÄYNNISSÄ</String>
+    <String key="AppDescription">%BrandName% Capture -ohjelmiston avulla voit mukauttaa %BrandName%-laitteet mielesi mukaan.</String>
+    <String key="AppDescription:2">Odota, tämä voi kestää muutaman minuutin.</String>
+      <String key="UnInstalling3">Asennuksen poistaminen on käynnissä. Odota.</String>
+
+    <!--Install Completed Page-->
+    <String key="Installed">ON ASENNETTU</String>
+    <String key="MoreInformation">Lisätietoja on osoitteessa</String>
+    <String key="Continue">JATKA</String>
+    <String key="OpenApp">KÄYNNISTÄ %BRANDNAME% CAPTURE</String>
+      <String key="UnInstallComplete">Asennuksen poistaminen valmis</String>
+      <String key="UnInstallComplete2">%BrandName% Capture on poistettu järjestelmästäsi.</String>
+      <String key="UnInstallComplete3">SULJE</String>
+      <String key="UnInstallLockedFiles">Järjestelmä kannattaa käynnistää uudelleen asennuksen poistamisen viimeistelemiseksi.</String>
+      <String key="Reboot">KÄYNNISTÄ UUDELLEEN</String>
+
+
+      <!--Error Page-->
+    <String key="Error:InstallationFailed">%BRANDNAME% CAPTURE /n ASENNUS EPÄONNISTUI</String>
+    <String key="Button:Quit">LOPETA ASENNUS</String>
+    <String key="Button:Continue">Jatka</String>
+
+
+    <!--Error + Warning Messages-->
+    <String key="Err:Title">HUPS! HAVAITSIMME ONGELMAN</String>
+    <String key="Err:FailedTitle">%BRANDNAME% CAPTURE /n ASENNUS EPÄONNISTUI</String>
+    <String key="Err:Failed">%BrandName% Capture -ohjelmiston asennus epäonnistui. Lisätietoja on tukisivulla.</String>
+    <String key="Err:OSCHECK">Tätä käyttöjärjestelmän versiota ei tueta.\nLisätietoja on tukisivulla.</String>
+    <String key="Err:Singleton">%BrandName% Capture -asennusohjelman toinen esiintymä on käynnissä. Vie toinen asennus loppuun ennen tämän asennusohjelman suorittamista.</String>
+    <String key="Err:OS">%BrandName% Capture -ohjelmiston asennus epäonnistui. Tämä asennus edellyttää vähintään Windows 7 -käyttöjärjestelmää.</String>
+    <String key="Err:Space">%BrandName% Capture -ohjelmiston asennus epäonnistui. Järjestelmälevyllä ei ole riittävästi vapaata tilaa.</String>
+    <String key="Err:Version">Järjestelmästä löytyi uudempi %BrandName% Capture -versio. Asennusta ei jatketa.</String>
+    <String key="Err:Multiuser">Jatkaminen ei onnistu, koska %BrandName% Capture on parhaillaan käynnissä tässä järjestelmässä toisella käyttäjätilillä. Yritä uudelleen, kun %BrandName% Capture on suljettu muilla käyttäjätileillä.</String>
+    <String key="Err:Admin">%BrandName% Capture -ohjelmiston asennus epäonnistui.  Tämän ohjelmiston asentaminen edellyttää järjestelmänvalvojan oikeuksia.</String>
+    <String key="Button:Okay">OK</String>
+
+    <!--Error + Warning Buttons-->
+    <!-- FileLocked -->
+    <String key="Warn:Title:FileLocked">ASENNUKSEN LOPPUUN SUORITTAMINEN VAATII UUDELLEENKÄYNNISTYKSEN</String>
+    <String key="Warn:Body:FileLocked">Tietokone on käynnistettävä uudelleen asennuksen suorittamiseksi loppuun. %BrandName% Capture ei toimi eikä laite ehkä toimi täydellisesti ennen kuin asennus on suoritettu loppuun.</String>
+    <String key="Warn:ButtonPrimary:FileLocked">KÄYNNISTÄ UUDELLEEN NYT</String>
+    <String key="Warn:ButtonSecondary:FileLocked">KÄYNNISTÄ UUDELLEEN MYÖHEMMIN</String>
+  </Strings>
+</StringDictionary>

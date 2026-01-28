@@ -1,0 +1,605 @@
+<configuration>
+	<transition id="clock" name="Clock">
+		<pixelshader>
+cbuffer myConst : register(b1)
+{
+    float4 p0;
+    float4 p1;
+}
+
+#define zorder (p1[3])
+#define rand_val_const (p0[0])
+#define rand_val_var (p0[1])
+#define clock (p0[3])
+
+#define PI acos(-1)
+
+void CustomPS(VS_TO_PS In, out float4 Out : SV_Target)
+{
+	TEXSAMPLE(Out, In.TexCoord0);
+	float4 c1;
+
+	c1.x = atan2(-In.TexCoord0.x + (psfx + psfu)/2, In.TexCoord0.y - (psfy + psfv)/2) + PI;
+	c1.y = clock * PI * 2;
+
+	Out.a *= saturate((c1.x - c1.y) * 2);
+}
+		</pixelshader>
+		<vertexshader></vertexshader>
+	</transition>
+	<transition id="collapse" name="Collapse">
+		<pixelshader>
+cbuffer myConst : register(b1)
+{
+    float4 p0;
+    float4 p1;
+}
+
+#define zorder (p1[3])
+#define rand_val_const (p0[0])
+#define rand_val_var (p0[1])
+#define clock (p0[3])
+
+#define PI acos(-1)
+
+void CustomPS(VS_TO_PS In, out float4 Out : SV_Target)
+{
+	TEXSAMPLE(Out, In.TexCoord0);
+	float4 c1;
+
+	c1.x = (psfx + psfu)/2;
+	c1.y = (psfy + psfv)/2;
+	c1.w = sqrt((c1.x*c1.x) + (c1.y*c1.y));
+
+	c1.x = In.TexCoord0.x - c1.x;
+	c1.y = In.TexCoord0.y - c1.y;
+	c1.z = 1 - (sqrt((c1.x*c1.x) + (c1.y*c1.y)) / c1.w);
+
+	Out.a *= saturate((c1.z - clock) * 15);
+}
+		</pixelshader>
+		<vertexshader></vertexshader>
+	</transition>
+	<transition id="cut" name="Cut">
+		<pixelshader>
+cbuffer myConst : register(b1)
+{
+    float4 p0;
+    float4 p1;
+}
+
+#define zorder (p1[3])
+#define rand_val_const (p0[0])
+#define rand_val_var (p0[1])
+#define clock (p0[3])
+
+#define PI acos(-1)
+
+void CustomPS(VS_TO_PS In, out float4 Out : SV_Target)
+{
+	TEXSAMPLE(Out, In.TexCoord0);
+	if (clock >= 0.5) Out.a = 0.0;
+}
+		</pixelshader>
+		<vertexshader></vertexshader>
+	</transition>
+	<transition id="fade" name="Fade">
+		<pixelshader>
+cbuffer myConst : register(b1)
+{
+    float4 p0;
+    float4 p1;
+}
+
+#define zorder (p1[3])
+#define rand_val_const (p0[0])
+#define rand_val_var (p0[1])
+#define clock (p0[3])
+
+#define PI acos(-1)
+
+void CustomPS(VS_TO_PS In, out float4 Out : SV_Target)
+{
+	TEXSAMPLE(Out, In.TexCoord0);
+	Out.a *= 1.0 - clock;
+}
+		</pixelshader>
+		<vertexshader></vertexshader>
+	</transition>
+	<transition id="fadetoblack" name="Fade To Black">
+		<pixelshader>
+cbuffer myConst : register(b1)
+{
+    float4 p0;
+    float4 p1;
+}
+
+#define zorder (p1[3])
+#define rand_val_const (p0[0])
+#define rand_val_var (p0[1])
+#define clock (p0[3])
+
+#define PI acos(-1)
+
+void CustomPS(VS_TO_PS In, out float4 Out : SV_Target)
+{
+	TEXSAMPLE(Out, In.TexCoord0);
+	Out.rgb *= saturate(1.0 - clock * 2.0);
+	Out.a *= saturate(2.0 - clock * 2.0);
+}
+		</pixelshader>
+		<vertexshader></vertexshader>
+	</transition>
+	<transition id="fadetowhite" name="Fade To White">
+		<pixelshader>
+cbuffer myConst : register(b1)
+{
+    float4 p0;
+    float4 p1;
+}
+
+#define zorder (p1[3])
+#define rand_val_const (p0[0])
+#define rand_val_var (p0[1])
+#define clock (p0[3])
+
+#define PI acos(-1)
+
+void CustomPS(VS_TO_PS In, out float4 Out : SV_Target)
+{
+	TEXSAMPLE(Out, In.TexCoord0);
+	Out.rgb = lerp(Out.rgb, float3(1, 1, 1), saturate(clock * 2.0));
+	Out.a *= saturate(2.0 - clock * 2.0);
+}
+		</pixelshader>
+		<vertexshader></vertexshader>
+	</transition>
+	<transition id="fan" name="Fan">
+		<pixelshader>
+cbuffer myConst : register(b1)
+{
+    float4 p0;
+    float4 p1;
+}
+
+#define zorder (p1[3])
+#define rand_val_const (p0[0])
+#define rand_val_var (p0[1])
+#define clock (p0[3])
+
+#define PI acos(-1)
+
+void CustomPS(VS_TO_PS In, out float4 Out : SV_Target)
+{
+	TEXSAMPLE(Out, In.TexCoord0);
+	float4 c1;
+
+	c1.x = fmod(atan2(-In.TexCoord0.x + (psfx + psfu)/2, In.TexCoord0.y - (psfy + psfv)/2) + PI, PI / 2);
+	c1.y = clock * PI / 2;
+
+	Out.a *= saturate((c1.x - c1.y) * 2);
+}
+		</pixelshader>
+		<vertexshader></vertexshader>
+	</transition>
+	<transition id="hole" name="Hole">
+		<pixelshader>
+cbuffer myConst : register(b1)
+{
+    float4 p0;
+    float4 p1;
+}
+
+#define zorder (p1[3])
+#define rand_val_const (p0[0])
+#define rand_val_var (p0[1])
+#define clock (p0[3])
+
+#define PI acos(-1)
+
+void CustomPS(VS_TO_PS In, out float4 Out : SV_Target)
+{
+	TEXSAMPLE(Out, In.TexCoord0);
+	float4 c1;
+
+	c1.x = (psfx + psfu)/2;
+	c1.y = (psfy + psfv)/2;
+	c1.w = sqrt((c1.x*c1.x) + (c1.y*c1.y));
+
+	c1.x = In.TexCoord0.x - c1.x;
+	c1.y = In.TexCoord0.y - c1.y;
+	c1.z = sqrt((c1.x*c1.x) + (c1.y*c1.y)) / c1.w;
+
+	Out.a *= saturate((c1.z - clock) * 15);
+}
+		</pixelshader>
+		<vertexshader></vertexshader>
+	</transition>
+	<transition id="move_left" name="Move left">
+		<pixelshader>
+cbuffer myConst : register(b1)
+{
+    float4 p0;
+    float4 p1;
+}
+
+#define zorder (p1[3])
+#define rand_val_const (p0[0])
+#define rand_val_var (p0[1])
+#define clock (p0[3])
+
+#define PI acos(-1)
+
+void CustomPS(VS_TO_PS In, out float4 Out : SV_Target)
+{
+	In.TexCoord0.x += clock * (psfu - psfx);
+
+	float4 limit = float4(min(psfx, psfu), min(psfy, psfv), max(psfx, psfu), max(psfy, psfv));
+	if(In.TexCoord0.x &gt;= limit[0] &amp;&amp; In.TexCoord0.x &lt;= limit[2] &amp;&amp; In.TexCoord0.y &gt;= limit[1] &amp;&amp; In.TexCoord0.y &lt;= limit[3])
+	{
+		TEXSAMPLE(Out, In.TexCoord0);
+	} else {
+		Out = float4(0, 0, 0, 0);
+	}
+}
+		</pixelshader>
+		<vertexshader></vertexshader>
+	</transition>
+	<transition id="move_right" name="Move right">
+		<pixelshader>
+cbuffer myConst : register(b1)
+{
+    float4 p0;
+    float4 p1;
+}
+
+#define zorder (p1[3])
+#define rand_val_const (p0[0])
+#define rand_val_var (p0[1])
+#define clock (p0[3])
+
+#define PI acos(-1)
+
+void CustomPS(VS_TO_PS In, out float4 Out : SV_Target)
+{
+	In.TexCoord0.x -= clock * (psfu - psfx);
+
+	float4 limit = float4(min(psfx, psfu), min(psfy, psfv), max(psfx, psfu), max(psfy, psfv));
+	if(In.TexCoord0.x &gt;= limit[0] &amp;&amp; In.TexCoord0.x &lt;= limit[2] &amp;&amp; In.TexCoord0.y &gt;= limit[1] &amp;&amp; In.TexCoord0.y &lt;= limit[3])
+	{
+		TEXSAMPLE(Out, In.TexCoord0);
+	} else {
+		Out = float4(0, 0, 0, 0);
+	}
+}
+		</pixelshader>
+		<vertexshader></vertexshader>
+	</transition>
+	<transition id="move_left_right" name="Move left &amp; right">
+		<pixelshader>
+cbuffer myConst : register(b1)
+{
+    float4 p0;
+    float4 p1;
+}
+
+#define zorder (p1[3])
+#define rand_val_const (p0[0])
+#define rand_val_var (p0[1])
+#define clock (p0[3])
+
+#define PI acos(-1)
+
+void CustomPS(VS_TO_PS In, out float4 Out : SV_Target)
+{
+	float c0 = sin(PI * 2 * 10 * (In.TexCoord0.y - min(psfy, psfv)) / (psfv - psfy));
+	In.TexCoord0.x += (c0 &gt; 0) ? clock * (psfu - psfx) : -clock * (psfu - psfx);
+
+	float4 limit = float4(min(psfx, psfu), min(psfy, psfv), max(psfx, psfu), max(psfy, psfv));
+	if(In.TexCoord0.x &gt;= limit[0] &amp;&amp; In.TexCoord0.x &lt;= limit[2] &amp;&amp; In.TexCoord0.y &gt;= limit[1] &amp;&amp; In.TexCoord0.y &lt;= limit[3])
+	{
+		TEXSAMPLE(Out, In.TexCoord0);
+	} else {
+		Out = float4(0, 0, 0, 0);
+	}
+
+}
+		</pixelshader>
+		<vertexshader></vertexshader>
+	</transition>
+	<transition id="move_top" name="Move top">
+		<pixelshader>
+cbuffer myConst : register(b1)
+{
+    float4 p0;
+    float4 p1;
+}
+
+#define zorder (p1[3])
+#define rand_val_const (p0[0])
+#define rand_val_var (p0[1])
+#define clock (p0[3])
+
+#define PI acos(-1)
+
+void CustomPS(VS_TO_PS In, out float4 Out : SV_Target)
+{
+	In.TexCoord0.y += clock * (psfv - psfy);
+
+	float4 limit = float4(min(psfx, psfu), min(psfy, psfv), max(psfx, psfu), max(psfy, psfv));
+	if(In.TexCoord0.x &gt;= limit[0] &amp;&amp; In.TexCoord0.x &lt;= limit[2] &amp;&amp; In.TexCoord0.y &gt;= limit[1] &amp;&amp; In.TexCoord0.y &lt;= limit[3])
+	{
+		TEXSAMPLE(Out, In.TexCoord0);
+	} else {
+		Out = float4(0, 0, 0, 0);
+	}
+}
+		</pixelshader>
+		<vertexshader></vertexshader>
+	</transition>
+	<transition id="move_bottom" name="Move bottom">
+		<pixelshader>
+cbuffer myConst : register(b1)
+{
+    float4 p0;
+    float4 p1;
+}
+
+#define zorder (p1[3])
+#define rand_val_const (p0[0])
+#define rand_val_var (p0[1])
+#define clock (p0[3])
+
+#define PI acos(-1)
+
+void CustomPS(VS_TO_PS In, out float4 Out : SV_Target)
+{
+	In.TexCoord0.y -= clock * (psfv - psfy);
+
+	float4 limit = float4(min(psfx, psfu), min(psfy, psfv), max(psfx, psfu), max(psfy, psfv));
+	if(In.TexCoord0.x &gt;= limit[0] &amp;&amp; In.TexCoord0.x &lt;= limit[2] &amp;&amp; In.TexCoord0.y &gt;= limit[1] &amp;&amp; In.TexCoord0.y &lt;= limit[3])
+	{
+		TEXSAMPLE(Out, In.TexCoord0);
+	} else {
+		Out = float4(0, 0, 0, 0);
+	}
+}
+		</pixelshader>
+		<vertexshader></vertexshader>
+	</transition>
+	<transition id="move_top_bottom" name="Move top &amp; bottom">
+		<pixelshader>
+cbuffer myConst : register(b1)
+{
+    float4 p0;
+    float4 p1;
+}
+
+#define zorder (p1[3])
+#define rand_val_const (p0[0])
+#define rand_val_var (p0[1])
+#define clock (p0[3])
+
+#define PI acos(-1)
+
+void CustomPS(VS_TO_PS In, out float4 Out : SV_Target)
+{
+	float c0 = sin(PI * 2 * 10 * (In.TexCoord0.x - min(psfx, psfu)) / (psfu - psfx));
+	In.TexCoord0.y += (c0 &gt; 0) ? clock * (psfv - psfy) : -clock * (psfv - psfy);
+
+	float4 limit = float4(min(psfx, psfu), min(psfy, psfv), max(psfx, psfu), max(psfy, psfv));
+	if(In.TexCoord0.x &gt;= limit[0] &amp;&amp; In.TexCoord0.x &lt;= limit[2] &amp;&amp; In.TexCoord0.y &gt;= limit[1] &amp;&amp; In.TexCoord0.y &lt;= limit[3])
+	{
+		TEXSAMPLE(Out, In.TexCoord0);
+	} else {
+		Out = float4(0, 0, 0, 0);
+	}
+}
+		</pixelshader>
+		<vertexshader></vertexshader>
+	</transition>
+	<transition id="wave" name="Wave">
+		<pixelshader>
+cbuffer myConst : register(b1)
+{
+    float4 p0;
+    float4 p1;
+}
+
+#define zorder (p1[3])
+#define rand_val_const (p0[0])
+#define rand_val_var (p0[1])
+#define clock (p0[3])
+
+#define PI acos(-1)
+
+void CustomPS(VS_TO_PS In, out float4 Out : SV_Target)
+{
+	In.TexCoord0.x += sin(In.TexCoord0.x+clock/0.2)/20;
+	In.TexCoord0.y += sin(In.TexCoord0.x*6.28+clock/0.2)/20;
+
+	float4 limit = float4(min(psfx, psfu), min(psfy, psfv), max(psfx, psfu), max(psfy, psfv));
+	if(In.TexCoord0.x &gt;= limit[0] &amp;&amp; In.TexCoord0.x &lt;= limit[2] &amp;&amp; In.TexCoord0.y &gt;= limit[1] &amp;&amp; In.TexCoord0.y &lt;= limit[3])
+	{
+		TEXSAMPLE(Out, In.TexCoord0);
+		Out.a *= 1-clock;
+	} else {
+		Out = float4(0, 0, 0, 0);
+	}
+}
+		</pixelshader>
+		<vertexshader></vertexshader>
+	</transition>
+	<transition id="zoom" name="Zoom">
+		<pixelshader>
+cbuffer myConst : register(b1)
+{
+    float4 p0;
+    float4 p1;
+}
+
+#define zorder (p1[3])
+#define rand_val_const (p0[0])
+#define rand_val_var (p0[1])
+#define clock (p0[3])
+
+#define PI acos(-1)
+
+void CustomPS(VS_TO_PS In, out float4 Out : SV_Target)
+{
+	float func = 1 - clock; // linear
+
+	float2 m = float2((psfu + psfx) / 2, (psfv + psfy) / 2);
+	In.TexCoord0 = (In.TexCoord0 - m) / func + m;
+
+	float4 limit = float4(min(psfx, psfu), min(psfy, psfv), max(psfx, psfu), max(psfy, psfv));
+	if(In.TexCoord0.x &gt;= limit[0] &amp;&amp; In.TexCoord0.x &lt;= limit[2] &amp;&amp; In.TexCoord0.y &gt;= limit[1] &amp;&amp; In.TexCoord0.y &lt;= limit[3])
+	{
+		TEXSAMPLE(Out, In.TexCoord0);
+	} else {
+		Out = float4(0, 0, 0, 0);
+	}
+}
+		</pixelshader>
+		<vertexshader></vertexshader>
+	</transition>
+	<transition id="easeOutBounce" name="Ease Out Bounce">
+		<pixelshader>
+cbuffer myConst : register(b1)
+{
+    float4 p0;
+    float4 p1;
+}
+
+#define zorder (p1[3])
+#define rand_val_const (p0[0])
+#define rand_val_var (p0[1])
+#define clock (p0[3])
+
+#define PI acos(-1)
+
+float easeOutBounce(float x, float t, float b, float c, float d)
+{
+	if ((t/=d) &lt; (1/2.75)) {
+		return c*(7.5625*t*t) + b;
+	} else if (t &lt; (2/2.75)) {
+		return c*(7.5625*(t-=(1.5/2.75))*t + .75) + b;
+	} else if (t &lt; (2.5/2.75)) {
+		return c*(7.5625*(t-=(2.25/2.75))*t + .9375) + b;
+	} else {
+		return c*(7.5625*(t-=(2.625/2.75))*t + .984375) + b;
+	}
+}
+
+void CustomPS(VS_TO_PS In, out float4 Out : SV_Target)
+{
+	float func = easeOutBounce(0, 1 - clock, 0, 1, 1);
+
+	float2 m = float2((psfx + psfu) / 2, (psfy + psfv) / 2);
+	In.TexCoord0 = (In.TexCoord0 - m) / func + m;
+
+	float4 limit = float4(min(psfx, psfu), min(psfy, psfv), max(psfx, psfu), max(psfy, psfv));
+	if(In.TexCoord0.x &gt;= limit[0] &amp;&amp; In.TexCoord0.x &lt;= limit[2] &amp;&amp; In.TexCoord0.y &gt;= limit[1] &amp;&amp; In.TexCoord0.y &lt;= limit[3])
+	{
+		TEXSAMPLE(Out, In.TexCoord0);
+	} else {
+		Out = float4(0, 0, 0, 0);
+	}
+}
+		</pixelshader>
+		<vertexshader></vertexshader>
+	</transition>
+	<transition id="easeOutElastic" name="Ease Out Elastic">
+		<pixelshader>
+cbuffer myConst : register(b1)
+{
+    float4 p0;
+    float4 p1;
+}
+
+#define zorder (p1[3])
+#define rand_val_const (p0[0])
+#define rand_val_var (p0[1])
+#define clock (p0[3])
+
+#define PI acos(-1)
+
+float easeOutElastic(float x, float t, float b, float c, float d)
+{
+	if (t==0) return b;  if ((t/=d)==1) return b+c;  
+	float p=d*.3;
+	float a=c; 
+	float s=p/4;
+	return (a*pow(2,-10*t) * sin( (t*d-s)*(2*PI)/p ) + c + b);	
+}
+
+void CustomPS(VS_TO_PS In, out float4 Out : SV_Target)
+{
+	float func = easeOutElastic(0, 1 - clock, 0, 1, 1);
+
+	float2 m = float2((psfx + psfu) / 2, (psfy + psfv) / 2);
+	In.TexCoord0 = (In.TexCoord0 - m) / func + m;
+
+	float4 limit = float4(min(psfx, psfu), min(psfy, psfv), max(psfx, psfu), max(psfy, psfv));
+	if(In.TexCoord0.x &gt;= limit[0] &amp;&amp; In.TexCoord0.x &lt;= limit[2] &amp;&amp; In.TexCoord0.y &gt;= limit[1] &amp;&amp; In.TexCoord0.y &lt;= limit[3])
+	{
+		TEXSAMPLE(Out, In.TexCoord0);
+	} else {
+		Out = float4(0, 0, 0, 0);
+	}
+}
+		</pixelshader>
+		<vertexshader></vertexshader>
+	</transition>
+	<transition id="easeInOutBack" name="Ease In Out Back">
+		<pixelshader>
+cbuffer myConst : register(b1)
+{
+    float4 p0;
+    float4 p1;
+}
+
+#define zorder (p1[3])
+#define rand_val_const (p0[0])
+#define rand_val_var (p0[1])
+#define clock (p0[3])
+
+#define PI acos(-1)
+
+float easeInBack(float x, float t, float b, float c, float d) {
+	float s = 1.70158;
+	float postFix = t/=d;
+	return c*(postFix)*t*((s+1)*t - s) + b;
+}
+
+float easeOutBack(float x, float t, float b, float c, float d) {	
+	float s = 1.70158;
+	return c*((t=t/d-1)*t*((s+1)*t + s) + 1) + b;
+}
+
+float easeInOutBack(float x, float t, float b, float c, float d) {
+	float s = 1.70158;
+	if ((t/=d/2) &lt; 1) return c/2*(t*t*(((s*=(1.525))+1)*t - s)) + b;
+	float postFix = t-=2;
+	return c/2*((postFix)*t*(((s*=(1.525))+1)*t + s) + 2) + b;
+}
+
+void CustomPS(VS_TO_PS In, out float4 Out : SV_Target)
+{
+	float func = easeInOutBack(0, 1 - clock, 0, 1, 1);
+
+	float2 m = float2((psfx + psfu) / 2, (psfy + psfv) / 2);
+	In.TexCoord0 = (In.TexCoord0 - m) / func + m;
+
+	float4 limit = float4(min(psfx, psfu), min(psfy, psfv), max(psfx, psfu), max(psfy, psfv));
+	if(In.TexCoord0.x &gt;= limit[0] &amp;&amp; In.TexCoord0.x &lt;= limit[2] &amp;&amp; In.TexCoord0.y &gt;= limit[1] &amp;&amp; In.TexCoord0.y &lt;= limit[3])
+	{
+		TEXSAMPLE(Out, In.TexCoord0);
+	} else {
+		Out = float4(0, 0, 0, 0);
+	}
+}
+		</pixelshader>
+		<vertexshader></vertexshader>
+	</transition>
+</configuration>

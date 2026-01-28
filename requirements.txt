@@ -1,45 +1,9 @@
-# ========================================
-# Candy Defect Detection System
-# Python Dependencies
-# ========================================
-
-# ========================================
-# Core Dependencies
-# ========================================
-# Computer Vision
-opencv-python>=4.8.0
-numpy>=1.24.0
-
-# Deep Learning - YOLOv8
-ultralytics>=8.0.0        # YOLOv8 (includes PyTorch dependencies)
-
-# ========================================
-# Web Framework
-# ========================================
-flask>=3.0.0
-flask-cors>=4.0.0
-
-# ========================================
-# Data Processing & Utilities
-# ========================================
-pyyaml>=6.0
-pillow>=10.0.0
-requests>=2.31.0
-keyboard>=0.13.5
-send2trash>=1.8.2
-
-# ========================================
-# Optional Dependencies
-# ========================================
-# Uncomment if needed for specific features:
-# matplotlib>=3.7.0       # Training curve visualization
-# pandas>=2.0.0           # Data analysis and reporting
-# tqdm>=4.65.0            # Progress bars for batch processing
-
-# ========================================
-# Notes
-# ========================================
-# - PyTorch is automatically installed with ultralytics
-# - For GPU support, ensure CUDA 11.8+ and cuDNN are installed
-# - Use Python 3.11+ for best compatibility
-
+flask==3.0.0
+flask-cors==4.0.0
+opencv-python==4.8.0.76
+ultralytics==8.1.0
+numpy==1.26.0
+psutil==5.9.0
+send2trash==1.8.2
+pillow==10.0.0
+requests==2.31.0

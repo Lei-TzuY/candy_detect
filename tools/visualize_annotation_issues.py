@@ -45,8 +45,6 @@ def visualize_problematic_annotations(dataset_dir, report_file='annotation_quali
             img_issues[img_name].append(item['box'])
         
         for idx, (img_name, boxes) in enumerate(img_issues.items()):
-            if idx >= 20:  # 只处理前 20 张
-                break
             
             img_path = images_dir / img_name
             if not img_path.exists():
@@ -99,7 +97,7 @@ def visualize_problematic_annotations(dataset_dir, report_file='annotation_quali
             output_path = out_dir / f"{idx+1:03d}_{img_name}"
             cv2.imwrite(str(output_path), img)
         
-        print(f"   ✅ 已保存 {min(len(img_issues), 20)} 张图片到 {out_dir}")
+        print(f"   ✅ 已保存 {len(img_issues)} 张图片到 {out_dir}")
     
     # 2. 处理过大的边界框
     if issues['too_large']:
@@ -108,7 +106,7 @@ def visualize_problematic_annotations(dataset_dir, report_file='annotation_quali
         
         print(f"\n📦 处理过大的边界框 ({len(issues['too_large'])} 个)...")
         
-        for idx, item in enumerate(issues['too_large'][:10]):
+        for idx, item in enumerate(issues['too_large']):
             img_name = item['image']
             img_path = images_dir / img_name
             
@@ -136,7 +134,7 @@ def visualize_problematic_annotations(dataset_dir, report_file='annotation_quali
             output_path = large_dir / f"{idx+1:03d}_{img_name}"
             cv2.imwrite(str(output_path), img)
         
-        print(f"   ✅ 已保存 {min(len(issues['too_large']), 10)} 张图片到 {large_dir}")
+        print(f"   ✅ 已保存 {len(issues['too_large'])} 张图片到 {large_dir}")
     
     # 3. 处理长宽比异常
     if issues['abnormal_aspect']:
@@ -145,7 +143,7 @@ def visualize_problematic_annotations(dataset_dir, report_file='annotation_quali
         
         print(f"\n📦 处理长宽比异常 ({len(issues['abnormal_aspect'])} 个)...")
         
-        for idx, item in enumerate(issues['abnormal_aspect'][:10]):
+        for idx, item in enumerate(issues['abnormal_aspect']):
             img_name = item['image']
             img_path = images_dir / img_name
             
@@ -172,7 +170,7 @@ def visualize_problematic_annotations(dataset_dir, report_file='annotation_quali
             output_path = aspect_dir / f"{idx+1:03d}_{img_name}"
             cv2.imwrite(str(output_path), img)
         
-        print(f"   ✅ 已保存 {min(len(issues['abnormal_aspect']), 10)} 张图片到 {aspect_dir}")
+        print(f"   ✅ 已保存 {len(issues['abnormal_aspect'])} 张图片到 {aspect_dir}")
     
     # 4. 处理标注过多的图片
     if issues['too_many_boxes']:
@@ -182,7 +180,7 @@ def visualize_problematic_annotations(dataset_dir, report_file='annotation_quali
         print(f"\n📦 处理标注过多的图片 ({len(issues['too_many_boxes'])} 张)...")
         
         for idx, item in enumerate(sorted(issues['too_many_boxes'], 
-                                         key=lambda x: x['count'], reverse=True)[:10]):
+                                         key=lambda x: x['count'], reverse=True)):
             img_name = item['image']
             img_path = images_dir / img_name
             
@@ -223,7 +221,7 @@ def visualize_problematic_annotations(dataset_dir, report_file='annotation_quali
             output_path = many_dir / f"{idx+1:03d}_{img_name}"
             cv2.imwrite(str(output_path), img)
         
-        print(f"   ✅ 已保存 {min(len(issues['too_many_boxes']), 10)} 张图片到 {many_dir}")
+        print(f"   ✅ 已保存 {len(issues['too_many_boxes'])} 张图片到 {many_dir}")
     
     # 创建 HTML 索引
     html_content = """<!DOCTYPE html>
@@ -261,7 +259,7 @@ def visualize_problematic_annotations(dataset_dir, report_file='annotation_quali
         <p>这些标注的边界框超出了图片范围，需要修正！</p>
         <div class="gallery">
 """
-        for idx, img_file in enumerate(sorted((output_dir / '1_out_of_bounds').glob('*.jpg'))[:20]):
+        for idx, img_file in enumerate(sorted((output_dir / '1_out_of_bounds').glob('*.jpg'))):
             html_content += f"""
             <div class="item">
                 <img src="1_out_of_bounds/{img_file.name}" alt="{img_file.name}">
@@ -280,7 +278,7 @@ def visualize_problematic_annotations(dataset_dir, report_file='annotation_quali
         <p>这些边界框占据了图片的大部分面积，可能是误标。</p>
         <div class="gallery">
 """
-        for idx, img_file in enumerate(sorted((output_dir / '2_too_large').glob('*.jpg'))[:10]):
+        for idx, img_file in enumerate(sorted((output_dir / '2_too_large').glob('*.jpg'))):
             html_content += f"""
             <div class="item">
                 <img src="2_too_large/{img_file.name}" alt="{img_file.name}">
@@ -299,7 +297,7 @@ def visualize_problematic_annotations(dataset_dir, report_file='annotation_quali
         <p>这些边界框的长宽比异常（太宽或太窄）。</p>
         <div class="gallery">
 """
-        for idx, img_file in enumerate(sorted((output_dir / '3_abnormal_aspect').glob('*.jpg'))[:10]):
+        for idx, img_file in enumerate(sorted((output_dir / '3_abnormal_aspect').glob('*.jpg'))):
             html_content += f"""
             <div class="item">
                 <img src="3_abnormal_aspect/{img_file.name}" alt="{img_file.name}">
@@ -318,7 +316,7 @@ def visualize_problematic_annotations(dataset_dir, report_file='annotation_quali
         <p>这些图片有超过 5 个标注框，可能是重复标注。</p>
         <div class="gallery">
 """
-        for idx, img_file in enumerate(sorted((output_dir / '4_too_many_boxes').glob('*.jpg'))[:10]):
+        for idx, img_file in enumerate(sorted((output_dir / '4_too_many_boxes').glob('*.jpg'))):
             html_content += f"""
             <div class="item">
                 <img src="4_too_many_boxes/{img_file.name}" alt="{img_file.name}">

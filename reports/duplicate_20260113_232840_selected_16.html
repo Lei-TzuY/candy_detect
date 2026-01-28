@@ -1,0 +1,250 @@
+
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>重複圖片檢測報告</title>
+    <style>
+        body {
+            font-family: "Microsoft JhengHei", Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .header {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        .stat-box {
+            background: #f0f7ff;
+            padding: 15px;
+            border-radius: 5px;
+            border-left: 4px solid #2196F3;
+        }
+        .stat-label {
+            font-size: 0.9em;
+            color: #666;
+        }
+        .stat-value {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #2196F3;
+        }
+        .duplicate-group {
+            background: white;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .group-header {
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #eee;
+        }
+        .reason {
+            color: #666;
+            font-size: 0.9em;
+        }
+        .image-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            align-items: flex-start;
+        }
+        .image-box {
+            flex: 0 0 auto;
+            text-align: center;
+            position: relative;
+            transition: opacity 0.3s;
+        }
+        .image-box.original {
+            border: 3px solid #4CAF50;
+            padding: 10px;
+            border-radius: 8px;
+            background: #f1f8f4;
+        }
+        .image-box.duplicate {
+            border: 3px solid #f44336;
+            padding: 10px;
+            border-radius: 8px;
+            background: #fef1f0;
+        }
+        .image-box img {
+            max-width: 250px;
+            max-height: 250px;
+            border-radius: 4px;
+            display: block;
+        }
+        .image-label {
+            margin-top: 8px;
+            font-size: 0.85em;
+            word-break: break-all;
+            max-width: 250px;
+        }
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 3px;
+            font-size: 0.75em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .badge.original {
+            background: #4CAF50;
+            color: white;
+        }
+        .badge.duplicate {
+            background: #f44336;
+            color: white;
+        }
+        .arrow {
+            font-size: 2em;
+            color: #999;
+            align-self: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🔍 重複圖片檢測報告</h1>
+        <div class="stats">
+            <div class="stat-box">
+                <div class="stat-label">總圖片數</div>
+                <div class="stat-value">16</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-label">唯一圖片</div>
+                <div class="stat-value">16</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-label">重複群組</div>
+                <div class="stat-value">0</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-label">重複圖片</div>
+                <div class="stat-value">0</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-label">可節省空間</div>
+                <div class="stat-value">0.0 MB</div>
+            </div>
+        </div>
+        <p style="margin-top: 15px; color: #666;">
+            ✅ <strong>綠框</strong> = 將保留的原始圖片 | 
+            ❌ <strong>紅框</strong> = 可刪除的重複圖片（請勾選）
+        </p>
+        <div style="margin-top: 15px;">
+            <button id="selectAllBtn" onclick="toggleSelectAll()" style="padding: 10px 20px; margin-right: 10px; background: #2196F3; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 14px;">☑ 全選</button>
+            <button id="deleteSelectedBtn" onclick="deleteSelected()" style="padding: 10px 20px; background: #f44336; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 14px;">🗑️ 刪除選中項</button>
+            <span id="selectedCount" style="margin-left: 15px; color: #666;">已選擇: 0</span>
+        </div>
+    </div>
+
+    <script>
+        let allSelected = false;
+        
+        function updateSelectedCount() {
+            const checkboxes = document.querySelectorAll('.img-checkbox:checked');
+            document.getElementById('selectedCount').textContent = `已選擇: ${checkboxes.length}`;
+        }
+        
+        function toggleSelectAll() {
+            const checkboxes = document.querySelectorAll('.img-checkbox');
+            allSelected = !allSelected;
+            checkboxes.forEach(cb => cb.checked = allSelected);
+            document.getElementById('selectAllBtn').textContent = allSelected ? '☒ 取消全選' : '☑ 全選';
+            updateSelectedCount();
+        }
+        
+        function deleteSelected() {
+            const checkboxes = document.querySelectorAll('.img-checkbox:checked');
+            if (checkboxes.length === 0) {
+                alert('請先勾選要刪除的圖片');
+                return;
+            }
+            
+            const filenames = Array.from(checkboxes).map(cb => 
+                cb.closest('.image-box').getAttribute('data-filename')
+            );
+            
+            if (!confirm(`確定要刪除 ${filenames.length} 張圖片嗎？`)) {
+                return;
+            }
+            
+            // 調試信息
+            console.log('window.opener:', window.opener);
+            console.log('deleteImagesFromReport:', window.opener ? window.opener.deleteImagesFromReport : 'N/A');
+            
+            // 嘗試調用父窗口的刪除函數
+            if (window.opener && typeof window.opener.deleteImagesFromReport === 'function') {
+                window.opener.deleteImagesFromReport(filenames);
+                alert('刪除請求已發送！');
+                // Mark as deleted in UI
+                checkboxes.forEach(cb => {
+                    const box = cb.closest('.image-box');
+                    box.style.opacity = '0.3';
+                    box.querySelector('.badge').textContent = '已刪除';
+                    box.querySelector('.badge').style.background = '#999';
+                    cb.disabled = true;
+                });
+                updateSelectedCount();
+            } else {
+                // 如果無法通過 window.opener，嘗試直接 API 調用
+                console.error('無法訪問 window.opener.deleteImagesFromReport');
+                
+                if (confirm('無法連接到主視窗。要直接刪除這些文件嗎？')) {
+                    deleteViaAPI(filenames, checkboxes);
+                }
+            }
+        }
+        
+        async function deleteViaAPI(filenames, checkboxes) {
+            try {
+                // 如果是 file:// 協議，需要使用完整 URL
+                const baseUrl = window.location.protocol === 'file:' 
+                    ? 'http://localhost:5000' 
+                    : '';
+                    
+                const response = await fetch(baseUrl + '/api/annotate/delete-images', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ filenames: filenames })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    alert(`刪除完成！\n成功刪除: ${data.deleted} 張圖片`);
+                    // Mark as deleted in UI
+                    checkboxes.forEach(cb => {
+                        const box = cb.closest('.image-box');
+                        box.style.opacity = '0.3';
+                        box.querySelector('.badge').textContent = '已刪除';
+                        box.querySelector('.badge').style.background = '#999';
+                        cb.disabled = true;
+                    });
+                    updateSelectedCount();
+                } else {
+                    alert('刪除失敗: ' + (data.error || '未知錯誤'));
+                }
+            } catch (error) {
+                console.error('刪除錯誤:', error);
+                alert('刪除失敗: ' + error.message);
+            }
+        }
+    </script>
+</body>
+</html>

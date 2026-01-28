@@ -329,12 +329,16 @@
                         <div class="form-group">
                             <label>模型</label>
                             <select id="model-type">
-                                <option value="yolov8n">YOLOv8n</option>
+                                <option value="yolov8n">YOLOv8n (最快)</option>
                                 <option value="yolov8s">YOLOv8s</option>
-                                <option value="yolov8m" selected>YOLOv8m</option>
-                                <option value="yolov8l">YOLOv8l</option>
-                                <option value="yolov8x">YOLOv8x</option>
+                                <option value="yolov8m" selected>YOLOv8m (推薦)</option>
+                                <option value="yolo11n">YOLO11n (最新最快)</option>
+                                <option value="yolo11s">YOLO11s (最新)</option>
+                                <option value="yolo11m">YOLO11m (最新推薦)</option>
                             </select>
+                            <small style="color: #94a3b8; margin-top: 4px; display: block;">
+                                💡 n=nano(快速), s=small(平衡), m=medium(精準) | YOLO11 為最新版本
+                            </small>
                         </div>
                         <div class="form-group">
                             <label>訓練裝置</label>

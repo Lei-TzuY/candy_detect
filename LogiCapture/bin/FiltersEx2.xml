@@ -1,0 +1,70 @@
+<graphcontrol log="1" debuggraph="1" denysourcefilters="1">
+  <allow path="??\windows\system\*" />
+  <allow path="??\windows\system32\*" />
+  <allow path="??\windows\syswow64\*" />
+  <allow path="*\Microsoft Expression\Encoder 4\*" />
+  <allow path="*\Windows Live\Photo Gallery\*" />
+  <allow path="*\VideoLAN\VLC\plugins\*" />
+  <allow path="*\AC3Filter\*" />
+  <allow path="*VHMediaCOM.dll" />
+  <deny displayname="@device:sw:{083863F1-70DE-11D0-BD40-00A0C911CE86}\{025BE2E4-1787-4DA4-A585-C5B2B9EEB57C}" />
+  <deny displayname="@device:sw:{083863F1-70DE-11D0-BD40-00A0C911CE86}\{47E792CF-0BBE-4F7A-859C-194B0768650A}" />
+  <deny displayname="@device:sw:{083863F1-70DE-11D0-BD40-00A0C911CE86}\{01CFC007-C263-420A-80DC-2988DA4C6105}" />
+
+  <!--LAV Video Decoder-->
+  <deny displayname="@device:sw:{083863F1-70DE-11D0-BD40-00A0C911CE86}\{EE30215D-164F-4A92-A4EB-9D4C13390F9F}" />
+  <!--LAV Audio Decoder-->
+  <deny displayname="@device:sw:{083863F1-70DE-11D0-BD40-00A0C911CE86}\{E8E73B6B-4CB3-44A4-BE99-4F7BCB96E491}" />
+  <!--LAV Splitter-->
+  <deny displayname="@device:sw:{083863F1-70DE-11D0-BD40-00A0C911CE86}\{171252A0-8820-4AFE-9DF8-5C92B2D66B04}" />
+
+  <!--DivX Decoder Filter-->
+  <deny displayname="@device:sw:{083863F1-70DE-11D0-BD40-00A0C911CE86}\{78766964-0000-0010-8000-00AA00389B71}" />
+  <!--AC3Filter-->
+  <deny displayname="@device:sw:{083863F1-70DE-11D0-BD40-00A0C911CE86}\{A753A1EC-973E-4718-AF8E-A3F554D45C44}" />
+  <!--CoreAAC Audio Decoder-->
+  <deny displayname="@device:sw:{083863F1-70DE-11D0-BD40-00A0C911CE86}\{6AC7C19E-8CA0-4E3D-9A9F-2881DE29E0AC}" />
+  <!--DivX H.264 Decoder-->
+  <deny displayname="@device:sw:{083863F1-70DE-11D0-BD40-00A0C911CE86}\{6F513D27-97C3-453C-87FE-B24AE50B1601}" />
+  <!--VP7 Decompressor-->
+  <deny displayname="@device:sw:{083863F1-70DE-11D0-BD40-00A0C911CE86}\{C204438D-6E1A-4309-B09C-0C0F749863AF}" />
+
+  <!--Elgato Helper Device (unavailable)-->
+  <deny displayname2="Elgato Helper Device (unavailable)" comparison="sw.icic" />
+  <deny displayname="@device:pnp:\\?\pci#ven_12ab&amp;amp;dev_0380&amp;amp;subsys_00031cfa&amp;amp;rev_00#4&amp;amp;223a9a17&amp;amp;0&amp;amp;00e0#{65e8773d-8f56-11d0-a3b9-00a0c9223196}\{6f814be9-9af6-43cf-9249-c03401000222}" />
+  <deny displayname="@device:pnp:\\?\pci#ven_12ab&amp;amp;dev_0380&amp;amp;subsys_00031cfa&amp;amp;rev_00#4&amp;amp;223a9a17&amp;amp;0&amp;amp;00e0#{33d9a762-90c8-11d0-bd43-00a0c911ce86}\{6f814be9-9af6-43cf-9249-c03401000322}" />
+  <deny displayname="@device:pnp:\\?\pci#ven_12ab&amp;amp;dev_0380&amp;amp;subsys_00031cfa&amp;amp;rev_00#4&amp;amp;223a9a17&amp;amp;0&amp;amp;00e0#{65e8773d-8f56-11d0-a3b9-00a0c9223196}\{6f814be9-9af6-43cf-9249-c03401000322}" />
+
+  <!-- restore DeckLink Video Capture for now API-848-->
+  <!--<deny displayname2="DeckLink Video Capture" comparison="sw.icic" />-->
+
+  <deny displayname2="Intel(R) RealSense(TM) 3D Camera Virtual Driver" comparison="sw.icic" />
+  <deny displayname2="Intel(R) RealSense(TM) Camera SR300 Virtual Driver" comparison="sw.icic" />
+  <deny displayname="@DEVICE:PNP:\\\\?\\USB#VID_8086&amp;amp;PID_0AA5&amp;amp;MI_02#" comparison="sw.icic" />
+
+  <deny path="??\Windows\SysWow64\VSFilter.dll" />
+  <deny path="??\Windows\System32\VSFilter.dll" />
+
+  <!--ArcSoft filters-->
+  <deny path="??\Windows\SysWow64\ArcDemux.ax" />
+  <deny path="??\Windows\System32\ArcDemux.ax" />
+  <deny path="??\Windows\SysWow64\AACDecode.ax" />
+  <deny path="??\Windows\System32\AACDecode.ax" />
+  <deny path="??\Windows\SysWow64\ArcSpl.ax" />
+  <deny path="??\Windows\System32\ArcSpl.ax" />
+  <deny path="??\Windows\SysWow64\mpgaudio.ax" />
+  <deny path="??\Windows\System32\mpgaudio.ax" />
+  <deny path="??\Windows\SysWow64\ASVid.ax" />
+  <deny path="??\Windows\System32\ASVid.ax" />
+
+  <restart displayname="Hauppauge Cx23100 Video Capture" />
+  <restart displayname="Matrox A/V Input" />
+  <denydialog displayname="Hauppauge Siena Video Capture" dialogid="Live:VideoCapturePin" />
+  <denydialog displayname="Hauppauge HD PVR Capture Device" dialogid="Live:VideoCapturePin" />
+  <denydialog displayname="Personify ChromaCam for C922" dialogid="Live:VideoCapturePin" />
+  <denydialog displayname="Personify ChromaCam for C922" dialogid="Live:VideoSource" maxversion="2.9.0.0" />
+  <denydialog displayname="Personify ChromaCam for C922" dialogid="Live:ForceDeinterlace" />
+  <denydialog displayname="Personify ChromaCam" dialogid="Live:VideoCapturePin" />
+  <denydialog displayname="Personify ChromaCam" dialogid="Live:VideoSource" maxversion="2.9.0.0" />
+  <denydialog displayname="Personify ChromaCam" dialogid="Live:ForceDeinterlace" />
+</graphcontrol>

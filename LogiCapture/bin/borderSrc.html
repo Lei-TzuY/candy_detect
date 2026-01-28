@@ -1,0 +1,86 @@
+<html>
+<head>
+  <title>Border Source</title>
+  <style type="text/css">
+    :root {
+      --borderSize: 10px;
+      --borderColor: #FFFFFF;
+      --borderStyle: solid;
+    }
+
+    body {
+      border: var(--borderStyle) var(--borderSize) var(--borderColor);
+      margin: 0;
+    }
+
+    * {
+      overflow: hidden;
+    }
+
+  </style>
+</head>
+
+<body>
+  <script type="text/javascript">
+    const LS_KEY = 'logi-border-evt';
+
+    const getSource = () => {
+      const url = new URL(location.href);
+      const searchParams = new URLSearchParams(url.search);
+      return (searchParams.get('src') || 'both');
+    }
+
+    const srcNumber = getSource();
+
+    const updateHtml = config => {
+      if (!config) {
+        return;
+      }
+      if (typeof config !== 'object') {
+        return;
+      }
+      const { size, color, src1 = 'true', src2 = 'true' } = config;
+      if (size !== undefined) {
+        document.documentElement.style.setProperty('--borderSize', `${size}px`);
+      }
+
+      if (color !== undefined) {
+        document.documentElement.style.setProperty('--borderColor', `${color}`);
+      }
+
+      if (src1 !== undefined && srcNumber === '1') {
+        document.documentElement.style.setProperty('--borderStyle', (src1 === 'true') ? 'solid' : 'none'); 
+      }
+
+      if (src2 !== undefined && srcNumber === '2') {
+        document.documentElement.style.setProperty('--borderStyle', (src2 === 'true') ? 'solid' : 'none'); 
+      }
+    }
+
+    const initializeBorderSrc = () => {
+      const config = localStorage.getItem(LS_KEY);
+      try {
+        updateHtml(JSON.parse(config));
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    const handleStorageEvent = ({ key, newValue }) => {
+      if (key !== LS_KEY) return;
+      try {
+        const config = JSON.parse(newValue);
+        updateHtml(config);
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    initializeBorderSrc();
+    window.addEventListener('storage', handleStorageEvent);
+    window.OnSceneLoad = () => {};
+    window.SetVolume = () => {};
+  </script>
+</body>
+
+</html>

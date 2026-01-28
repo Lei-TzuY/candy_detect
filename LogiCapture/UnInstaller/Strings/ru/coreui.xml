@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<StringDictionary version="1.2">
+  <Strings>
+    <String key="Buttons:MinimizeToolTip">Свернуть</String>
+    <String key="Buttons:CloseToolTip">Закрыть</String>
+
+    <!--First Page-->
+    <String key="WindowName">Программа удаления %BrandName% Capture</String>
+    <String key="UnInstall11">%BrandName% Capture</String>
+    <String key="ApplicationName">Программа удаления %BrandName% Capture</String>
+    <String key="Welcome">%BRANDNAME% Capture</String>
+    <String key="LogitechOptions">%BrandName% Capture</String>
+    <String key="Install">Удалить %BRANDNAME% Capture</String>
+    <String key="Disclaimer:Intro">Нажав "Установить", вы принимаете условия</String>
+    <String key="Disclaimer:EULA">Лицензионное соглашение с конечным пользователем</String>
+
+    <!--Analytics-->
+    <String key="Analytics:HelpUsTitle">ПОМОГИТЕ НАМ УЛУЧШИТЬ НАШИ ПРОДУКТЫ</String>
+    <String key="Analytics:HelpUsDescription">Помогите компании %BrandName% совершенствовать свои продукты и услуги, подтвердив автоматическую отправку данных диагностики продуктов и сведений об их использовании.</String>
+    <String key="Analytics:Allow">УДАЛИТЬ</String>
+    <String key="Analytics:Disallow">ВЫЙТИ</String>
+    <String key="Analytics:ChangeInsideApp">Эту настройку можно изменить, нажав кнопку «Дополнительно» в %BrandName% Capture</String>
+    <String key="Analytics:LearnMore">%BrandName%'s: дополнительные сведения о</String>
+    <String key="Analytics:PrivacyPolicy"> политике конфиденциальности</String>
+    <String key="Analytics:WelcomeEULA"> лицензионного соглашения с конечным пользователем</String>
+      <String key="Analytics:UnInstall2">Приложение %BrandName% Capture будет удалено из системы. Все настройки будут сброшены до заводских значений.</String>
+      <String key="Analytics:UnInstall3">УДАЛИТЬ</String>
+      <String key="Analytics:UnInstall4">ВЫЙТИ</String>
+
+    <!--CloseApps Page-->
+    <String key="CloseApps:Title">Невозможно продолжить удаление</String>
+    <String key="CloseApps:Message">Похоже, ваша камера Logi Capture в данный момент используется. Закройте все приложения, которые могут использовать ее, и повторите попытку.</String>
+    <String key="CloseApps:Message2">Определяем, используется ли камера Logi Capture…</String>
+    <String key="Button:Retry">ПОВТОРИТЬ ПОПЫТКУ</String>
+
+    <!--Installing Page-->
+    <String key="Installing">Выполняется удаление</String>
+    <String key="Installing:2">ВЫПОЛНЯЕТСЯ УСТАНОВКА</String>
+    <String key="AppDescription">%BrandName% Capture позволяет выполнять пользовательскую настройку устройств %BrandName% и в полной мере использовать их возможности.</String>
+    <String key="AppDescription:2">Этот процесс может занять несколько минут. Пожалуйста, подождите.</String>
+      <String key="UnInstalling3">Выполняется удаление</String>
+
+    <!--Install Completed Page-->
+    <String key="Installed">УСТАНАВЛИВАЕТСЯ</String>
+    <String key="MoreInformation">Для получения дополнительной информации посетите</String>
+    <String key="Continue">ПРОДОЛЖИТЬ</String>
+    <String key="OpenApp">ЗАПУСТИТЬ %BRANDNAME% CAPTURE</String>
+      <String key="UnInstallComplete">Удаление завершено</String>
+      <String key="UnInstallComplete2">Приложение %BrandName% Capture удалено из системы.</String>
+      <String key="UnInstallComplete3">ЗАКРЫТЬ</String>
+      <String key="UnInstallLockedFiles">Для завершения удаления рекомендуется перезагрузить систему.</String>
+      <String key="Reboot">ПЕРЕЗАГРУЗИТЬ</String>
+
+
+      <!--Error Page-->
+    <String key="Error:InstallationFailed">ОШИБКА УСТАНОВКИ /n %BRANDNAME% CAPTURE</String>
+    <String key="Button:Quit">ПРЕРВАТЬ УСТАНОВКУ</String>
+    <String key="Button:Continue">Продолжить</String>
+
+
+    <!--Error + Warning Messages-->
+    <String key="Err:Title">ИЗВИНИТЕ ПРОИЗОШЛА ОШИБКА</String>
+    <String key="Err:FailedTitle">ОШИБКА УСТАНОВКИ /n %BRANDNAME% CAPTURE</String>
+    <String key="Err:Failed">Не удалось установить %BrandName% Capture. Для получения дополнительной информации посетите страницу технической поддержки.</String>
+    <String key="Err:OSCHECK">Эта версия ОС не поддерживается\n Дополнительные сведения можно найти на странице технической поддержки.</String>
+    <String key="Err:Singleton">На компьютере запущен еще один экземпляр установщика %BrandName% Capture. Завершите прежнюю установку, прежде чем запускать новую.</String>
+    <String key="Err:OS">Не удалось установить %BrandName% Capture. Требуется ОС Windows 7 или более поздней версии.</String>
+    <String key="Err:Space">Не удалось установить %BrandName% Capture. На системном диске недостаточно свободного места.</String>
+    <String key="Err:Version">В системе обнаружена более новая версия %BrandName% Capture. Текущая установка будет прервана.</String>
+    <String key="Err:Multiuser">Не удалось продолжить, потому что программа %BrandName% Capture запущена под другой учетной записью на этой системе. Повторите попытку после того, как программа %BrandName% Capture будет закрыта под другими учетными записями.</String>
+    <String key="Err:Admin">Не удалось установить %BrandName% Capture.  Для установки данного ПО требуются права администратора.</String>
+    <String key="Button:Okay">ОК</String>
+
+    <!--Error + Warning Buttons-->
+    <!-- FileLocked -->
+    <String key="Warn:Title:FileLocked">ДЛЯ ЗАВЕРШЕНИЯ УСТАНОВКИ ТРЕБУЕТСЯ ПЕРЕЗАПУСК</String>
+    <String key="Warn:Body:FileLocked">Для завершения процесса установки необходимо перезапустить компьютер. До завершения установки %BrandName% Capture не будет работать. Кроме того, некоторые функции устройства могут быть недоступны.</String>
+    <String key="Warn:ButtonPrimary:FileLocked">ПЕРЕЗАГРУЗИТЬ СЕЙЧАС</String>
+    <String key="Warn:ButtonSecondary:FileLocked">ПЕРЕЗАГРУЗИТЬ ПОЗЖЕ</String>
+  </Strings>
+</StringDictionary>
