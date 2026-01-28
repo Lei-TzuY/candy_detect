@@ -1,0 +1,31 @@
+# Auto detect text files and perform LF normalization
+* text=auto
+
+# Batch files should use CRLF
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# Python files should use LF
+*.py text eol=lf
+
+# Web files
+*.html text eol=lf
+*.css text eol=lf
+*.js text eol=lf
+*.json text eol=lf
+
+# Documentation
+*.md text eol=lf
+*.txt text eol=lf
+
+# Binary files
+*.pt binary
+*.weights binary
+*.onnx binary
+*.jpg binary
+*.png binary
+*.gif binary
+*.ico binary
+*.db binary
+*.sqlite binary
+*.zip binary
