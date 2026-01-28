@@ -1,9 +1,18 @@
+# Core Web Framework
 flask==3.0.0
 flask-cors==4.0.0
+
+# Computer Vision & AI
 opencv-python==4.8.0.76
 ultralytics==8.1.0
 numpy==1.26.0
+pillow==10.0.0
+
+# System & Utilities
 psutil==5.9.0
 send2trash==1.8.2
-pillow==10.0.0
 requests==2.31.0
+
+# Optional: For GPU acceleration (uncomment if using CUDA)
+# torch==2.1.0+cu118 --extra-index-url https://download.pytorch.org/whl/cu118
+# torchvision==0.16.0+cu118 --extra-index-url https://download.pytorch.org/whl/cu118

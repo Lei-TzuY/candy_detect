@@ -5,26 +5,67 @@ __pycache__/
 .venv/
 env/
 venv/
+*.egg-info/
+dist/
+build/
 
 # IDEs
 .idea/
 .vscode/
+*.swp
+*.swo
 
-# Project Specific - Large Files & Data
+# Project Specific - Large Model Files (>100MB)
 *.pt
 *.weights
 *.onnx
 *.engine
+*.tflite
+
+# Data & Outputs (Can be large)
 datasets/
 recordings/
 runs/
 results/
 logs/
-*.log
-candy_dataset.zip
+visualizations/
+reports/
+relabeled_visualization/
+annotation_issues_visualization/
+之前訓練的 yolov8/
+
+# Database & Config
 *.db
 *.sqlite
+detection_data.db
+focus_settings.json
+annotation_quality_report*.json
+
+# Archives
+*.zip
+*.tar.gz
+*.rar
+
+# Temporary & Cache
+*.log
+*.tmp
+temp/
 
 # System
+.DS_Store
 thumbs.db
 desktop.ini
+Thumbs.db
+
+# Specific Large Folders
+LabelImg/
+LabelImg_2/
+LogiCapture/
+app/jdk-17.0.6/
+models/
+
+# Keep important files
+!requirements.txt
+!README.md
+!LICENSE
+!.gitignore
