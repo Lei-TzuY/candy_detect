@@ -342,12 +342,12 @@ async function loadStats() {
         stats.forEach(stat => {
             // 假設 stat.name 是 "Camera1", "Camera2" 等，提取索引
             const cameraIndex = parseInt(stat.name.replace('Camera', '')) - 1;
-            
+
             const totalEl = document.getElementById(`stat-total-${cameraIndex}`);
             const normalEl = document.getElementById(`stat-normal-${cameraIndex}`);
             const abnormalEl = document.getElementById(`stat-abnormal-${cameraIndex}`);
             const rateEl = document.getElementById(`stat-rate-${cameraIndex}`);
-            
+
             if (totalEl) totalEl.textContent = stat.total;
             if (normalEl) normalEl.textContent = stat.normal;
             if (abnormalEl) abnormalEl.textContent = stat.abnormal;
@@ -718,52 +718,72 @@ async function loadConfig() {
     }
 }
 
-// 載入模型列表
-async function loadModels() {
+// 儲存設定
+async function saveSettings() {
+    const btn = document.querySelector('.btn-save');
+    const msg = document.getElementById('settingsMessage');
+
+    if (btn) btn.disabled = true;
+    if (msg) {
+        msg.textContent = '儲存中...';
+        msg.className = 'message';
+        msg.style.display = 'block';
+    }
+
     try {
-        const [modelsResponse, currentResponse] = await Promise.all([
-            fetch('/api/models'),
-            fetch('/api/models/current')
-        ]);
+        // 收集偵測參數
+        const confThreshold = document.getElementById('confThreshold').value;
+        const nmsThreshold = document.getElementById('nmsThreshold').value;
 
-        if (!modelsResponse.ok || !currentResponse.ok) {
-            throw new Error('無法載入模型資訊');
-        }
+        const config = {
+            'Detection': {
+                'confidence_threshold': confThreshold,
+                'nms_threshold': nmsThreshold
+            }
+        };
 
-        const models = await modelsResponse.json();
-        const current = await currentResponse.json();
-        const modelSelect = document.getElementById('modelSelect');
-        const currentModelInfo = document.getElementById('currentModelInfo');
+        // 收集攝影機參數
+        const cameraInputs = document.querySelectorAll('#cameraSettings input');
+        cameraInputs.forEach(input => {
+            const section = input.dataset.section;
+            const key = input.dataset.key;
+            const value = input.value;
 
-        modelSelect.innerHTML = ''; // 清空選項
+            if (!config[section]) {
+                config[section] = {};
+            }
+            config[section][key] = value;
+        });
 
-        if (models.length === 0) {
-            modelSelect.innerHTML = '<option value="">沒有可用的模型</option>';
+        const response = await fetch('/api/config', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(config)
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            if (msg) {
+                msg.textContent = '設定已儲存！';
+                msg.className = 'message success';
+            }
+            // 重新載入設定以確認
+            loadConfig();
         } else {
-            models.forEach(model => {
-                const option = document.createElement('option');
-                // Store full model info in data attributes
-                option.value = model.weights;
-                option.dataset.cfg = model.cfg || '';
-                option.dataset.type = model.type || 'yolov4';
-                option.textContent = `${model.name} (${model.type}, ${model.size_mb} MB)`;
-                if (model.weights === current.weights) {
-                    option.selected = true;
-                }
-                modelSelect.appendChild(option);
-            });
+            throw new Error(result.error || '未知錯誤');
         }
-
-        if (current.name !== 'Unknown') {
-            currentModelInfo.textContent = `目前模型: ${current.name}`;
-        } else {
-            currentModelInfo.textContent = '未選擇模型';
-        }
-
     } catch (error) {
-        console.error('載入模型失敗:', error);
-        document.getElementById('modelSelect').innerHTML = '<option value="">載入失敗</option>';
-        document.getElementById('currentModelInfo').textContent = '無法載入模型資訊';
+        console.error('儲存設定失敗:', error);
+        if (msg) {
+            msg.textContent = '儲存失敗: ' + error.message;
+            msg.className = 'message error';
+        }
+    } finally {
+        if (btn) btn.disabled = false;
+        setTimeout(() => {
+            if (msg) msg.style.display = 'none';
+        }, 3000);
     }
 }
 
@@ -1227,42 +1247,72 @@ async function addSelectedCamera() {
 // 載入可用模型列表
 async function loadModels() {
     try {
-        const response = await fetch('/api/models');
-        const data = await response.json();
+        const [modelsResponse, currentResponse] = await Promise.all([
+            fetch('/api/models'),
+            fetch('/api/models/current')
+        ]);
+
+        const data = await modelsResponse.json();
+        const currentData = await currentResponse.json();
+        const currentWeights = currentData.weights;
 
         if (data.success) {
-            const select = document.getElementById('model-versions');
-            const infoSpan = document.getElementById('model-info');
+            const models = data.models;
 
-            // 清空下拉選單
-            select.innerHTML = '';
+            // 1. 更新儀表板下拉選單 (Dashboard)
+            const dashboardSelect = document.getElementById('model-versions');
+            const dashboardInfo = document.getElementById('model-info');
 
-            if (data.models.length === 0) {
-                select.innerHTML = '<option value="">-- 無可用模型 --</option>';
-                return;
+            if (dashboardSelect) {
+                dashboardSelect.innerHTML = '';
+                if (models.length === 0) {
+                    dashboardSelect.innerHTML = '<option value="">-- 無可用模型 --</option>';
+                } else {
+                    models.forEach(model => {
+                        const option = document.createElement('option');
+                        option.value = model.weights;
+                        option.textContent = `${model.name} | ${model.modified}`;
+                        if (model.weights === currentWeights) {
+                            option.selected = true;
+                            option.textContent = `✅ ${option.textContent}`;
+                        }
+                        dashboardSelect.appendChild(option);
+                    });
+                }
             }
 
-            // 填充模型列表，顯示名稱和時間
-            data.models.forEach(model => {
-                const option = document.createElement('option');
-                option.value = model.path;
-                // 顯示格式：名稱 | 時間 | 大小
-                option.textContent = `${model.name} | ${model.modified}`;
-                option.selected = model.is_current;
-
-                // 如果是當前使用的模型，添加標記
-                if (model.is_current) {
-                    option.textContent = `✅ ${option.textContent}`;
+            if (dashboardInfo) {
+                if (currentData.name && currentData.name !== 'Unknown') {
+                    dashboardInfo.textContent = '當前使用'; //  Simplification
+                    dashboardInfo.style.color = '#10b981';
                 }
+            }
 
-                select.appendChild(option);
-            });
+            // 2. 更新設定頁面下拉選單 (Settings)
+            const settingsSelect = document.getElementById('modelSelect');
+            const settingsInfo = document.getElementById('currentModelInfo');
 
-            // 顯示當前模型信息
-            const currentModel = data.models.find(m => m.is_current);
-            if (currentModel && infoSpan) {
-                infoSpan.textContent = `當前使用`;
-                infoSpan.style.color = '#10b981';
+            if (settingsSelect) {
+                settingsSelect.innerHTML = '';
+                if (models.length === 0) {
+                    settingsSelect.innerHTML = '<option value="">沒有可用的模型</option>';
+                } else {
+                    models.forEach(model => {
+                        const option = document.createElement('option');
+                        option.value = model.weights;
+                        option.dataset.cfg = model.cfg || '';
+                        option.dataset.type = model.type || 'yolov4';
+                        option.textContent = `${model.name} (${model.type}, ${model.size_mb} MB)`;
+                        if (model.weights === currentWeights) {
+                            option.selected = true;
+                        }
+                        settingsSelect.appendChild(option);
+                    });
+                }
+            }
+
+            if (settingsInfo) {
+                settingsInfo.textContent = currentData.name !== 'Unknown' ? `目前模型: ${currentData.name}` : '未選擇模型';
             }
         }
     } catch (error) {
