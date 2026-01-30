@@ -1,4 +1,0 @@
-train: C:\Users\User\Desktop\dataset\images\train
-val: C:\Users\User\Desktop\dataset\images\val
-nc: 2
-names: ['abnormal', 'normal']

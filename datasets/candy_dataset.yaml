@@ -1,7 +1,7 @@
 # YOLOv8 糖果瑕疵偵測數據集配置
 
-# 數據集路徑 (相對於此文件的路徑)
-path: yolo_dataset  # 數據集根目錄
+# 數據集路徑 (使用絕對路徑)
+path: D:/專案/candy/datasets/yolo_dataset  # 數據集根目錄
 train: images/train  # 訓練集圖片 (相對於 path)
 val: images/val      # 驗證集圖片 (相對於 path)
 

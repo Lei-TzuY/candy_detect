@@ -2,27 +2,46 @@
 __pycache__/
 *.py[cod]
 *$py.class
-.venv/
-env/
-venv/
+*.so
+*.egg
 *.egg-info/
 dist/
 build/
+.Python
+
+# Virtual Environments
+.venv/
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
 
 # IDEs
 .idea/
 .vscode/
 *.swp
 *.swo
+*.swn
+.project
+.pydevproject
+.settings/
 
-# Project Specific - Large Model Files (>100MB)
+# Jupyter Notebook
+.ipynb_checkpoints
+*.ipynb
+
+# Model Files (Large, >100MB)
 *.pt
+*.pth
 *.weights
 *.onnx
 *.engine
 *.tflite
+*.pb
+*.h5
 
-# Data & Outputs (Can be large)
+# Data & Outputs
 datasets/
 recordings/
 runs/
@@ -33,39 +52,59 @@ reports/
 relabeled_visualization/
 annotation_issues_visualization/
 之前訓練的 yolov8/
+models/
 
-# Database & Config
+# Database & Runtime Config
 *.db
 *.sqlite
+*.sqlite3
 detection_data.db
 focus_settings.json
 annotation_quality_report*.json
+config.local.ini
 
 # Archives
 *.zip
 *.tar.gz
+*.tar.bz2
 *.rar
+*.7z
 
 # Temporary & Cache
 *.log
 *.tmp
+*.temp
 temp/
+cache/
+.cache/
 
-# System
+# System Files
 .DS_Store
 thumbs.db
 desktop.ini
 Thumbs.db
+ehthumbs.db
 
-# Specific Large Folders
+# Large External Tools
 LabelImg/
 LabelImg_2/
 LogiCapture/
-app/jdk-17.0.6/
-models/
+app/jdk-*/
 
-# Keep important files
+# Test Coverage
+.coverage
+htmlcov/
+.pytest_cache/
+.tox/
+
+# Keep Important Files (Exceptions)
 !requirements.txt
 !README.md
 !LICENSE
 !.gitignore
+!.gitattributes
+
+# Environment Variables
+.env
+.env.local
+.env.*.local

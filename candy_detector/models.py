@@ -81,6 +81,7 @@ class CameraContext:
     focus_min: int = 0
     focus_max: int = 255
     relay_delay_ms: int = 0
+    relay_duration_ms: int = 50
     frame_index: int = 0
     
     # 優化相關字段

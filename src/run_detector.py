@@ -146,18 +146,173 @@ def load_yolo_model(config: configparser.ConfigParser):
         return model, class_names
 
 
-def trigger_relay(url: str, delay_ms: int = 0) -> None:
-    """對繼電器 API 發送 POST 請求，可選延遲"""
+def trigger_relay(url: str, delay_ms: int = 0, duration_ms: int = 50) -> None:
+    """對繼電器 API 發送 POST 請求，支援延遲和持續時間 (開-延遲-關)"""
+    # 1. 延遲噴氣 (delay_ms)
     if delay_ms > 0:
         time.sleep(delay_ms / 1000.0)
     
     try:
-        response = requests.post(url, timeout=2)
-        print(f"觸發繼電器: {url}, 狀態碼: {response.status_code}" + (f" (延遲: {delay_ms}ms)" if delay_ms > 0 else ""))
+        # 2. 開啟繼電器 (value=1)
+        # 確保 URL 包含 value=1
+        on_url = url if 'value=1' in url else (url + '&value=1' if '?' in url else url + '?value=1')
+        
+        response = requests.post(on_url, timeout=2)
+        # print(f"觸發繼電器(ON): {on_url}, 狀態碼: {response.status_code}") # 減少日誌
+        
         if response.status_code != 200:
-            print(f"警告: 繼電器 API 回傳異常: {response.text}")
+            print(f"警告: 繼電器開啟失敗: {response.text}")
+            return
+
+        # 3. 持續時間 (duration_ms)
+        if duration_ms > 0:
+            time.sleep(duration_ms / 1000.0)
+            
+            # 4. 關閉繼電器 (value=0)
+            off_url = on_url.replace('value=1', 'value=0')
+            response_off = requests.post(off_url, timeout=2)
+            # print(f"關閉繼電器(OFF): {off_url}, 狀態碼: {response_off.status_code}")
+            
+            if response_off.status_code != 200:
+                print(f"警告: 繼電器關閉失敗: {response_off.text}")
+                
     except requests.exceptions.RequestException as exc:
-        print(f"錯誤: 無法觸發繼電器 {url} - {exc}")
+        print(f"錯誤: 無法操作繼電器 {url} - {exc}")
+
+
+def detect_black_spots(frame: np.ndarray, bbox: list, threshold: float = 0.03, debug: bool = False) -> bool:
+    """
+    檢測糖果區域是否有黑點
+    
+    Args:
+        frame: 原始畫面
+        bbox: 邊界框 [x, y, w, h]
+        threshold: 黑色像素比例閾值 (0.01-0.10)，越小越敏感
+        debug: 是否輸出調試信息
+    
+    Returns:
+        True 如果檢測到黑點，False 否則
+    """
+    try:
+        x, y, w, h = bbox
+        
+        # 確保邊界框在畫面範圍內
+        frame_h, frame_w = frame.shape[:2]
+        x1 = max(0, int(x))
+        y1 = max(0, int(y))
+        x2 = min(frame_w, int(x + w))
+        y2 = min(frame_h, int(y + h))
+        
+        if x2 <= x1 or y2 <= y1:
+            return False
+        
+        # 提取糖果區域
+        roi = frame[y1:y2, x1:x2]
+        
+        if roi.size == 0:
+            return False
+        
+        # 轉換為 HSV 色彩空間（更適合檢測黑色）
+        hsv = cv2.cvtColor(roi, cv2.COLOR_BGR2HSV)
+        
+        # 定義黑色範圍（H 可以是任意值，S 和 V 都很低）
+        # V (明度) < 60 表示暗色
+        # S (飽和度) 可以較寬鬆
+        lower_black = np.array([0, 0, 0])
+        upper_black = np.array([180, 255, 60])
+        
+        # 創建黑色掩碼
+        black_mask = cv2.inRange(hsv, lower_black, upper_black)
+        
+        # 使用形態學操作去除噪點
+        kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
+        black_mask = cv2.morphologyEx(black_mask, cv2.MORPH_OPEN, kernel)
+        black_mask = cv2.morphologyEx(black_mask, cv2.MORPH_CLOSE, kernel)
+        
+        # 計算黑色像素比例
+        black_pixels = cv2.countNonZero(black_mask)
+        total_pixels = roi.shape[0] * roi.shape[1]
+        black_ratio = black_pixels / total_pixels if total_pixels > 0 else 0
+        
+        # 根據閾值判斷是否有黑點
+        has_black_spots = black_ratio > threshold
+        
+        if debug and has_black_spots:
+            print(f"  [黑點檢測] 黑色像素比例: {black_ratio:.2%} (閾值: {threshold:.2%})")
+        
+        return has_black_spots
+        
+    except Exception as e:
+        logger.warning(f"黑點檢測失敗: {e}")
+        return False
+
+
+def detect_color_abnormality(frame: np.ndarray, bbox: list, threshold: float = 0.70, debug: bool = False) -> bool:
+    """
+    檢測糖果顏色是否異常（非亮黃色）
+    
+    Args:
+        frame: 原始畫面
+        bbox: 邊界框 [x, y, w, h]
+        threshold: 黃色像素比例閾值 (0.5-0.9)，需要多少比例的像素是黃色才算正常
+        debug: 是否輸出調試信息
+    
+    Returns:
+        True 如果顏色異常（不是亮黃色），False 如果顏色正常
+    """
+    try:
+        x, y, w, h = bbox
+        
+        # 確保邊界框在畫面範圍內
+        frame_h, frame_w = frame.shape[:2]
+        x1 = max(0, int(x))
+        y1 = max(0, int(y))
+        x2 = min(frame_w, int(x + w))
+        y2 = min(frame_h, int(y + h))
+        
+        if x2 <= x1 or y2 <= y1:
+            return False
+        
+        # 提取糖果區域
+        roi = frame[y1:y2, x1:x2]
+        
+        if roi.size == 0:
+            return False
+        
+        # 轉換為 HSV 色彩空間
+        hsv = cv2.cvtColor(roi, cv2.COLOR_BGR2HSV)
+        
+        # 定義亮黃色範圍（放寬條件，包含更多黃色變體）
+        # H (色調): 15-45 黃色及偏橙、偏綠的黃色
+        # S (飽和度): 50-255 允許較淡的黃色
+        # V (明度): 100-255 允許較暗的黃色
+        lower_yellow = np.array([15, 50, 100])
+        upper_yellow = np.array([45, 255, 255])
+        
+        # 創建黃色掩碼
+        yellow_mask = cv2.inRange(hsv, lower_yellow, upper_yellow)
+        
+        # 使用形態學操作去除噪點
+        kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
+        yellow_mask = cv2.morphologyEx(yellow_mask, cv2.MORPH_OPEN, kernel)
+        yellow_mask = cv2.morphologyEx(yellow_mask, cv2.MORPH_CLOSE, kernel)
+        
+        # 計算黃色像素比例
+        yellow_pixels = cv2.countNonZero(yellow_mask)
+        total_pixels = roi.shape[0] * roi.shape[1]
+        yellow_ratio = yellow_pixels / total_pixels if total_pixels > 0 else 0
+        
+        # 如果黃色像素比例低於閾值，認為顏色異常
+        is_abnormal = yellow_ratio < threshold
+        
+        if debug:
+            print(f"  [顏色檢測] 黃色像素比例: {yellow_ratio:.2%} (閾值: {threshold:.2%}) - {'異常' if is_abnormal else '正常'}")
+        
+        return is_abnormal
+        
+    except Exception as e:
+        logger.warning(f"顏色檢測失敗: {e}")
+        return False
 
 
 def resize_for_display(frame: np.ndarray, target_height: int) -> np.ndarray:
@@ -236,9 +391,14 @@ def run_detection(model, frame, conf_threshold, nms_threshold, model_type='yolov
         for result in results:
             boxes = result.boxes
             for box in boxes:
-                # 獲取邊界框 (x, y, w, h)
+                # 獲取邊界框 xyxy 格式 (左上角和右下角座標)
                 x1, y1, x2, y2 = box.xyxy[0].cpu().numpy()
-                x, y, w, h = x1, y1, x2 - x1, y2 - y1
+                
+                # 轉換為 xywh 格式 (左上角座標 + 寬高)
+                x = float(x1)
+                y = float(y1)
+                w = float(x2 - x1)
+                h = float(y2 - y1)
                 
                 conf = float(box.conf[0])
                 class_id = int(box.cls[0])
@@ -328,6 +488,7 @@ def create_camera_context(config: configparser.ConfigParser, section: str):
     focus_min = cam_config.getint('focus_min', fallback=0)
     focus_max = cam_config.getint('focus_max', fallback=255)
     relay_delay_ms = cam_config.getint('relay_delay_ms', fallback=0)
+    relay_duration_ms = cam_config.getint('relay_duration_ms', fallback=50)
     default_focus = cam_config.getint('default_focus', fallback=-1)
     
     # 優化相關參數
@@ -342,6 +503,7 @@ def create_camera_context(config: configparser.ConfigParser, section: str):
     cap = cv2.VideoCapture(cam_index, cv2.CAP_DSHOW)
     cap.set(cv2.CAP_PROP_FRAME_WIDTH, frame_width)
     cap.set(cv2.CAP_PROP_FRAME_HEIGHT, frame_height)
+    cap.set(cv2.CAP_PROP_FPS, 60)  # 設定為 60 FPS
 
     if not cap.isOpened():
         print(f"錯誤: 無法開啟攝影機 {cam_index} ({cam_name})")
@@ -401,6 +563,7 @@ def create_camera_context(config: configparser.ConfigParser, section: str):
         focus_min=focus_min,
         focus_max=focus_max,
         relay_delay_ms=relay_delay_ms,
+        relay_duration_ms=relay_duration_ms,
         use_roi=use_roi and roi_processor is not None,
         roi_processor=roi_processor,
         use_kalman=use_kalman == 1,
@@ -422,15 +585,52 @@ def process_camera_frame(
     multi_scale_detector=None,
     model_lock=None,
     model_type='yolov4',
+    config=None,
 ) -> np.ndarray | None:
     cam_ctx.frame_index += 1
     ret, frame = cam_ctx.cap.read()
     if not ret:
-        print(f"警告: 無法向 {cam_ctx.name} 取得畫面，略過該幀。")
+        # 記錄連續失敗次數
+        if not hasattr(cam_ctx, 'read_fail_count'):
+            cam_ctx.read_fail_count = 0
+        cam_ctx.read_fail_count += 1
+        
+        # 只在第一次失敗和每 30 次失敗時輸出警告，避免日誌過多
+        if cam_ctx.read_fail_count == 1 or cam_ctx.read_fail_count % 30 == 0:
+            logger.warning(f"{cam_ctx.name} 無法取得畫面 (連續失敗 {cam_ctx.read_fail_count} 次)")
+        
+        # 如果連續失敗超過 100 次，嘗試重新初始化攝影機
+        if cam_ctx.read_fail_count >= 100:
+            logger.error(f"{cam_ctx.name} 連續失敗過多，可能需要檢查連接")
+            cam_ctx.read_fail_count = 0  # 重置計數器
+        
         return None
+    
+    # 成功讀取，重置失敗計數器
+    if hasattr(cam_ctx, 'read_fail_count') and cam_ctx.read_fail_count > 0:
+        if cam_ctx.read_fail_count > 1:
+            logger.info(f"{cam_ctx.name} 已恢復正常 (之前失敗 {cam_ctx.read_fail_count} 次)")
+        cam_ctx.read_fail_count = 0
     
     # 保存原始畫面到緩存（供錄影預覽等功能使用）
     cam_ctx.latest_frame = frame.copy()
+    
+    # 讀取檢測配置
+    enable_black_spot = False
+    black_spot_threshold = 0.03
+    enable_color = False
+    color_threshold = 0.70
+    if config:
+        try:
+            enable_black_spot = config.getint('Detection', 'enable_black_spot_detection', fallback=1) == 1
+            black_spot_threshold = config.getfloat('Detection', 'black_spot_threshold', fallback=0.03)
+            enable_color = config.getint('Detection', 'enable_color_detection', fallback=1) == 1
+            color_threshold = config.getfloat('Detection', 'color_yellow_threshold', fallback=0.70)
+            # 首次輸出配置（只在第一幀）
+            if cam_ctx.frame_index == 1:
+                logger.info(f"{cam_ctx.name} 額外檢測配置: 黑點={'啟用' if enable_black_spot else '停用'}, 顏色={'啟用' if enable_color else '停用'}")
+        except Exception:
+            pass
 
     # 提取 ROI（如果啟用）
     detection_frame = frame
@@ -452,6 +652,21 @@ def process_camera_frame(
                 cx, cy = cam_ctx.roi_processor.convert_roi_to_frame_coords(cx, cy)
             
             label = class_names[classid]
+            
+            # 額外檢測：只對 NORMAL 進行檢測，ABNORMAL 不會被改變
+            if label == CLASS_NORMAL:
+                # 黑點檢測（優先）
+                if enable_black_spot and detect_black_spots(frame, det['bbox'], threshold=black_spot_threshold, debug=False):
+                    label = CLASS_ABNORMAL
+                    if cam_ctx.frame_index % 30 == 0:
+                        print(f"[{cam_ctx.name}] 黑點檢測: 發現黑點，改判為 ABNORMAL")
+                # 顏色檢測（其次）
+                elif enable_color and detect_color_abnormality(frame, det['bbox'], threshold=color_threshold, debug=False):
+                    label = CLASS_ABNORMAL
+                    if cam_ctx.frame_index % 30 == 0:
+                        print(f"[{cam_ctx.name}] 顏色檢測: 顏色異常（非亮黃色），改判為 ABNORMAL")
+            # 如果模型已判定為 ABNORMAL，則保持不變，不再進行額外檢測
+            
             detections.append({'center': (cx, cy), 'label': label, 'score': score, 'bbox': det['bbox']})
     else:
         # 標準檢測
@@ -463,46 +678,86 @@ def process_camera_frame(
             classes, scores, boxes = run_detection(model, detection_frame, conf_threshold, nms_threshold, model_type)
 
         detections = []
+        frame_height, frame_width = detection_frame.shape[:2]
+        
         for (classid, score, box) in zip(classes, scores, boxes):
             classid = int(classid[0] if isinstance(classid, (list, np.ndarray)) else classid)
             score = float(score[0] if isinstance(score, (list, np.ndarray)) else score)
             box = box if isinstance(box, (list, np.ndarray)) else box
             x, y, w, h = box
+            
+            # 過濾不合理的偵測框
+            # 1. 檢查邊界框大小是否合理（糖果應該在 20-400 像素之間）
+            min_size = 20
+            max_size = 400
+            if w < min_size or h < min_size or w > max_size or h > max_size:
+                continue
+            
+            # 2. 檢查長寬比是否合理（糖果應該接近圓形，長寬比在 0.4-2.5 之間）
+            aspect_ratio = w / h if h > 0 else 0
+            if aspect_ratio < 0.4 or aspect_ratio > 2.5:
+                continue
+            
+            # 3. 計算物體在畫面內的可見比例（允許邊緣物體，只要有至少30%可見）
+            # 計算偵測框與畫面的交集
+            x1_visible = max(0, x)
+            y1_visible = max(0, y)
+            x2_visible = min(frame_width, x + w)
+            y2_visible = min(frame_height, y + h)
+            
+            visible_width = max(0, x2_visible - x1_visible)
+            visible_height = max(0, y2_visible - y1_visible)
+            visible_area = visible_width * visible_height
+            total_area = w * h
+            
+            # 如果可見面積小於30%，則跳過（可能是噪點或不完整物體）
+            if total_area > 0:
+                visible_ratio = visible_area / total_area
+                if visible_ratio < 0.3:
+                    continue
+            
+            # 計算中心點
             cx, cy = int(x + w / 2), int(y + h / 2)
             
-            # 如果使用 ROI，轉換座標
+            # 如果使用 ROI，轉換座標到原始畫面
             if cam_ctx.use_roi and cam_ctx.roi_processor:
+                # 轉換左上角座標
+                x_frame, y_frame = cam_ctx.roi_processor.convert_roi_to_frame_coords(x, y)
+                # 寬高不變
                 cx, cy = cam_ctx.roi_processor.convert_roi_to_frame_coords(cx, cy)
+                bbox = [int(x_frame), int(y_frame), int(w), int(h)]
+            else:
+                bbox = [int(x), int(y), int(w), int(h)]
+            
+            # 檢查類別 ID 是否在有效範圍內
+            if classid < 0 or classid >= len(class_names):
+                # 跳過不在定義類別範圍內的偵測
+                # 這可能發生在使用預訓練模型（如 COCO）或類別不匹配的模型時
+                if cam_ctx.frame_index % 100 == 0:  # 每 100 幀警告一次，避免日誌過多
+                    print(f"[警告] {cam_ctx.name}: 偵測到類別 ID {classid} 超出範圍 (0-{len(class_names)-1})。")
+                    print(f"       這可能是因為使用了預訓練模型（COCO 有80類）而非糖果專用模型（2類）。")
+                    print(f"       建議切換到 runs/detect/.../weights/best.pt 等訓練好的模型。")
+                continue
             
             label = class_names[classid]
-            detections.append({'center': (cx, cy), 'label': label, 'score': score, 'bbox': [int(x), int(y), int(w), int(h)]})
+            
+            # 額外檢測：只對 NORMAL 進行檢測，ABNORMAL 不會被改變
+            if label == CLASS_NORMAL:
+                # 黑點檢測（優先）
+                if enable_black_spot and detect_black_spots(frame, bbox, threshold=black_spot_threshold, debug=False):
+                    label = CLASS_ABNORMAL
+                    if cam_ctx.frame_index % 30 == 0:
+                        print(f"[{cam_ctx.name}] 黑點檢測: 發現黑點，改判為 ABNORMAL")
+                # 顏色檢測（其次）
+                elif enable_color and detect_color_abnormality(frame, bbox, threshold=color_threshold, debug=False):
+                    label = CLASS_ABNORMAL
+                    if cam_ctx.frame_index % 30 == 0:
+                        print(f"[{cam_ctx.name}] 顏色檢測: 顏色異常（非亮黃色），改判為 ABNORMAL")
+            # 如果模型已判定為 ABNORMAL，則保持不變，不再進行額外檢測
+            
+            detections.append({'center': (cx, cy), 'label': label, 'score': score, 'bbox': bbox})
     
-    # ??s??????
-    if draw_annotations:
-        for det in detections:
-            cx, cy = det['center']
-            label = det['label']
-            score = det['score']
-            classid = class_names.index(label)
-            color = colors[classid % len(colors)]
-            text_label = f"{label}: {score:.2f}"
-            
-            # ??s?????
-            x, y, w, h = det['bbox']
-            if cam_ctx.use_roi and cam_ctx.roi_processor:
-                x, y = cam_ctx.roi_processor.convert_roi_to_frame_coords(x, y)
-            
-            cv2.rectangle(frame, (x, y), (x + w, y + h), color, 2)
-            cv2.putText(
-                frame,
-                text_label,
-                (x, max(20, y - 10)),
-                cv2.FONT_HERSHEY_SIMPLEX,
-                0.7,
-                color,
-                2,
-            )
-
+    # 更新追蹤物體（在繪製之前）
     remaining = detections[:]
     for track in cam_ctx.tracking_objects.values():
         best_det = None
@@ -516,9 +771,20 @@ def process_camera_frame(
         if best_det:
             track.prev_center = track.center
             track.center = best_det['center']
-            track.last_class = best_det['label']
-            if best_det['label'] == 'abnormal':
+            track.bbox = best_det['bbox']  # 保存邊界框
+            track.score = best_det['score']  # 保存信心分數
+            
+            # 關鍵修復：一旦標記為 abnormal，永遠保持 abnormal
+            if best_det['label'] == CLASS_ABNORMAL or best_det['label'] == 'abnormal':
                 track.seen_abnormal = True
+                track.last_class = CLASS_ABNORMAL
+            elif not track.seen_abnormal:
+                # 只有當從未見過 abnormal 時，才更新為 normal
+                track.last_class = best_det['label']
+            else:
+                # 如果 track.seen_abnormal 已經是 True，強制保持為 abnormal
+                track.last_class = CLASS_ABNORMAL
+            
             track.missed_frames = 0
             remaining.remove(best_det)
         else:
@@ -526,19 +792,95 @@ def process_camera_frame(
         track.age += 1
 
     for det in remaining:
+        # 創建新追蹤物體，確保 seen_abnormal 和 last_class 一致
+        is_abnormal = (det['label'] == CLASS_ABNORMAL or det['label'] == 'abnormal')
+        
+        # 檢查是否在最近 abnormal track 附近（防止快速移動物體丟失後重新檢測為 normal）
+        if not is_abnormal and hasattr(cam_ctx, 'recent_abnormals'):
+            for (old_center, old_frame) in cam_ctx.recent_abnormals:
+                # 60 FPS 下檢查最近 60 幀內的記錄（約1秒）
+                if cam_ctx.frame_index - old_frame > 60:
+                    continue
+                # 計算距離
+                distance = math.hypot(det['center'][0] - old_center[0], det['center'][1] - old_center[1])
+                # 60 FPS 下物體移動更快，擴大到 400 像素
+                if distance < 400:
+                    is_abnormal = True
+                    print(f"[{cam_ctx.name}] 檢測到新物體靠近先前的 abnormal (距離: {distance:.0f}px)，繼承 abnormal 狀態")
+                    break
+        
         new_track = TrackState(
             center=det['center'],
             prev_center=det['center'],
-            seen_abnormal=(det['label'] == 'abnormal'),
-            last_class=det['label'],
+            seen_abnormal=is_abnormal,
+            last_class=CLASS_ABNORMAL if is_abnormal else CLASS_NORMAL,
         )
+        # 保存邊界框和分數到追蹤物體
+        new_track.bbox = det['bbox']
+        new_track.score = det['score']
         cam_ctx.tracking_objects[cam_ctx.track_id] = new_track
         cam_ctx.track_id += 1
+    
+    # 繪製標註：只繪製當前有檢測匹配的追蹤物體（避免殘影）
+    if draw_annotations:
+        for track_id, track in cam_ctx.tracking_objects.items():
+            # 只繪製當前幀有匹配到檢測的追蹤物體（missed_frames == 0）
+            if track.missed_frames > 0:
+                continue
+                
+            # 使用追蹤物體的 last_class（已經過 abnormal 保護）
+            label = track.last_class
+            score = getattr(track, 'score', 0.0)
+            bbox = getattr(track, 'bbox', None)
+            
+            if bbox is None:
+                continue
+                
+            classid = class_names.index(label) if label in class_names else 0
+            color = colors[classid % len(colors)]
+            text_label = f"{label}: {score:.2f}"
+            
+            # 繪製邊界框
+            x, y, w, h = bbox
+            cv2.rectangle(frame, (x, y), (x + w, y + h), color, 2)
+            cv2.putText(
+                frame,
+                text_label,
+                (x, max(20, y - 10)),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                0.7,
+                color,
+                2,
+            )
+            
+            # 繪製追蹤點和 ID
+            pt = track.center
+            cv2.circle(frame, pt, 5, color, -1)
+            cv2.putText(
+                frame,
+                str(track_id),
+                (pt[0], pt[1] - 7),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                0.5,
+                color,
+                2,
+            )
 
     line_mid = (cam_ctx.line_x1 + cam_ctx.line_x2) // 2
     to_remove = []
+    
+    # 初始化 abnormal 記憶列表（用於記錄最近被移除的 abnormal track）
+    if not hasattr(cam_ctx, 'recent_abnormals'):
+        cam_ctx.recent_abnormals = []  # 格式: [(center, frame_index), ...]
+    
     for track_id, track in cam_ctx.tracking_objects.items():
         if track.missed_frames > MAX_MISSED_FRAMES:
+            # 如果是 abnormal track，記錄它的最後位置和時間
+            if track.seen_abnormal:
+                cam_ctx.recent_abnormals.append((track.center, cam_ctx.frame_index))
+                # 60 FPS 下保留最近 60 個 abnormal records（約 1 秒內的記錄）
+                if len(cam_ctx.recent_abnormals) > 60:
+                    cam_ctx.recent_abnormals.pop(0)
             to_remove.append(track_id)
             continue
 
@@ -551,6 +893,7 @@ def process_camera_frame(
         if not track.counted and crossed:
             track.counted = True
             cam_ctx.total_num += 1
+            # 關鍵修復：使用 seen_abnormal 來判斷，而不是 last_class
             if track.seen_abnormal:
                 cam_ctx.abnormal_num += 1
                 if not track.triggered:
@@ -559,7 +902,7 @@ def process_camera_frame(
                     if not getattr(cam_ctx, 'relay_paused', False):
                         threading.Thread(
                             target=trigger_relay,
-                            args=(cam_ctx.relay_url, cam_ctx.relay_delay_ms),
+                            args=(cam_ctx.relay_url, cam_ctx.relay_delay_ms, cam_ctx.relay_duration_ms),
                             daemon=True,
                         ).start()
                     else:
@@ -573,20 +916,7 @@ def process_camera_frame(
     for track_id in to_remove:
         cam_ctx.tracking_objects.pop(track_id, None)
 
-    if draw_annotations:
-        for object_id, track in cam_ctx.tracking_objects.items():
-            pt = track.center
-            cv2.circle(frame, pt, 5, (0, 0, 255), -1)
-            cv2.putText(
-                frame,
-                str(object_id),
-                (pt[0], pt[1] - 7),
-                cv2.FONT_HERSHEY_SIMPLEX,
-                0.5,
-                (0, 0, 255),
-                2,
-            )
-
+    # 繪製偵測線
     cv2.line(frame, (cam_ctx.line_x1, 0), (cam_ctx.line_x1, cam_ctx.frame_height), (200, 100, 0), 2)
     cv2.line(frame, (cam_ctx.line_x2, 0), (cam_ctx.line_x2, cam_ctx.frame_height), (200, 100, 0), 2)
 
@@ -661,6 +991,7 @@ def main(camera_sections: list[str]) -> None:
                     elapsed_time,
                     multi_scale_detector=multi_scale_detector,
                     model_type=model_type,
+                    config=config,
                 )
                 if frame is not None:
                     processed_frames.append(frame)

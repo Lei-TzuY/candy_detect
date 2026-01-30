@@ -1,6 +1,0 @@
-names:
-  0: normal
-  1: abnormal
-path: D:\專案\candy\datasets\candy
-train: images/train
-val: images/val

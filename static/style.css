@@ -112,6 +112,7 @@ body {
     padding: 10px 20px;
     border: none;
     background: var(--nav-bg);
+    color: var(--text-color);
     border-radius: 5px;
     cursor: pointer;
     font-size: 16px;
@@ -282,6 +283,7 @@ body {
     border-radius: 5px;
     background: #000;
 }
+
 .camera-actions {
     display: flex;
     gap: 10px;
@@ -679,6 +681,7 @@ body {
 
 /* 響應式設計 */
 @media (max-width: 768px) {
+
     .stats-container,
     .video-container,
     .charts-container {
@@ -776,7 +779,7 @@ body {
 
 .camera-selector label {
     font-size: 13px;
-    color: #000000;
+    color: var(--text-color);
     white-space: nowrap;
     font-weight: 600;
 }
@@ -821,7 +824,7 @@ body {
 
 .model-selector label {
     font-size: 13px;
-    color: #000000;
+    color: var(--text-color);
     white-space: nowrap;
     font-weight: 600;
 }
@@ -980,6 +983,7 @@ body {
     padding: 5px 10px;
     border: 1px solid var(--border-color);
     background: var(--nav-bg);
+    color: var(--text-color);
     border-radius: 5px;
     cursor: pointer;
     font-size: 14px;
@@ -1040,10 +1044,12 @@ body.restarting {
     background: #2c3e50;
     color: white;
 }
+
 body.restarting h1 {
     font-size: 3em;
     color: white;
 }
+
 body.restarting p {
     font-size: 1.2em;
 }

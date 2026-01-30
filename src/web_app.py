@@ -65,6 +65,11 @@ def add_header(response):
 setup_logger("candy_detector", APP_LOG_FILE)
 logger = get_logger("candy_detector.web")
 
+# 禁用 Flask 的訪問日誌（減少終端輸出噪音）
+import logging
+log = logging.getLogger('werkzeug')
+log.setLevel(logging.ERROR)  # 只顯示錯誤，不顯示訪問日誌
+
 # 全域變數
 camera_contexts = []
 model = None
@@ -191,6 +196,17 @@ def initialize_cameras(camera_sections):
         if cam_ctx:
             camera_contexts.append(cam_ctx)
             logger.info(f"攝影機 {cam_ctx.name} 初始化成功")
+            
+            # 確保焦距設定被應用（攝影機硬體可能重置為預設值）
+            try:
+                default_focus = config.getint(section, 'default_focus', fallback=-1)
+                if default_focus >= 0:
+                    cam_ctx.cap.set(cv2.CAP_PROP_AUTOFOCUS, 0)
+                    time.sleep(0.1)  # 給硬體一點時間切換到手動模式
+                    cam_ctx.cap.set(cv2.CAP_PROP_FOCUS, default_focus)
+                    logger.info(f"已為 {cam_ctx.name} 重新應用焦距設定: {default_focus}")
+            except Exception as e:
+                logger.warning(f"應用焦距設定失敗: {e}")
 
 
 def generate_frames(camera_index=0):
@@ -212,7 +228,8 @@ def generate_frames(camera_index=0):
     while is_running:
         now = time.time()
         elapsed_time = now - start_time
-        colors = [(0, 255, 0), (0, 0, 255), (255, 0, 0), (255, 255, 0)]
+        # 顏色順序：abnormal=紅色, normal=綠色（對應 classes.txt 的順序）
+        colors = [(0, 0, 255), (0, 255, 0), (255, 0, 0), (255, 255, 0)]
 
         # �p�G�b暫�ժ�j��?�A��?�N��ܪ���?�ߧY
         hide_boxes = False
@@ -236,6 +253,7 @@ def generate_frames(camera_index=0):
             draw_annotations=not hide_boxes,
             model_lock=model_lock,
             model_type=model_type,
+            config=config,
         )
 
         if frame is not None:
@@ -255,7 +273,7 @@ def generate_frames(camera_index=0):
                 yield (b'--frame\r\n'
                        b'Content-Type: image/jpeg\r\n\r\n' + frame_bytes + b'\r\n')
 
-        time.sleep(0.03)  # 約 30 FPS
+        time.sleep(0.016)  # 約 60 FPS
 
 
 @app.route('/')
@@ -306,6 +324,26 @@ def get_stats():
         return jsonify(stats)
 
 
+@app.route('/api/stats/reset', methods=['POST'])
+def reset_stats():
+    """重置即時統計數據"""
+    try:
+        with lock:
+            for cam_ctx in camera_contexts:
+                cam_ctx.total_num = 0
+                cam_ctx.normal_num = 0
+                cam_ctx.abnormal_num = 0
+                # 清除追蹤物體
+                cam_ctx.tracking_objects.clear()
+                cam_ctx.track_id = 1
+        
+        logger.info("統計數據已重置")
+        return jsonify({'status': 'success', 'message': '統計數據已重置'})
+    except Exception as e:
+        logger.error(f"重置統計數據失敗: {e}")
+        return jsonify({'status': 'error', 'message': str(e)}), 500
+
+
 @app.route('/api/models')
 def get_models():
     """獲取所有可用的模型列表（根目錄的預訓練模型和已訓練模型）"""
@@ -313,15 +351,15 @@ def get_models():
         models_list = []
         project_root = Path(PROJECT_ROOT)
         
-        # 1. 掃描根目錄的預訓練模型（yolo*.pt）
-        for model_path in project_root.glob('yolo*.pt'):
+        # 1. 掃描根目錄的模型文件
+        # 1a. 糖果訓練模型（candy_*.pt）
+        for model_path in project_root.glob('candy_*.pt'):
             if model_path.is_file():
                 relative_path = model_path.relative_to(PROJECT_ROOT)
                 size_mb = model_path.stat().st_size / (1024 * 1024)
                 modified = datetime.fromtimestamp(model_path.stat().st_mtime)
                 
-                # 使用檔案名稱作為模型名稱（移除 .pt）
-                model_name = model_path.stem  # 例如: yolo11m, yolov8n
+                model_name = model_path.stem
                 display_name = f"{model_name} ({size_mb:.1f}MB)"
                 
                 models_list.append({
@@ -331,47 +369,21 @@ def get_models():
                     'size_mb': round(size_mb, 2),
                     'modified': modified.strftime('%Y-%m-%d %H:%M'),
                     'is_current': str(relative_path) == current_model_path,
-                    'type': 'pretrained'  # 標記為預訓練模型
+                    'type': 'candy'  # 標記為糖果專用模型
                 })
         
-        # 2. 掃描 runs 目錄中的已訓練模型
-        runs_dir = project_root / 'runs'
-        if runs_dir.exists():
-            for model_path in runs_dir.rglob('best.pt'):
-                relative_path = model_path.relative_to(PROJECT_ROOT)
-                size_mb = model_path.stat().st_size / (1024 * 1024)
-                modified = datetime.fromtimestamp(model_path.stat().st_mtime)
-                
-                # 從路徑提取訓練名稱
-                parts = model_path.parts
-                model_name = 'trained_model'
-                
-                for i, part in enumerate(parts):
-                    if part in ['train', 'detect']:
-                        for j in range(i + 1, len(parts)):
-                            if parts[j] not in ['runs', 'weights', 'best.pt']:
-                                model_name = parts[j]
-                                break
-                        break
-                
-                display_name = f"[已訓練] {model_name} ({size_mb:.1f}MB)"
-                
-                models_list.append({
-                    'name': display_name,
-                    'raw_name': model_name,
-                    'path': str(relative_path),
-                    'size_mb': round(size_mb, 2),
-                    'modified': modified.strftime('%Y-%m-%d %H:%M'),
-                    'is_current': str(relative_path) == current_model_path,
-                    'type': 'trained'  # 標記為已訓練模型
-                })
+
         
-        # 按類型和修改時間排序（預訓練模型在前，按名稱排序；已訓練模型在後，按時間排序）
+        
+
+        
+
+        
+        # 按修改時間排序（較新的在前），當前使用的排最前面
         models_list.sort(key=lambda x: (
-            0 if x['type'] == 'pretrained' else 1,
-            x['raw_name'] if x['type'] == 'pretrained' else '',
-            x['modified']
-        ), reverse=False)
+            -1 if x.get('is_current', False) else 0,  # 當前使用的排前面
+            x['modified']  # 按修改時間排序
+        ), reverse=True)
         
         return jsonify({
             'success': True,
@@ -394,9 +406,29 @@ def switch_model():
         if not model_path:
             return jsonify({'success': False, 'error': '未指定模型路徑'}), 400
         
-        full_path = Path(PROJECT_ROOT) / model_path
+        # 直接檢查路徑 (支援絕對路徑與相對路徑)
+        full_path = Path(model_path)
         if not full_path.exists():
-            return jsonify({'success': False, 'error': '模型檔案不存在'}), 404
+            # 嘗試相對於 PROJECT_ROOT
+            full_path = Path(PROJECT_ROOT) / model_path
+            if not full_path.exists():
+                return jsonify({'success': False, 'error': f'模型檔案不存在: {model_path}'}), 404
+            model_path = str(full_path) # 使用完整路徑
+
+        # 更新配置檔 (讓選擇持久化)
+        try:
+            config_manager.config.set('Paths', 'weights', str(model_path))
+            # 同步更新 cfg 如果是 yolov4 (這里簡化處理，因為 switch 通常是 yolov8 pt)
+            if str(model_path).endswith('.weights'):
+                 # 嘗試尋找對應 cfg
+                 cfg_candidate = str(Path(model_path).with_suffix('.cfg'))
+                 if Path(cfg_candidate).exists():
+                     config_manager.config.set('Paths', 'cfg', cfg_candidate)
+            
+            with open('config.ini', 'w', encoding='utf-8') as f:
+                config_manager.config.write(f)
+        except Exception as e:
+            logger.warning(f"更新設定檔失敗 (但仍會嘗試切換模型): {e}")
         
         # 暫停檢測
         was_running = is_running
@@ -519,9 +551,13 @@ def get_history():
 
         history = []
         for row in rows:
+            # 將 UTC 時間轉換為台北時間 (UTC+8)
+            utc_time = datetime.strptime(row[1], '%Y-%m-%d %H:%M:%S')
+            taipei_time = utc_time + timedelta(hours=8)
+            
             history.append({
                 'camera': row[0],
-                'timestamp': row[1],
+                'timestamp': taipei_time.strftime('%Y-%m-%d %H:%M:%S'),
                 'total': row[2],
                 'normal': row[3],
                 'abnormal': row[4],
@@ -580,8 +616,13 @@ def export_history_csv():
         writer = csv.writer(output)
         writer.writerow(["camera", "timestamp", "total", "normal", "abnormal", "defect_rate(%)"])
         for cam, ts, total, normal, abnormal in rows:
+            # 將 UTC 時間轉換為台北時間 (UTC+8)
+            utc_time = datetime.strptime(ts, '%Y-%m-%d %H:%M:%S')
+            taipei_time = utc_time + timedelta(hours=8)
+            taipei_time_str = taipei_time.strftime('%Y-%m-%d %H:%M:%S')
+            
             defect_rate = round(abnormal / total * 100, 2) if total else 0
-            writer.writerow([cam, ts, total, normal, abnormal, defect_rate])
+            writer.writerow([cam, taipei_time_str, total, normal, abnormal, defect_rate])
 
         csv_data = output.getvalue()
         output.close()
@@ -739,7 +780,7 @@ def set_camera_exposure(camera_index):
 
 @app.route('/api/cameras/<int:camera_index>/delay', methods=['POST'])
 def set_camera_delay(camera_index):
-    """設定繼電器延遲時間（毫秒）"""
+    """設定繼電器延遲時間（毫秒），並自動保存到配置文件"""
     try:
         data = request.json or {}
         delay_ms = int(data.get('delay_ms', 1600))
@@ -750,10 +791,59 @@ def set_camera_delay(camera_index):
         cam_ctx = camera_contexts[camera_index]
         cam_ctx.relay_delay_ms = delay_ms
         logger.info(f"{cam_ctx.name} 延遲時間已設定為: {delay_ms}ms")
+        
+        # 自動保存到配置文件
+        try:
+            section_name = f"Camera{camera_index + 1}"
+            if config_manager.config.has_section(section_name):
+                config_manager.config.set(section_name, 'relay_delay_ms', str(delay_ms))
+                with open('config.ini', 'w', encoding='utf-8') as f:
+                    config_manager.config.write(f)
+                logger.info(f"已將 {cam_ctx.name} 的噴氣延遲保存為: {delay_ms}ms")
+            else:
+                logger.warning(f"找不到設定區塊 {section_name}，無法保存延遲時間")
+        except Exception as e:
+            logger.warning(f"保存延遲時間到配置文件失敗: {e}")
 
         return jsonify({'success': True, 'delay_ms': delay_ms})
     except Exception as e:
         logger.error(f"設定延遲時間失敗: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@app.route('/api/cameras/<int:camera_index>/duration', methods=['POST'])
+def set_camera_duration(camera_index):
+    """設定繼電器持續時間（毫秒），並自動保存到配置文件"""
+    try:
+        data = request.json or {}
+        duration_ms = int(data.get('duration_ms', 50))
+        
+        # 限制範圍：最小 10ms，最大 1000ms
+        duration_ms = max(10, min(1000, duration_ms))
+
+        if camera_index < 0 or camera_index >= len(camera_contexts):
+            return jsonify({'success': False, 'error': '攝影機索引無效'}), 400
+
+        cam_ctx = camera_contexts[camera_index]
+        cam_ctx.relay_duration_ms = duration_ms
+        logger.info(f"{cam_ctx.name} 持續時間已設定為: {duration_ms}ms")
+        
+        # 自動保存到配置文件
+        try:
+            section_name = f"Camera{camera_index + 1}"
+            if config_manager.config.has_section(section_name):
+                config_manager.config.set(section_name, 'relay_duration_ms', str(duration_ms))
+                with open('config.ini', 'w', encoding='utf-8') as f:
+                    config_manager.config.write(f)
+                logger.info(f"已將 {cam_ctx.name} 的噴氣持續時間保存為: {duration_ms}ms")
+            else:
+                logger.warning(f"找不到設定區塊 {section_name}，無法保存持續時間")
+        except Exception as e:
+            logger.warning(f"保存持續時間到配置文件失敗: {e}")
+
+        return jsonify({'success': True, 'duration_ms': duration_ms})
+    except Exception as e:
+        logger.error(f"設定持續時間失敗: {e}")
         return jsonify({'success': False, 'error': str(e)}), 500
 
 
@@ -793,7 +883,14 @@ def get_cameras():
             'index': i, 
             'name': cam.name,
             'source_index': cam.index,  # 物理攝影機索引
-            'relay_paused': getattr(cam, 'relay_paused', False)
+            'relay_paused': getattr(cam, 'relay_paused', False),
+            'is_healthy': cam.cap is not None and cam.cap.isOpened(),
+            'read_fail_count': getattr(cam, 'read_fail_count', 0),
+            # 添加設定值（讓前端可以顯示當前配置）
+            'focus': getattr(cam, 'current_focus', 128),
+            'exposure': getattr(cam, 'exposure', -7),
+            'relay_delay_ms': getattr(cam, 'relay_delay_ms', 1600),
+            'relay_duration_ms': getattr(cam, 'relay_duration_ms', 50)
         } 
         for i, cam in enumerate(camera_contexts)
     ]
@@ -937,6 +1034,70 @@ def remove_camera(array_index):
         return jsonify({'success': False, 'error': str(e)}), 500
 
 
+@app.route('/api/cameras/<int:camera_index>/reconnect', methods=['POST'])
+def reconnect_camera(camera_index):
+    """重新連接攝影機"""
+    try:
+        if camera_index < 0 or camera_index >= len(camera_contexts):
+            return jsonify({'success': False, 'error': '無效的攝影機索引'}), 400
+        
+        cam_ctx = camera_contexts[camera_index]
+        old_cap = cam_ctx.cap
+        
+        logger.info(f"嘗試重新連接 {cam_ctx.name}...")
+        
+        # 1. 釋放舊連接
+        if old_cap is not None:
+            old_cap.release()
+            time.sleep(0.5)  # 給系統時間釋放資源
+        
+        # 2. 重新打開攝影機
+        new_cap = cv2.VideoCapture(cam_ctx.index, cv2.CAP_DSHOW)
+        
+        if not new_cap.isOpened():
+            logger.error(f"{cam_ctx.name} 重新連接失敗：無法打開攝影機索引 {cam_ctx.index}")
+            # 嘗試恢復舊連接
+            cam_ctx.cap = old_cap
+            return jsonify({'success': False, 'error': '無法打開攝影機'}), 500
+        
+        # 3. 設定解析度
+        new_cap.set(cv2.CAP_PROP_FRAME_WIDTH, cam_ctx.frame_width)
+        new_cap.set(cv2.CAP_PROP_FRAME_HEIGHT, cam_ctx.frame_height)
+        
+        # 4. 測試讀取
+        ret, _ = new_cap.read()
+        if not ret:
+            logger.error(f"{cam_ctx.name} 重新連接失敗：無法讀取畫面")
+            new_cap.release()
+            cam_ctx.cap = old_cap
+            return jsonify({'success': False, 'error': '無法讀取畫面'}), 500
+        
+        # 5. 應用曝光和焦距設定
+        try:
+            section_name = f"Camera{camera_index + 1}"
+            exposure = config_manager.config.getint(section_name, 'exposure_value', fallback=-7)
+            new_cap.set(cv2.CAP_PROP_AUTO_EXPOSURE, 0.25)
+            new_cap.set(cv2.CAP_PROP_EXPOSURE, exposure)
+            
+            default_focus = config_manager.config.getint(section_name, 'default_focus', fallback=-1)
+            if default_focus >= 0:
+                new_cap.set(cv2.CAP_PROP_AUTOFOCUS, 0)
+                time.sleep(0.1)
+                new_cap.set(cv2.CAP_PROP_FOCUS, default_focus)
+        except Exception as e:
+            logger.warning(f"重新應用攝影機參數時發生警告: {e}")
+        
+        # 6. 更新 context
+        cam_ctx.cap = new_cap
+        cam_ctx.read_fail_count = 0
+        
+        logger.info(f"{cam_ctx.name} 重新連接成功")
+        return jsonify({'success': True, 'message': f'{cam_ctx.name} 已重新連接'})
+        
+    except Exception as e:
+        logger.error(f"重新連接攝影機失敗: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
 
 @app.route('/api/cameras/<int:camera_index>/source', methods=['POST'])
 def switch_camera_source(camera_index):
@@ -997,7 +1158,7 @@ def switch_camera_source(camera_index):
         # 5. 重設曝光和焦距（新來源可能需要重新設定）
         try:
             # 嘗試應用儲存的設定或預設值
-            exposure = config_manager.config.getint(section_name, 'exposure_value', fallback=-7)
+            exposure = config_manager.config.getint(section_name, 'exposure_value', fallback=-5)
             new_cap.set(cv2.CAP_PROP_AUTO_EXPOSURE, 0.25)
             new_cap.set(cv2.CAP_PROP_EXPOSURE, exposure)
             
@@ -1076,9 +1237,10 @@ def test_spray(camera_index):
         return jsonify({'error': 'Relay URL not configured'}), 400
 
     delay_ms = max(0, int(getattr(cam_ctx, 'relay_delay_ms', 0)))
+    duration_ms = max(0, int(getattr(cam_ctx, 'relay_duration_ms', 50)))
     threading.Thread(
         target=trigger_relay,
-        args=(cam_ctx.relay_url, delay_ms),
+        args=(cam_ctx.relay_url, delay_ms, duration_ms),
         daemon=True,
     ).start()
 

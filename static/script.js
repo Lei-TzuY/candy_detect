@@ -34,8 +34,9 @@ function changeZoom(direction) {
 
 
 // 初始化
-document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener('DOMContentLoaded', async function () {
     applyInitialZoom();
+    await resetStatsOnPageLoad();  // 等待重置完成
     initializePage();
     startAutoUpdate();
     setupNavigation();
@@ -212,10 +213,10 @@ async function loadCameras() {
                 <div class="camera-control">
                     <label>
                         <span class="control-label">🎯 焦距:</span>
-                        <input type="range" min="0" max="255" value="128" 
+                        <input type="range" min="0" max="255" value="${camera.focus || 128}" 
                                class="slider" id="focus-${camera.index}"
                                oninput="updateFocus(${camera.index}, this.value)">
-                        <span class="control-value" id="focus-value-${camera.index}">128</span>
+                        <span class="control-value" id="focus-value-${camera.index}">${camera.focus || 128}</span>
                     </label>
                 </div>
                 
@@ -234,10 +235,21 @@ async function loadCameras() {
                 <div class="camera-control">
                     <label>
                         <span class="control-label">⏱️噴氣延遲(ms):</span>
-                        <input type="range" min="0" max="5000" value="1600" step="100"
+                        <input type="range" min="0" max="5000" value="${camera.relay_delay_ms || 1600}" step="100"
                                class="slider" id="delay-${camera.index}"
                                oninput="updateDelay(${camera.index}, this.value)">
-                        <span class="control-value" id="delay-value-${camera.index}">1600</span>
+                        <span class="control-value" id="delay-value-${camera.index}">${camera.relay_delay_ms || 1600}</span>
+                    </label>
+                </div>
+
+                <!-- 噴氣持續時間控制滑軌 -->
+                <div class="camera-control">
+                    <label>
+                        <span class="control-label">💪噴氣時間(ms):</span>
+                        <input type="range" min="10" max="500" value="${camera.relay_duration_ms || 50}" step="10"
+                               class="slider" id="duration-${camera.index}"
+                               oninput="updateDuration(${camera.index}, this.value)">
+                        <span class="control-value" id="duration-value-${camera.index}">${camera.relay_duration_ms || 50}</span>
                     </label>
                 </div>
             `;
@@ -328,6 +340,27 @@ async function removeCamera(cameraIdx) {
     } catch (error) {
         console.error('移除攝影機失敗:', error);
         alert('移除攝影機時發生錯誤');
+    }
+}
+
+
+// 重置統計數據（頁面載入時自動執行）
+async function resetStatsOnPageLoad() {
+    try {
+        const response = await fetch('/api/stats/reset', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (response.ok) {
+            console.log('統計數據已重置');
+        } else {
+            console.warn('重置統計數據失敗');
+        }
+    } catch (error) {
+        console.error('重置統計數據時發生錯誤:', error);
     }
 }
 
@@ -978,6 +1011,31 @@ async function updateDelay(cameraIndex, value) {
     }
 }
 
+// 更新噴氣持續時間
+async function updateDuration(cameraIndex, value) {
+    const valueDisplay = document.getElementById(`duration-value-${cameraIndex}`);
+    if (valueDisplay) {
+        valueDisplay.textContent = value;
+    }
+
+    try {
+        const response = await fetch(`/api/cameras/${cameraIndex}/duration`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ duration_ms: parseInt(value) })
+        });
+        const result = await response.json();
+
+        if (result.success) {
+            console.log(`Camera ${cameraIndex} 持續時間已更新並儲存: ${value}ms`);
+        }
+    } catch (error) {
+        console.error(`Camera ${cameraIndex} 持續時間更新失敗:`, error);
+    }
+}
+
 // 暫停/繼續所有攝影機
 function togglePauseCameras() {
     const btn = document.getElementById('btn-pause-cameras');
@@ -1247,14 +1305,8 @@ async function addSelectedCamera() {
 // 載入可用模型列表
 async function loadModels() {
     try {
-        const [modelsResponse, currentResponse] = await Promise.all([
-            fetch('/api/models'),
-            fetch('/api/models/current')
-        ]);
-
-        const data = await modelsResponse.json();
-        const currentData = await currentResponse.json();
-        const currentWeights = currentData.weights;
+        const response = await fetch('/api/models');
+        const data = await response.json();
 
         if (data.success) {
             const models = data.models;
@@ -1270,9 +1322,9 @@ async function loadModels() {
                 } else {
                     models.forEach(model => {
                         const option = document.createElement('option');
-                        option.value = model.weights;
+                        option.value = model.path;
                         option.textContent = `${model.name} | ${model.modified}`;
-                        if (model.weights === currentWeights) {
+                        if (model.is_current) {
                             option.selected = true;
                             option.textContent = `✅ ${option.textContent}`;
                         }
@@ -1282,8 +1334,9 @@ async function loadModels() {
             }
 
             if (dashboardInfo) {
-                if (currentData.name && currentData.name !== 'Unknown') {
-                    dashboardInfo.textContent = '當前使用'; //  Simplification
+                const currentModel = models.find(m => m.is_current);
+                if (currentModel) {
+                    dashboardInfo.textContent = '當前使用';
                     dashboardInfo.style.color = '#10b981';
                 }
             }
@@ -1299,11 +1352,11 @@ async function loadModels() {
                 } else {
                     models.forEach(model => {
                         const option = document.createElement('option');
-                        option.value = model.weights;
+                        option.value = model.path;
                         option.dataset.cfg = model.cfg || '';
                         option.dataset.type = model.type || 'yolov4';
                         option.textContent = `${model.name} (${model.type}, ${model.size_mb} MB)`;
-                        if (model.weights === currentWeights) {
+                        if (model.is_current) {
                             option.selected = true;
                         }
                         settingsSelect.appendChild(option);
@@ -1312,7 +1365,8 @@ async function loadModels() {
             }
 
             if (settingsInfo) {
-                settingsInfo.textContent = currentData.name !== 'Unknown' ? `目前模型: ${currentData.name}` : '未選擇模型';
+                const currentModel = models.find(m => m.is_current);
+                settingsInfo.textContent = currentModel ? `目前模型: ${currentModel.name}` : '未選擇模型';
             }
         }
     } catch (error) {

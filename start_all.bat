@@ -2,8 +2,10 @@
 chcp 65001 >nul
 title Candy Detection System
 
-REM 將終端機視窗最大化
+REM 設定終端機視窗大小和緩衝區
+REM cols=寬度(字符數), lines=視窗高度, 使用 powershell 設定更大的緩衝區
 mode con: cols=200 lines=50
+powershell -Command "$Host.UI.RawUI.BufferSize = New-Object Management.Automation.Host.Size(200, 3000)" 2>nul
 
 echo ========================================
 echo   Candy Detection System - Starting
@@ -26,7 +28,7 @@ for /f "tokens=5" %%a in ('netstat -aon ^| findstr ":5000" ^| findstr "LISTENING
     echo      Killing process %%a using port 5000...
     taskkill /F /PID %%a >nul 2>&1
 )
-timeout /t 2 /nobreak >nul
+timeout /t 1 /nobreak >nul
 echo      Done
 echo.
 
@@ -39,7 +41,12 @@ if exist "jdk-17.0.6\bin\java.exe" (
     echo      [WARN] Java not found, skipping relay service
 )
 cd /d "%~dp0"
-timeout /t 3 /nobreak >nul
+timeout /t 1 /nobreak >nul
+echo.
+
+echo [1.5/2] Preparing cameras (fast mode)...
+REM 快速模式：跳過複雜的進程掃描和多次測試，web_app會自動處理初始化
+echo      Cameras will be initialized by web_app
 echo.
 
 echo [2/2] Starting Detection System...
